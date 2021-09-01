@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "836520498954",
+    "project_id": "diys-3c52b",
+    "storage_bucket": "diys-3c52b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836520498954:android:ef63e75281c95da7b48cf3",
+        "android_client_info": {
+          "package_name": "com.gvm.diy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "836520498954-1ibopjobb1kanhpkrjda8s1jgc4bvr3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxzSKk5CCZVOH-ALeN314IvNUQo-sOcZ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836520498954-1ibopjobb1kanhpkrjda8s1jgc4bvr3o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
