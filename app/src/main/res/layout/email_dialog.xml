@@ -11,13 +11,25 @@
         android:id="@+id/buttonContinue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:onClick="buttonContinuar"
+        android:onClick="initSession"
         android:text="Continuar"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/divider2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/ProgressTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonExit"
@@ -26,7 +38,7 @@
         android:background="@color/fullTransparent"
         android:text="Salir"
         android:textColor="@color/white"
-        android:onClick="buttonContinuar"
+        android:onClick="initSession"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/divider2"
@@ -83,7 +95,7 @@
         android:id="@+id/textInputLayoutEmail"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="250dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_marginTop="8dp"
         android:textColor="@color/white"
         android:textColorHint="@android:color/darker_gray"
@@ -97,7 +109,7 @@
             android:id="@+id/textInputEditTextEmail"
             style="@android:style/Widget.EditText"
             android:layout_width="250dp"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="32dp"
             android:backgroundTint="#303030"
             android:ems="10"

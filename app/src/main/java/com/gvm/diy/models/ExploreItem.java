@@ -2,20 +2,20 @@ package com.gvm.diy.models;
 
 public class ExploreItem {
 
-    private String image;
+    private String file;
 
-    public ExploreItem(String image) {
-        this.image = image;
+    public ExploreItem(String file) {
+        this.file = file;
     }
 
     public ExploreItem() {
     }
 
-    public String getImage() {
-        return image;
+    public String getFile() {
+        return file;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setFile(String file) {
+        this.file = file;
     }
 }

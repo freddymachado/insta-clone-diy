@@ -11,5 +11,7 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="no_tiene_una_cuenta_registro">¿NO TIENE UNA CUENTA? REGISTRO</string>
+    <string name="no_tiene_una_cuenta_registro">¿NO TIENE UNA CUENTA? <font fgcolor="#E04AE0"> REGISTRO</font></string>
+    <string name="olvidaste_tu_contrase_a_recuperar_contrase_a">¿Olvidaste tu contraseña? <font fgcolor="#E04AE0">Recuperar Contraseña</font></string>
+    <string name="ya_tiene_una_cuenta_inicie_sesi_n">¿Ya tiene una cuenta?<font fgcolor="#E04AE0">  Inicie sesión</font></string>
 </resources>

@@ -1,5 +1,7 @@
 package com.gvm.diy.fragments;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,10 +12,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.gvm.diy.adapter.ExploreAdapter;
+import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.models.ExploreItem;
 import com.gvm.diy.R;
+import com.gvm.diy.models.Post;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,9 +36,9 @@ import java.util.List;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class SearchFragment extends Fragment {
 
@@ -36,9 +46,12 @@ public class SearchFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG ="SearchFragment";
 
+    private static final String URL_POSTS = "https://diys.co/punto.php";
 
     private RecyclerView recycler_view;
+    private EditText editTextSearch;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -58,28 +71,29 @@ public class SearchFragment extends Fragment {
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_search, container, false);
         recycler_view = itemView.findViewById(R.id.recycler_view);
+        editTextSearch = itemView.findViewById(R.id.editTextSearch);
         recycler_view.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         );
 
         List<ExploreItem> exploreItems = new ArrayList<>();
-
+/*
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("server_key","1539874186")
-                .addFormDataPart("username","temi.abi111@gmail.com")
-                .addFormDataPart("password","erisport")/*
-                .addFormDataPart("access_token","1d1ae6d02edb7d9ef2dbc305b184eb2e08518d251579769480857c0547956829822027d585cce3e5bd")
+                .addFormDataPart("access_token",getAccessToken())
+                .addFormDataPart("password",getPass())
+                .addFormDataPart("username",getUsername())
                 .addFormDataPart("offset","633")
                 .addFormDataPart("limit","2")
                 .addFormDataPart("v","1")
                 .addFormDataPart("resource","post")
-                .addFormDataPart("resource_id","fetch_home_posts")*/
+                .addFormDataPart("resource_id","fetch_home_posts")
                 .build();
         Request request = new Request.Builder()
-                .url("https://diys.co/endpoints/v1/auth/login")
+                .url("https://diys.co/endpoints/v1/post/fetch_explore")
                 .method("POST",body)
                 .build();
 
@@ -88,13 +102,13 @@ public class SearchFragment extends Fragment {
             public void run() {
                 try {
                     Response response = client.newCall(request).execute();
-                    Log.d("ApiResponse", response.body().string());
-
-                    JSONArray array = new JSONArray(response);
-                    //TODO: Meter el json con los resultados de la API en la lista exploreItems
+                    JSONObject json = new JSONObject(response.body().string());
+                    Log.d(TAG, String.valueOf(json));
+                    Log.d(TAG, response.body().string());
+                    JSONArray array = new JSONArray(response.body().string());
 
                     for (int i = 0; i < array.length(); i++) {
-                        JSONObject post = array.getJSONObject(i);
+                        JSONObject post = array.getJSONObject(2).getJSONObject();
 
                         exploreItems.add(new ExploreItem(
                                 post.getString("image")
@@ -108,7 +122,142 @@ public class SearchFragment extends Fragment {
 
             }
         });
-        thread.start();
+        thread.start();*/
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
+                new com.android.volley.Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray array = new JSONArray(response);
+                            Log.d("ApiResponse", response);
+
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject post = array.getJSONObject(i);
+
+                                exploreItems.add(new ExploreItem(
+                                        post.getString("file")
+                                ));
+                            }
+                            ExploreAdapter adapter = new ExploreAdapter(getContext(), exploreItems);
+                            recycler_view.setAdapter(adapter);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ApiResponse", String.valueOf(error));
+
+            }
+        });
+
+        Volley.newRequestQueue(getContext()).add(stringRequest);
+
+        editTextSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recycler_view.setVisibility(View.GONE);
+            }
+        });
         return itemView;
     }
+    private String getAccessToken() {
+        //Declaro el SharedPreferences
+        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        return pref.getString("access_token","");
+    }
+    private String getUsername() {
+        //Declaro el SharedPreferences
+        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        return pref.getString("username","");
+    }
+    private String getPass() {
+        //Declaro el SharedPreferences
+        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        return pref.getString("password","");
+    }
+/*
+D/SearchFragment: {"code":"200","status":"OK","data":[{
+                                                  "post_id":1413,
+                                                  "post_key":"",
+                                                  "user_id":3,
+                                                  "description":"⁣ ¿Cuánto metros en tela se necesitan para hacer juego de sábanas? Tela: para  cama infividual: 3,75 metros de tela de 2,40 de ancho.  Tela: para  cama matrimonial: 5 metros de tela de 2,40 de ancho. 1 metro cinta elástica delgada.  #sabanas #costura #moldesderopa #confeccion",
+                                                  "link":"",
+                                                  "thumbnail":"",
+                                                  "video_location":null,
+                                                  "youtube":"",
+                                                  "vimeo":"",
+                                                  "dailymotion":"",
+                                                  "playtube":"",
+                                                  "mp4":null,
+                                                  "time":"1630417398",
+                                                  "type":"image",
+                                                  "registered":"2021\/8",
+                                                  "views":0,"boosted":0,
+                                                  "stream_name":"",
+                                                  "live_time":0,
+                                                  "agora_resource_id":null,
+                                                  "agora_sid":null,
+                                                  "live_ended":0,
+                                                  "avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/04\/ybe6SmBOxEFRNCYo77cY5IgXFpC19pmzbn9yjm5E4E87mmi58n_20_05aa82c747723cb193dd9cbd95a70656_image.jpg",
+                                                  "username":"PatronesGratisdeCostura",
+                                                  "likes":0,
+                                                  "votes":0,
+                                                  "media_set":[{
+                                                    "id":693,
+                                                    "post_id":1413,
+                                                    "user_id":3,
+                                                    "file":"https:\/\/diys.co\/media\/upload\/photos\/2021\/08\/brOkvVzREdDGUUzSV52e891FaEDcikMhee3HWURALdTAXFWYEu_31_ca00adb82ffabea6f341197e61912ed0_image.jpg",
+                                                    "extra":"moldes de sabanas.jpg"}],
+                                                  "comments":[],
+                                                  "is_owner":false,
+                                                  "is_liked":false,
+                                                  "is_saved":false,
+                                                  "reported":false
+                                                  ,"user_data":{
+                                                    "user_id":3,
+                                                    "username":"PatronesGratisdeCostura",
+                                                    "email":"angelica@gmail.com",
+                                                    "ip_address":"186.54.34.0",
+                                                    "password":"$2y$10$ifyY\/n2nQx6DJsZtBgBJaOHg01kmx9mFQkZF0zT87EeLytNrtOSDm",
+                                                    "fname":"Patrones",
+                                                    "lname":"Gratis",
+                                                    "gender":"female",
+                                                    "email_code":"",
+                                                    "language":"spanish",
+                                                    "avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/04\/ybe6SmBOxEFRNCYo77cY5IgXFpC19pmzbn9yjm5E4E87mmi58n_20_05aa82c747723cb193dd9cbd95a70656_image.jpg",
+                                                    "cover":"media\/img\/d-cover.jpg",
+                                                    "country_id":12,
+                                                    "about":"Patrones Gratis de Costura Para modistas y costureras.",
+                                                    "google":"",
+                                                    "facebook":"",
+                                                    "twitter":"",
+                                                    "website":"https:\/\/mimundodemoda.com\/","active":1,"admin":0,"verified":0,
+                                                    "last_seen":"1630420177",
+                                                    "registered":"2021\/1","is_pro":0,"posts":0,"p_privacy":"2"
+                                                    ,"c_privacy":"1","n_on_like":"1","n_on_mention":"1","n_on_comment":"1",
+                                                    "n_on_follow":"1","n_on_comment_like":"1","n_on_comment_reply":"1","startup_avatar":1,
+                                                    "startup_info":1,"startup_follow":1,"src":"","login_token":"","search_engines":"1",
+                                                    "mode":"day","device_id":"15eb31cc-e880-4efe-ac36-9a173ae6b7e4","balance":"0",
+                                                    "wallet":"0.00","conversation_id":"","referrer":0,"profile":1,"business_account":0,
+                                                    "paypal_email":"","b_name":"","b_email":"","b_phone":"","b_site":"","b_site_action":"",
+                                                    "uploads":0,"address":"","city":"","state":"","zip":0,"phone_number":"","name":"Patrones Gratis",
+                                                    "uname":"PatronesGratisdeCostura","url":"https:\/\/diys.co\/PatronesGratisdeCostura",
+                                                    "edit":"https:\/\/diys.co\/settings\/general\/PatronesGratisdeCostura","followers":false,"following":false,"favourites":0,"posts_count":31},
+                                                    "is_verified":0,"is_should_hide":false,"name":"Patrones Gratis","time_text":"6 dias hace"}
+                                                    ,{
+                                                    "post_id":1399,
+                                                    "post_key":"",
+                                                    "user_id":897,
+                                                    "description":"#ara",
+                                                    "link":"","thumbnail":"","video_location":null,"youtube":"","vimeo":"","dailymotion":"","playtube":"","mp4":null,
+                                                    "time":"1622506644","type":"image","registered":"2021\/6","views":0,"boosted":0,"stream_name":"",
+                                                    "live_time":0,"agora_resource_id":null,"agora_sid":null,"live_ended":0,
+                                                    "avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/06\/8PLNhW7R3oGET9mqeFYpEAUFw1JgMrp78CYJpTEfguGbFGGOG1_01_b291e5922d5f053973f397776e675462_image.jpg",
+                                                    "username":"AraceliBriseñoValdez","likes":0,"votes":0,
+                                                    "media_set":[{"id":682,"post_id":1399,"user_id":897,"file":"https:\/\/diys.co\/media\/upload\/photos\/2021\/06\/9H1MfgBtH1GUzcmh4iuBHOdazx5ueATMLvxJQ281BCLz9UwQ3y_01_f04658c94e7873f85f6eafb212aba95a_image.jpg","extra":"inbound5983883970020459664.jpg"}],"comments":[],"is_owner":false,"is_liked":false,"is_saved":false,"reported":false,"user_data":{"user_id":897,"username":"AraceliBriseñoValdez","email":"ara_22azul@hotmail.com","ip_address":"","password":"$2y$10$2M25IpXP7KTWGr\/nFXjQx.eZASL7oprJAWm86vmxpnZVg7B1AVVDW","fname":"Araceli","lname":"Briseño Valdez","gender":"male","email_code":"ec6b92e85828b424a2a3e86ca27110f9d08f2
+*/
 }

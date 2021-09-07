@@ -6,10 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -32,7 +34,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -43,7 +48,7 @@ import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 100;
-    //TODO: Perfeccionar diseño del layout
+    //TODO: Logo fb
 
     FirebaseAuth firebaseAuth;
     FirebaseAuth.AuthStateListener authStateListener;
@@ -51,8 +56,7 @@ public class LoginActivity extends AppCompatActivity {
     TextInputLayout textInputLayoutPass, textInputLayoutUser;
     TextInputEditText textInputEditTextPass, textInputEditTextUser, textInputEditTextEmail;
 
-    Boolean error = false;
-
+    ProgressBar progressBar, progressBarD;
 
     private FirebaseAuth mAuth;
 
@@ -73,35 +77,21 @@ public class LoginActivity extends AppCompatActivity {
         textInputEditTextPass = findViewById(R.id.textInputEditTextPass);
         textInputEditTextUser = findViewById(R.id.textInputEditTextUser);
 
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+
         dialog = new Dialog(LoginActivity.this);
         dialog.setContentView(R.layout.email_dialog);
         dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.bg_round));
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         textInputEditTextEmail = dialog.findViewById(R.id.textInputEditTextEmail);
+        progressBarD = dialog.findViewById(R.id.progressBar);
 
         mAuth = FirebaseAuth.getInstance();
 
         //Debug:
         textInputEditTextUser.setText("example_");
         textInputEditTextPass.setText("12345678");
-/*
-        firebaseAuth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                if(user != null){
-                    Toast.makeText(LoginActivity.this, "Inicio de sesión correcto", Toast.LENGTH_SHORT).show();
-                }else{
-                    startActivityForResult(AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(provider)
-                    .setIsSmartLockEnabled(false)
-                    .build(),REQUEST_CODE);
-                }
-            }
-        };*/
     }
 
 
@@ -110,10 +100,28 @@ public class LoginActivity extends AppCompatActivity {
         MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body;
         Request request;
-        Thread thread;
+        Thread thread;/*
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+                timer.cancel();
+            }
+        };
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(runnable);
+            }
+        },10000,1000);*/
+
         switch (view.getId()) {
 
             case R.id.buttonLogIn:
+                progressBar.setVisibility(View.VISIBLE);
                 body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                         .addFormDataPart("username", String.valueOf(textInputEditTextUser.getText()))
                         .addFormDataPart("password", String.valueOf(textInputEditTextPass.getText()))
@@ -144,12 +152,12 @@ public class LoginActivity extends AppCompatActivity {
                                 token = json.getJSONObject("data");
                                 access_token =token.getString("access_token");
                                 user_id =token.getString("user_id");
-                                goMain(user_id,access_token);
+                                goMain(user_id,access_token,String.valueOf(textInputEditTextUser.getText()),String.valueOf(textInputEditTextPass.getText()));
                             }else{
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        //TODO: Probar setError
+                                        progressBar.setVisibility(View.GONE);
                                         Toast.makeText(getApplicationContext(), "Nombre de usuario o contraseña inválida", Toast.LENGTH_SHORT).show();
                                         textInputEditTextUser.setText("");
                                         textInputEditTextPass.setText("");
@@ -160,6 +168,13 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         } catch (IOException | JSONException e) {
                             e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo", Toast.LENGTH_LONG).show();
+                                }
+                            });
                         }
                     }
                 });
@@ -167,15 +182,10 @@ public class LoginActivity extends AppCompatActivity {
                 break;
 
             case R.id.buttonContinue:
+                progressBarD.setVisibility(View.VISIBLE);
                  body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key","473298749")
-                        .addFormDataPart("email",String.valueOf(textInputEditTextEmail.getText()))/*
-                .addFormDataPart("access_token","1d1ae6d02edb7d9ef2dbc305b184eb2e08518d251579769480857c0547956829822027d585cce3e5bd")
-                .addFormDataPart("offset","633")
-                .addFormDataPart("limit","2")
-                .addFormDataPart("v","1")
-                .addFormDataPart("resource","post")
-                .addFormDataPart("resource_id","fetch_home_posts")*/
+                        .addFormDataPart("server_key","1539874186")
+                        .addFormDataPart("email",String.valueOf(textInputEditTextEmail.getText()))
                         .build();
                 request = new Request.Builder()
                         .url("https://diys.co/endpoints/v1/auth/forget")
@@ -187,10 +197,36 @@ public class LoginActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             Response response = client.newCall(request).execute();
-                            //TODO: Probar funcionamiento para ver con qué proceder
-                            Log.d(TAG, response.body().string());
-                        } catch (IOException e) {
+                            JSONObject json = new JSONObject(response.body().string());
+                            Log.d(TAG, String.valueOf(json));
+                            if(json.getString("code").equals("200")){
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBarD.setVisibility(View.GONE);
+                                        Toast.makeText(getApplicationContext(), "Hemos enviado un correo de recuperación a "+textInputEditTextEmail.getText(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }else{
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBarD.setVisibility(View.GONE);
+                                        Toast.makeText(getApplicationContext(), "Correo no registrado", Toast.LENGTH_LONG).show();
+                                        textInputEditTextEmail.setText("");
+                                        textInputEditTextEmail.setError("Ingresa tu correo nuevamente");
+                                    }
+                                });
+                            }
+                        } catch (IOException | JSONException e) {
                             e.printStackTrace();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBarD.setVisibility(View.GONE);
+                                    Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo", Toast.LENGTH_LONG).show();
+                                }
+                            });
                         }
 
                     }
@@ -204,18 +240,14 @@ public class LoginActivity extends AppCompatActivity {
                 break;
 
             case R.id.buttonFb:
-                //TODO: Probar inicio con fb
+                //TODO: Tal parece que hay que hacerle una configuración específica para este paquete, por lo tanto la API no funciona en este caso (segunda entrega)
+                // "error_text":"please check your details"  "error_text":"Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons."}}
+
+                Toast.makeText(getApplicationContext(), "In progress", Toast.LENGTH_LONG).show();
+                /*progressBar.setVisibility(View.VISIBLE);
                 body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key","473298749")
+                        .addFormDataPart("server_key","1539874186")
                         .addFormDataPart("provider","facebook")
-                        .addFormDataPart("access_token","EAADj0LiNiWoBAGkWJcpzljnOkaRFRivLAyrZCMnZCXWz1evjHnUVg7gYCZC0YCuuEswsJWkZCA9N6p2ZCRvGxfd210eQDW19t0VS90kY5OB17F1RRYJrc7tQzn2jnAGEKLdZCeDVIn13JCuz3IZB6m9yJHNSUnjENt3rSIZBZC5CgrbiBEz5N7B00Rwy1wC083PfPppeBYa9clbPZAUrSzw5nUZAv65c0glmrA4wqgtTcZBZApAZDZD")
-                        /*
-                      .addFormDataPart("access_token","1d1ae6d02edb7d9ef2dbc305b184eb2e08518d251579769480857c0547956829822027d585cce3e5bd")
-                      .addFormDataPart("offset","633")
-                      .addFormDataPart("limit","2")
-                      .addFormDataPart("v","1")
-                      .addFormDataPart("resource","post")
-                      .addFormDataPart("resource_id","fetch_home_posts");*/
                         .build();
                 request = new Request.Builder()
                         .url("https://diys.co/endpoints/v1/auth/social_login")
@@ -228,13 +260,14 @@ public class LoginActivity extends AppCompatActivity {
                         try {
                             Response response = client.newCall(request).execute();
                             Log.d(TAG, response.body().string());
+                            progressBar.setVisibility(View.GONE);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
                     }
                 });
-                thread.start();
+                thread.start();*/
 
                 break;
 
@@ -243,9 +276,8 @@ public class LoginActivity extends AppCompatActivity {
                 break;
 
             case R.id.buttonGoogle:
-                //TODO: Probar inicio con google
-
                 // Configure Google Sign In
+                progressBar.setVisibility(View.VISIBLE);
                 GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(getString(R.string.default_web_client_id))
                         .requestEmail()
@@ -259,16 +291,12 @@ public class LoginActivity extends AppCompatActivity {
                 break;
 
             case R.id.textViewRegister:
-                Intent intentRegister = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intentRegister);
-                finish();
+                Toast.makeText(LoginActivity.this, "In progress...", Toast.LENGTH_SHORT).show();
                 break;
 
             default:
                 break;
         }
-
-
 
     }
 
@@ -301,7 +329,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            register(user.getEmail(),user.getDisplayName(),user.getUid());
+                            register(user.getEmail(),user.getUid().substring(0,8),user.getUid());
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -311,25 +339,16 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void setError() {
-    }
-
     private void register(String email, String user, String password){
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("server_key","473298749")
+                .addFormDataPart("server_key","1539874186")
                 .addFormDataPart("username",user)
                 .addFormDataPart("password",password)
                 .addFormDataPart("conf_password",password)
-                .addFormDataPart("email",email)/*
-                .addFormDataPart("access_token","1d1ae6d02edb7d9ef2dbc305b184eb2e08518d251579769480857c0547956829822027d585cce3e5bd")
-                .addFormDataPart("offset","633")
-                .addFormDataPart("limit","2")
-                .addFormDataPart("v","1")
-                .addFormDataPart("resource","post")
-                .addFormDataPart("resource_id","fetch_home_posts")*/
+                .addFormDataPart("email",email)
                 .build();
         Request request = new Request.Builder()
                 .url("https://diys.co/endpoints/v1/auth/register")
@@ -341,25 +360,36 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try {
                     Response response = client.newCall(request).execute();
-                    Log.d(TAG, response.body().string());
-                    JSONObject json = new JSONObject(response.body().string());
+                    //Log.d(TAG, response.body().string());
+                    JSONObject json = new JSONObject(response.body().string());//
+                     Log.d(TAG, String.valueOf(json));
                     if(json.getString("code").equals("200")){
                         token = json.getJSONObject("data");
                         access_token =token.getString("access_token");
                         user_id =token.getString("user_id");
-                        goMain(user_id,access_token);
-                    }else{/*
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
+                        goMain(user_id,access_token, user, password);
+                    }else if (json.getJSONObject("errors").getString("error_id").equals("6")) {
+                        logIn(user,password);
+                    }else {
+                            String error = json.getJSONObject("errors").getString("error_text");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
 
-                                    }
-                                });*/
-                        //TODO: Probar setError
-                        setError();
                     }
                 } catch (IOException | JSONException e) {
                     e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), "Registro no exitoso", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
             }
@@ -367,11 +397,79 @@ public class LoginActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private void goMain(String user_id, String access_token) {
+    public void logIn(String user, String password) {
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body;
+        Request request;
+        Thread thread;
+        progressBar.setVisibility(View.VISIBLE);
+        body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("username", user)
+                .addFormDataPart("password", password)
+                .addFormDataPart("server_key","1539874186")
+                .build();
+        request = new Request.Builder()
+                .url("https://diys.co/endpoints/v1/auth/login")
+                .method("POST",body)
+                .build();
+/*
+                D/ApiResponse: string(3) "off"
+                array(2) {
+                  ["user_id"]=>
+                  int(1476)
+                  ["access_token"]=>
+                  string(82) "21119437edc7bff5a1b971a7940fcb1485fd90d116302538852a9745cf6dff8b3e14262cb2a40ba0a7"
+                }
+                {"code":"200","status":"OK","data":{"user_id":1476,"access_token":"21119437edc7bff5a1b971a7940fcb1485fd90d116302538852a9745cf6dff8b3e14262cb2a40ba0a7","message":"You have successfully joined"}}
+*/
+        thread = new Thread(new Runnable() {
+            public void run() {
+                Looper.prepare();
+                try {
+                    Response response = client.newCall(request).execute();
+                    JSONObject json = new JSONObject(response.body().string());
+                    Log.d(TAG, String.valueOf(json));
+                    if(json.getString("code").equals("200")){
+                        token = json.getJSONObject("data");
+                        access_token =token.getString("access_token");
+                        user_id =token.getString("user_id");
+                        goMain(user_id,access_token,user,password);
+                    }else{
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getApplicationContext(), "Nombre de usuario o contraseña inválida", Toast.LENGTH_SHORT).show();
+                                textInputEditTextUser.setText("");
+                                textInputEditTextPass.setText("");
+                                textInputLayoutUser.setError("Ingresa tu nombre de usuario nuevamente");
+                                textInputLayoutPass.setError("Ingresa tu contraseña nuevamente");
+                            }
+                        });
+                    }
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        thread.start();
+    }
+
+    public void goMain(String user_id, String access_token, String username, String pass) {
         Toast.makeText(LoginActivity.this, "Sesión iniciada", Toast.LENGTH_SHORT).show();
         Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
         intentMain.putExtra("access_token", access_token);
         intentMain.putExtra("user_id", user_id);
+        intentMain.putExtra("username", username);
+        intentMain.putExtra("password", pass);
         startActivity(intentMain);
         finish();
     }

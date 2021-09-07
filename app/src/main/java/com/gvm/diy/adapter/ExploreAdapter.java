@@ -68,7 +68,7 @@ public class ExploreAdapter extends RecyclerView.Adapter<ExploreAdapter.ExploreV
         void setExploreImageView(ExploreItem exploreItem){
 
             try{
-                Glide.with(mContext).load("https://diys.co/"+exploreItem.getImage())
+                Glide.with(mContext).load("https://diys.co/"+exploreItem.getFile())
                         .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                         .into(exploreImageView);
             }catch (Exception e){

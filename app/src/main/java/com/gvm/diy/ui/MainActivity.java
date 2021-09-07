@@ -1,14 +1,25 @@
 package com.gvm.diy.ui;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,16 +29,29 @@ import com.gvm.diy.fragments.HomeFragment;
 import com.gvm.diy.fragments.ProfileFragment;
 import com.gvm.diy.fragments.SearchFragment;
 import com.gvm.diy.fragments.UploadFragment;
+import com.gvm.diy.models.CountingRequestBody;
 import com.gvm.diy.models.Post;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.luseen.spacenavigation.SpaceItem;
 import com.luseen.spacenavigation.SpaceNavigationView;
 import com.luseen.spacenavigation.SpaceOnClickListener;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -42,7 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
     List<Post> postList;
 
+    ImageView imageViewPhoto, imageViewVideo;
+
     RecyclerView recyclerView;
+
+    private static final int PHOTO_SENT = 1;
+
+    Uri uri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +84,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String access_token = intent.getStringExtra("access_token");
         String user_id = intent.getStringExtra("user_id");
+        String username = intent.getStringExtra("username");
+        String password = intent.getStringExtra("password");
 
+        savePrefsData(access_token, username, password);
 
         SpaceNavigationView spaceNavigationView = findViewById(R.id.bottomNavigation);
         spaceNavigationView.initWithSaveInstanceState(savedInstanceState);
@@ -62,34 +96,42 @@ public class MainActivity extends AppCompatActivity {
         spaceNavigationView.addSpaceItem(new SpaceItem("", R.drawable.ic_baseline_chat_24));
         spaceNavigationView.addSpaceItem(new SpaceItem("", R.drawable.ic_baseline_person_24));
 
-        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
-        SubActionButton button1 = itemBuilder.build();
+        int buttonSize = getResources().getDimensionPixelSize(R.dimen.action_button_size);
 
-        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).addSubActionView(button1).attachTo(spaceNavigationView).build();
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+
+        imageViewPhoto = new ImageView(this);
+        imageViewPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_photo_alternate_24));
+
+        SubActionButton buttonUploadPhoto = itemBuilder.setContentView(imageViewPhoto).setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_round)).build();
+
+        imageViewVideo = new ImageView(this);
+        imageViewVideo.setImageDrawable(getDrawable(R.drawable.ic_baseline_videocam_24));
+
+        SubActionButton buttonUploadVideo = itemBuilder.setBackgroundDrawable(getDrawable(R.drawable.bg_round)).setContentView(imageViewVideo).build();
+
+        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).setStartAngle(-45).setEndAngle(-135).addSubActionView(buttonUploadPhoto)
+                .setRadius(getResources().getDimensionPixelSize(R.dimen.action_button_size))
+                .addSubActionView(buttonUploadVideo).attachTo(spaceNavigationView).build();
 
         //add default fragment - HOME Fragment
         getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,new HomeFragment()).commit();
 
-        button1.setOnClickListener(new View.OnClickListener() {
+        buttonUploadPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+/*
                 OkHttpClient client = new OkHttpClient().newBuilder().build();
 
                 MediaType mediaType = MediaType.parse("text/plain");
                 RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key","473298749")
+                        .addFormDataPart("server_key","1539874186")
                         .addFormDataPart("access_token",access_token)
                         .addFormDataPart("images","12345678")
-                        .addFormDataPart("caption","12345678")/*
-                .addFormDataPart("access_token","1d1ae6d02edb7d9ef2dbc305b184eb2e08518d251579769480857c0547956829822027d585cce3e5bd")
-                .addFormDataPart("offset","633")
-                .addFormDataPart("limit","2")
-                .addFormDataPart("v","1")
-                .addFormDataPart("resource","post")
-                .addFormDataPart("resource_id","fetch_home_posts")*/
+                        .addFormDataPart("caption","12345678")
                         .build();
                 Request request = new Request.Builder()
-                        .url("https://diys.co/endpoints/v1/auth/register")
+                        .url("https://diys.co/endpoints/v1/post/new_post")
                         .method("POST",body)
                         .build();
 
@@ -105,7 +147,18 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-                thread.start();
+                thread.start();*/
+                performFileSearch();
+                actionMenu.toggle(true);
+
+
+            }
+        });
+        buttonUploadVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performFileSearch();
+                actionMenu.toggle(true);
 
             }
         });
@@ -114,10 +167,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCentreButtonClick() {
                 spaceNavigationView.setCentreButtonSelectable(true);
-                //TODO: Probar que se abre el actionMenu, si no, probar con toggle y si no, hacer el bottomBar manualmente.
-                actionMenu.open(true);
+                //TODO: Probar actionMenu (Agrandar y colocar iconos).
+                actionMenu.toggle(true);
                 setFragment(new UploadFragment());
-                Toast.makeText(MainActivity.this,"onCentreButtonClick", Toast.LENGTH_SHORT).show();
+                Dexter.withActivity(MainActivity.this)
+                        .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .withListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted(PermissionGrantedResponse response) {
+
+                            }
+
+                            @Override
+                            public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+
+                            }
+                        }).check();
             }
 
             @Override
@@ -147,9 +217,153 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void performFileSearch() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("image/jpeg");
+        i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
+        startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
+    }
+
+    private void savePrefsData(String access_token, String username, String password) {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("access_token",access_token);
+        editor.putString("username",username);
+        editor.putString("password",password);
+        editor.apply();
+        Log.d("prefsSaved",access_token+username+password);
+    }
+
+
     private void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragmentContainer,fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PHOTO_SENT && resultCode == RESULT_OK){
+            uri = null;
+            if (data != null){
+                uri = data.getData();
+                Log.i(TAG,"Uri: "+uri.toString());
+                uploadImage();
+
+            }
+        }
+
+    }
+
+    private void uploadImage() {
+        if (uri == null){
+            return;
+        }
+        final File imageFile = new File(uriToFileName(uri));
+        Uri uris = Uri.fromFile(imageFile);
+        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+        String imageName = imageFile.getName();
+
+        Log.e(TAG,imageFile.getName()+" "+mime+" "+uriToFileName(uri));
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("images",imageName,
+                        RequestBody.create(imageFile,MediaType.parse(mime)))
+                .build();
+
+        final CountingRequestBody.Listener progressListener = new CountingRequestBody.Listener() {
+            @Override
+            public void onRequestProgress(long bytesRead, long contentLength) {
+                if (bytesRead >= contentLength) {
+                    if (progressBar != null)
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                } else {
+                    if (contentLength > 0) {
+                        final int progress = (int) (((double) bytesRead / contentLength) * 100);
+                        if (progressBar != null)
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    progressBar.setVisibility(View.VISIBLE);
+                                    progressBar.setProgress(progress);
+                                }
+                            });
+
+                        if(progress >= 100){
+                            progressBar.setVisibility(View.GONE);
+                        }
+                        Log.e("uploadProgress called", progress+" ");
+                    }
+                }
+            }
+        };
+
+        OkHttpClient imageUploadClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request originalRequest = chain.request();
+
+                        if (originalRequest.body() == null) {
+                            return chain.proceed(originalRequest);
+                        }
+                        Request progressRequest = originalRequest.newBuilder()
+                                .method(originalRequest.method(),
+                                        new CountingRequestBody(originalRequest.body(), progressListener))
+                                .build();
+
+                        return chain.proceed(progressRequest);
+
+                    }
+                })
+                .build();
+        Request request = new Request.Builder()
+                .url("Your_Upload_url")
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .post(requestBody)
+                .build();
+
+
+        imageUploadClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                String mMessage = e.getMessage().toString();
+                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                Log.e("failure Response", mMessage);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String mMessage = response.body().string();
+
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e(TAG, mMessage);
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+        });
+
+    }
+
+    private  String uriToFileName(Uri uri){
+        String path = null;
+        path = getFilePath(MainActivity.this, uri);
+        return path;
+    }
+
+    public String getFilePath(Context context, Uri uri) {
+        Log.e("uri",uri.getPath());
+        String filePath = "";
+        filePath = uri.getPath();
+        return filePath;
     }
 }
