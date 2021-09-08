@@ -1,6 +1,7 @@
 package com.gvm.diy.ui;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,7 +12,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +65,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "Uploading..";
     TextView textViewHello;
 
     List<Post> postList;
@@ -70,7 +74,11 @@ public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
 
-    private static final int PHOTO_SENT = 1;
+    ProgressBar progressBar;
+
+    String access_token,username, password, server_key = "1539874186";
+
+    private static final int PHOTO_SENT = 24;
 
     Uri uri;
 
@@ -82,12 +90,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        String access_token = intent.getStringExtra("access_token");
+        access_token = intent.getStringExtra("access_token");
         String user_id = intent.getStringExtra("user_id");
-        String username = intent.getStringExtra("username");
-        String password = intent.getStringExtra("password");
+        username = intent.getStringExtra("username");
+        password = intent.getStringExtra("password");
 
         savePrefsData(access_token, username, password);
+
+        progressBar = findViewById(R.id.progressBar);
 
         SpaceNavigationView spaceNavigationView = findViewById(R.id.bottomNavigation);
         spaceNavigationView.initWithSaveInstanceState(savedInstanceState);
@@ -110,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         SubActionButton buttonUploadVideo = itemBuilder.setBackgroundDrawable(getDrawable(R.drawable.bg_round)).setContentView(imageViewVideo).build();
 
-        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).setStartAngle(-45).setEndAngle(-135).addSubActionView(buttonUploadPhoto)
+        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).setStartAngle(-45).setEndAngle(-165).addSubActionView(buttonUploadPhoto)
                 .setRadius(getResources().getDimensionPixelSize(R.dimen.action_button_size))
                 .addSubActionView(buttonUploadVideo).attachTo(spaceNavigationView).build();
 
@@ -164,14 +174,32 @@ public class MainActivity extends AppCompatActivity {
         });
 
         spaceNavigationView.setSpaceOnClickListener(new SpaceOnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.Q)
             @Override
             public void onCentreButtonClick() {
                 spaceNavigationView.setCentreButtonSelectable(true);
-                //TODO: Probar actionMenu (Agrandar y colocar iconos).
                 actionMenu.toggle(true);
                 setFragment(new UploadFragment());
                 Dexter.withActivity(MainActivity.this)
                         .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .withListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted(PermissionGrantedResponse response) {
+
+                            }
+
+                            @Override
+                            public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+
+                            }
+                        }).check();
+                Dexter.withActivity(MainActivity.this)
+                        .withPermission(Manifest.permission.ACCESS_MEDIA_LOCATION)
                         .withListener(new PermissionListener() {
                             @Override
                             public void onPermissionGranted(PermissionGrantedResponse response) {
@@ -218,8 +246,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void performFileSearch() {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-        i.setType("image/jpeg");
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("image/*");
         i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
     }
@@ -251,6 +280,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG,"Uri: "+uri.toString());
                 uploadImage();
 
+            }else{
+                Log.i(TAG,"CHimbo");
+
             }
         }
 
@@ -258,18 +290,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void uploadImage() {
         if (uri == null){
+            Log.i(TAG,uriToFileName(uri));
             return;
         }
+
         final File imageFile = new File(uriToFileName(uri));
         Uri uris = Uri.fromFile(imageFile);
         String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
         String imageName = imageFile.getName();
 
-        Log.e(TAG,imageFile.getName()+" "+mime+" "+uriToFileName(uri));
+        Log.i(TAG,imageFile.getName()+" "+mime+" "+uriToFileName(uri));
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("images",imageName,
+                .addFormDataPart("server_key",server_key)
+                .addFormDataPart("caption","prueba1")
+                .addFormDataPart("access_token",access_token)
+                .addFormDataPart("images[]",imageName,
                         RequestBody.create(imageFile,MediaType.parse(mime)))
                 .build();
 
@@ -322,10 +359,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
+        //TODO: Subir Videos y mejorar UI
         Request request = new Request.Builder()
-                .url("Your_Upload_url")
+                .url("https://diys.co/endpoints/v1/post/new_post")/*
                 .header("Accept", "application/json")
-                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json")*/
                 .post(requestBody)
                 .build();
 
@@ -345,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e(TAG, mMessage);
+                        Log.e("UploadResponse", mMessage);
                         progressBar.setVisibility(View.GONE);
                     }
                 });
@@ -361,9 +399,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getFilePath(Context context, Uri uri) {
-        Log.e("uri",uri.getPath());
+        //Log.e("uri", uri.getPath());
         String filePath = "";
-        filePath = uri.getPath();
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            String wholeID = DocumentsContract.getDocumentId(uri);
+            //Log.e("wholeID", wholeID);
+            // Split at colon, use second item in the array
+            String[] splits = wholeID.split(":");
+            if (splits.length == 2) {
+                String id = splits[1];
+
+                String[] column = {MediaStore.Images.Media.DATA};
+                // where id is equal to
+                String sel = MediaStore.Images.Media._ID + "=?";
+                Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        column, sel, new String[]{id}, null);
+                int columnIndex = cursor.getColumnIndex(column[0]);
+                if (cursor.moveToFirst()) {
+                    filePath = cursor.getString(columnIndex);
+                }
+                cursor.close();
+            }
+        } else {
+            filePath = uri.getPath();
+        }
         return filePath;
     }
 }
