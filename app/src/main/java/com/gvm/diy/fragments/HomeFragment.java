@@ -1,5 +1,6 @@
 package com.gvm.diy.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,44 +11,51 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.Post;
+import com.gvm.diy.models.ProfileItem;
+import com.gvm.diy.ui.MainActivity;
+import com.gvm.diy.ui.PostViewerActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class HomeFragment extends Fragment {
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+public class HomeFragment extends Fragment{
+    //TODO: set onClickListener to make conections, go to other activities, open description or toggle the menu bar
+    //TODO: Keep user logged in
 
     private static final String URL_POSTS = "https://diys.co/punto.php";
 
     private RecyclerView recycler_view;
     private List<Post> postList;
 
+    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
+
     public HomeFragment() {
         // Required empty public constructor
-    }
-
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -69,6 +77,13 @@ public class HomeFragment extends Fragment {
 
         postList = new ArrayList<>();
 
+
+        // Get the Intent that started this activity and extract the string
+        Intent intent = getActivity().getIntent();
+        access_token = intent.getStringExtra("access_token");
+
+        /*
+
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
                 new Response.Listener<String>() {
                     @Override
@@ -89,7 +104,9 @@ public class HomeFragment extends Fragment {
                                         post.getString("comments")
                                 ));
                             }
-                            PostAdapter adapter = new PostAdapter(getContext(), postList);
+                            PostAdapter adapter = new PostAdapter(getContext(),
+                                    postList,
+                                    getActivity().getIntent().getStringExtra("access_token"));
                             recycler_view.setAdapter(adapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -104,12 +121,120 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        Volley.newRequestQueue(getContext()).add(stringRequest);
+        Volley.newRequestQueue(getContext()).add(stringRequest);*/
 
+        //Iniciamos la solicitud para obtener los datos del usuario
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("server_key",server_key)
+                .addFormDataPart("access_token",access_token)
+                .build();
+
+        okhttp3.Request UserPostsRequest = new Request.Builder()
+                .url("https://diys.co/endpoints/v1/post/fetch_home_posts")
+                .post(requestBody)
+                .build();
+
+        client.newCall(UserPostsRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                String mMessage = e.getMessage().toString();
+                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                Log.e("failure Response", mMessage);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String mMessage = response.body().string();
+                //TODO: Verificar respuesta para ver cómo obtener la data
+                Log.e("ApiResponse", mMessage);
+                JSONObject array = null;
+                try {
+                    array = new JSONObject(mMessage);
+                    JSONObject data = array.getJSONObject("data");
+
+                    JSONArray userPosts = data.getJSONArray("user_posts");
+
+                    for (int i = 0; i < userPosts.length(); i++) {
+                        JSONObject post = userPosts.getJSONObject(i);
+
+                        postList.add(new Post(
+                                post.getString("description"),
+                                post.getString("time"),
+                                post.getString("username"),
+                                post.getString("avatar"),
+                                post.getString("file"),
+                                post.getString("likes"),
+                                post.getString("comments"),
+                                post.getBoolean("is_liked"),
+                                post.getBoolean("is_saved"),
+                                post.getString("post_id")
+                        ));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        PostAdapter adapter = new PostAdapter(getContext(),
+                                postList,
+                                getActivity().getIntent().getStringExtra("access_token"));
+                        recycler_view.setAdapter(adapter);
+                    }
+                });
+            }
+        });
 
         return itemView;
     }
+/*    @Override
+    public void onClickCallback(Post post, String view) {
+        switch(view){
+            case "imageViewLike":
+                Toast.makeText(getActivity().getApplicationContext(), "It works!", Toast.LENGTH_SHORT).show();
+                OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("caption","prueba1")
+                        .addFormDataPart("access_token",access_token)
+                        .build();
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/new_post")
+                        .post(requestBody)
+                        .build();
 
 
+                imageUploadClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                        final String mMessage = response.body().string();
+
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.e("UploadResponse", mMessage);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                });
+                break;
+            default:
+                break;
+
+        }
+
+    }*/
 }

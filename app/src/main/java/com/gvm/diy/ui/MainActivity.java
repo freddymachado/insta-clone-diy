@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     Uri uri;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 performFileSearch();
                 actionMenu.toggle(true);
-
             }
         });
 
@@ -263,8 +261,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("prefsSaved",access_token+username+password);
     }
 
-
-    private void setFragment(Fragment fragment) {
+    public void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragmentContainer,fragment);
         fragmentTransaction.commit();
@@ -279,10 +276,8 @@ public class MainActivity extends AppCompatActivity {
                 uri = data.getData();
                 Log.i(TAG,"Uri: "+uri.toString());
                 uploadImage();
-
             }else{
                 Log.i(TAG,"CHimbo");
-
             }
         }
 
@@ -295,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         final File imageFile = new File(uriToFileName(uri));
+        //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
         Uri uris = Uri.fromFile(imageFile);
         String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
@@ -359,11 +355,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-        //TODO: Subir Videos y mejorar UI
+        //TODO: Subir Videos, crear el flujo de subida y mejorar UI
         Request request = new Request.Builder()
-                .url("https://diys.co/endpoints/v1/post/new_post")/*
-                .header("Accept", "application/json")
-                .header("Content-Type", "application/json")*/
+                .url("https://diys.co/endpoints/v1/post/new_post")
                 .post(requestBody)
                 .build();
 

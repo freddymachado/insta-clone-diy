@@ -14,4 +14,21 @@
     <string name="no_tiene_una_cuenta_registro">¿NO TIENE UNA CUENTA? <font fgcolor="#E04AE0"> REGISTRO</font></string>
     <string name="olvidaste_tu_contrase_a_recuperar_contrase_a">¿Olvidaste tu contraseña? <font fgcolor="#E04AE0">Recuperar Contraseña</font></string>
     <string name="ya_tiene_una_cuenta_inicie_sesi_n">¿Ya tiene una cuenta?<font fgcolor="#E04AE0">  Inicie sesión</font></string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="leer_mas"><font fgcolor="#1599FF">...leer más</font></string>
 </resources>

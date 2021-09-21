@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".ui.EditActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/appBar"
+        android:background="@color/primary_color">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/toolBar"
+            android:background="@android:color/transparent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent">
+
+                <ImageButton
+                    android:id="@+id/imageButtonBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_arrow_back_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:clickable="true"
+                    android:text="Editar Perfil"
+                    android:textColor="@color/white"
+                    android:textColorHint="#817D7D"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageButtonBack"
+                    app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/textViewSave"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:clickable="true"
+                    android:text="Guardar"
+                    android:textColor="@color/white"
+                    android:textColorHint="#817D7D"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <EditText
+        android:id="@+id/editTextName"
+        style="@android:style/Widget.EditText"
+        android:layout_width="250dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#303030"
+        android:ems="10"
+        android:hint="Nombre"
+        android:inputType="text"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/appBar"/>
+
+
+    <EditText
+        android:id="@+id/editTextSurname"
+        style="@android:style/Widget.EditText"
+        android:layout_width="250dp"
+        android:layout_height="48dp"
+        android:backgroundTint="#303030"
+        android:ems="10"
+        android:hint="Apellido"
+        android:inputType="text"
+        android:textColor="@android:color/darker_gray"
+        android:textColorHint="@android:color/darker_gray"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/editTextName" />
+
+    <EditText
+        android:id="@+id/editTextAbout"
+        android:layout_width="250dp"
+        android:layout_height="48dp"
+        android:backgroundTint="#303030"
+        android:ems="10"
+        android:hint="Acerca de ti..."
+        android:inputType="textPassword"
+        android:textColor="@android:color/darker_gray"
+        android:layout_centerHorizontal="true"
+        android:textColorHint="@android:color/darker_gray"
+        android:layout_below="@+id/editTextSurname"/>
+
+</RelativeLayout>

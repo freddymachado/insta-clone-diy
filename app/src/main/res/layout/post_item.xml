@@ -57,6 +57,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,6 +96,22 @@
                 android:layout_toEndOf="@+id/comment"
                 android:text="0 Comments"
                 android:textColor="@color/white" />
+
+            <ImageView
+                android:id="@+id/imageViewReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toEndOf="@+id/comments"
+                android:src="@drawable/ic_outline_reply_24" />
+
+            <ImageView
+                android:id="@+id/imageViewFav"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toEndOf="@+id/imageViewReply"
+                android:src="@drawable/ic_baseline_star_outline_24" />
         </RelativeLayout>
 
         <TextView
@@ -115,7 +132,6 @@
             android:text="description here"
             android:textColor="@color/white"
             android:textSize="14dp" />
-
     </LinearLayout>
 
 

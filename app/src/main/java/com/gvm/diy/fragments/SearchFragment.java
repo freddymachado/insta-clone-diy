@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -42,10 +43,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class SearchFragment extends Fragment {
 
-    // TODO: Hacer 2do recycler al pulsar la búsqueda (segunda entrega)
+    // TODO: Hacer 2do recycler al pulsar la búsqueda (tercera entrega)
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String TAG ="SearchFragment";
 
     private static final String URL_POSTS = "https://diys.co/punto.php";
@@ -159,7 +158,11 @@ public class SearchFragment extends Fragment {
         editTextSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: Verificar comportamiento de la búsqueda y diseño del itemSearch
                 recycler_view.setVisibility(View.GONE);
+                recycler_view.setLayoutManager(
+                        new LinearLayoutManager(getContext())
+                );
             }
         });
         return itemView;

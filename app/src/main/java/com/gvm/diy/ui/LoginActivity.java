@@ -290,10 +290,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivityForResult(signInIntent, RC_SIGN_IN);
                 break;
 
-            case R.id.textViewRegister:
-                Toast.makeText(LoginActivity.this, "In progress...", Toast.LENGTH_SHORT).show();
-                break;
-
             default:
                 break;
         }
@@ -464,7 +460,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void goMain(String user_id, String access_token, String username, String pass) {
-        Toast.makeText(LoginActivity.this, "Sesión iniciada", Toast.LENGTH_SHORT).show();
+        Toast.makeText(LoginActivity.this, "Sesión iniciada correctamente", Toast.LENGTH_SHORT).show();
         Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
         intentMain.putExtra("access_token", access_token);
         intentMain.putExtra("user_id", user_id);

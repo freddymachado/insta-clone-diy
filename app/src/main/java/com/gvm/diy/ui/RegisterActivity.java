@@ -33,7 +33,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class RegisterActivity extends AppCompatActivity {
-    //TODO: Probar RegisterActivity (Luego)
     String TAG = "RegisterActivity", access_token, user_id;
     JSONObject token;
 

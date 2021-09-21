@@ -13,6 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <color name="teal_200">#E04AE0</color>
 
     <style name="ProgressTheme">
         <item name="colorAccent">@color/purple_500</item>

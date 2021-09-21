@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorBackground"
+    android:paddingTop="8dp">
+
+    <ImageView
+        android:id="@+id/imageViewAvatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/placeholder"
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewLikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:text="Me gusta()"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toRightOf="@+id/imageViewAvatar"
+        app:layout_constraintTop_toBottomOf="@+id/textViewComment" />
+
+    <TextView
+        android:id="@+id/textViewReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textStyle="bold"
+        android:text="Responder"
+        android:layout_marginLeft="12dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toRightOf="@+id/textViewLikes"
+        app:layout_constraintTop_toBottomOf="@+id/textViewComment" />
+
+    <TextView
+        android:id="@+id/textViewComment"
+        android:text="hi man, how are you?"
+        android:background="@drawable/item_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="300dp"
+        android:padding="8dp"
+        android:textColor="#ffffff"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/imageViewAvatar"
+        android:layout_marginLeft="8dp" />
+
+    <TextView
+        android:id="@+id/textViewTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="11:40"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        app:layout_constraintTop_toTopOf="@+id/textViewComment"
+        app:layout_constraintLeft_toRightOf="@+id/textViewComment" />
+
+    <ImageButton
+        android:id="@+id/imageButtonLike"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/text_view_background"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewReply"
+        app:layout_constraintStart_toEndOf="@+id/textViewReply"
+        app:srcCompat="@drawable/ic_baseline_favorite_border_red" />
+
+    <ImageButton
+        android:id="@+id/imageButtonMore"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/text_view_background"
+        app:layout_constraintBottom_toBottomOf="@+id/imageButtonLike"
+        app:layout_constraintStart_toEndOf="@+id/textViewTime"
+        app:layout_constraintTop_toTopOf="@+id/textViewTime"
+        app:srcCompat="@drawable/ic_baseline_more_horiz_24" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
