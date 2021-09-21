@@ -7,7 +7,7 @@ import android.os.Bundle;
 import com.gvm.diy.R;
 
 public class ProfileViewerActivity extends AppCompatActivity {
-    //TODO: Diseñar ProfileViewer
+    //TODO: Lógica ProfileViewer
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
