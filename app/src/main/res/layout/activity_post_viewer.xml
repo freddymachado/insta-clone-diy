@@ -23,6 +23,7 @@
         android:layout_width="60dp"
         android:layout_height="55dp"
         android:background="@color/primary_color"
+        android:onClick="postClick"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,6 +34,7 @@
         android:layout_width="60dp"
         android:layout_height="55dp"
         android:background="@color/primary_color"
+        android:onClick="postClick"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -57,9 +59,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:text="username"
-        android:clickable="true"
         android:layout_margin="12dp"
+        android:clickable="true"
+        android:onClick="postClick"
+        android:text="username"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
@@ -83,6 +86,7 @@
             android:id="@+id/imageViewLike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="postClick"
             android:src="@drawable/ic_baseline_favorite_border_24" />
 
         <ImageView
@@ -91,6 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toEndOf="@+id/textViewLikes"
+            android:onClick="postClick"
             android:src="@drawable/ic_baseline_comment_bubble_outline_24" />
 
         <TextView
@@ -100,6 +105,7 @@
             android:layout_alignBottom="@+id/imageViewLike"
             android:layout_marginLeft="5dp"
             android:layout_toEndOf="@+id/imageViewLike"
+            android:onClick="postClick"
             android:text="0 likes"
             android:textColor="@color/white" />
 
@@ -110,6 +116,7 @@
             android:layout_alignBottom="@+id/imageViewComment"
             android:layout_marginLeft="5dp"
             android:layout_toEndOf="@+id/imageViewComment"
+            android:onClick="postClick"
             android:text="0 Comments"
             android:textColor="@color/white" />
 
@@ -119,6 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toEndOf="@+id/textViewComments"
+            android:onClick="postClick"
             android:src="@drawable/ic_outline_reply_24" />
 
         <ImageView
@@ -127,6 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_toEndOf="@+id/imageViewReply"
+            android:onClick="postClick"
             android:src="@drawable/ic_baseline_star_outline_24" />
 
     </RelativeLayout>
@@ -147,6 +156,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_margin="12dp"
+            android:onClick="postClick"
             android:text="@string/leer_mas"
             android:textColor="@color/white"
             android:textSize="16sp"

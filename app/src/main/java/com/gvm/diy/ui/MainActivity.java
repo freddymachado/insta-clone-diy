@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
 
-    String access_token,username, password, server_key = "1539874186";
+    String access_token,username, user_id, password, server_key = "1539874186";
 
     private static final int PHOTO_SENT = 24;
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
-        String user_id = intent.getStringExtra("user_id");
+        user_id = intent.getStringExtra("user_id");
         username = intent.getStringExtra("username");
         password = intent.getStringExtra("password");
 

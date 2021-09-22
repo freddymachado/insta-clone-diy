@@ -1,6 +1,8 @@
 package com.gvm.diy.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,8 +25,10 @@ import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.fragments.HomeFragment;
 import com.gvm.diy.models.Post;
+import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.MainActivity;
 import com.gvm.diy.ui.PostViewerActivity;
+import com.gvm.diy.ui.ProfileViewerActivity;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,14 +38,22 @@ import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolder>{
 
     private Context mContext;
     private List<Post> mPosts;
-    private String access_token, server_key = "1539874186", post_id;
+    private String access_token, server_key = "1539874186", post_id, user_id;
     private Boolean is_liked, is_saved;
+
+    AlertDialog.Builder builder;
+
+    OkHttpClient client;
+    RequestBody body;
+    Request request;
 
 
     public PostAdapter(Context mContext, List<Post> mPosts, String access_token) {
@@ -106,6 +118,50 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             is_liked = mPosts.get(getAdapterPosition()).getIs_liked();
             is_saved = mPosts.get(getAdapterPosition()).getIs_saved();
             post_id = mPosts.get(getAdapterPosition()).getPost_id();
+            user_id = mPosts.get(getAdapterPosition()).getPost_id();
+
+            builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case 0:
+                                    body = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key", server_key)
+                                            .addFormDataPart("post_id", post_id)
+                                            .addFormDataPart("access_token", access_token)
+                                            .build();
+
+                                    request = new Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/report_post")
+                                            .post(body)
+                                            .build();
+
+                                    client.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                            Log.e("failure Response", mMessage);
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                        }
+                                    });
+                                    break;
+                                case 1:
+                                    //TODO: Verificar comportamiento
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
 
             post_image.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -116,6 +172,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     intentPostViewer.putExtra("is_liked", is_liked);
                     intentPostViewer.putExtra("is_saved", is_saved);
                     intentPostViewer.putExtra("post_id", post_id);
+                    intentPostViewer.putExtra("user_id", user_id);
                     mContext.startActivity(intentPostViewer);
                 }
             });
@@ -123,14 +180,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Diseñar ProfileViewer
+                    //TODO: Probar
+                    Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
+                    intentProfileViewer.putExtra("access_token", access_token);
+                    intentProfileViewer.putExtra("user_id", user_id);
+                    mContext.startActivity(intentProfileViewer);
                 }
             });
 
             imageButtonMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Diseñar MoreDialog
+                    //TODO: Probar MoreDialog
+                    builder.show();
+                    Toast.makeText(mContext, "more", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -188,25 +251,42 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageViewComment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Verificar Comportamiento
+                    //TODO: Probar
+                    Intent intentComments = new Intent(mContext, FollowersActivity.class);
+                    intentComments.putExtra("function", "comments");
+                    intentComments.putExtra("post_id", post_id);
+                    intentComments.putExtra("access_token", access_token);
+                    mContext.startActivity(intentComments);
                 }
             });
 
             description.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO: Alargar descripcion
                 }
             });
 
             like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO: Probar
+                    Intent intentLikes = new Intent(mContext, FollowersActivity.class);
+                    intentLikes.putExtra("function", "likes");
+                    intentLikes.putExtra("post_id", post_id);
+                    mContext.startActivity(intentLikes);
                 }
             });
 
             comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //TODO: Probar
+                    Intent intentComments = new Intent(mContext, FollowersActivity.class);
+                    intentComments.putExtra("function", "comments");
+                    intentComments.putExtra("post_id", post_id);
+                    intentComments.putExtra("access_token", access_token);
+                    mContext.startActivity(intentComments);
                 }
             });
 

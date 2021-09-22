@@ -53,7 +53,7 @@ public class PostViewerActivity extends AppCompatActivity {
 
     TextView username, textViewDescription, textViewLikes, textViewComments;
 
-    String access_token, post_id, avatar, server_key = "1539874186", name, favourites, following, followers;
+    String access_token, post_id, user_id, server_key = "1539874186", name, favourites, following, followers;
 
     Boolean is_liked, is_saved;
 
@@ -83,6 +83,7 @@ public class PostViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
         post_id = intent.getStringExtra("post_id");
+        user_id = intent.getStringExtra("user_id");
         intent.getBooleanExtra("is_liked", is_liked);
         intent.getBooleanExtra("is_saved", is_saved);
         Log.e("isLiked", is_liked.toString() + is_saved.toString());
@@ -138,7 +139,6 @@ public class PostViewerActivity extends AppCompatActivity {
             imageViewFav.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_yellow));
     }
 
-
     public void postClick(View view) {
 
         //Cargamos la animcion del boton
@@ -158,14 +158,14 @@ public class PostViewerActivity extends AppCompatActivity {
 
             case R.id.imageButtonMore:
                 //TODO: Probar MoreDialog
-                imageButtonMore.startAnimation(myAnim);
                 builder.show();
                 Toast.makeText(PostViewerActivity.this, "more", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.username:
-                username.startAnimation(myAnim);
                 Intent intentProfileViewer = new Intent(PostViewerActivity.this, ProfileViewerActivity.class);
+                intentProfileViewer.putExtra("access_token", access_token);
+                intentProfileViewer.putExtra("user_id", user_id);
                 startActivity(intentProfileViewer);
                 break;
 
