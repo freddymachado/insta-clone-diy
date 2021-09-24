@@ -43,7 +43,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class HomeFragment extends Fragment{
+public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     //TODO: set onClickListener to make conections, go to other activities, open description or toggle the menu bar
     //TODO: Keep user logged in
 
@@ -148,24 +148,25 @@ public class HomeFragment extends Fragment{
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String mMessage = response.body().string();
-                //TODO: Verificar respuesta para ver cómo obtener la data
+                //TODO: Parece que vamos a tener que usar mi script para obtener los posts del home.
                 Log.e("ApiResponse", mMessage);
                 JSONObject array = null;
                 try {
                     array = new JSONObject(mMessage);
-                    JSONObject data = array.getJSONObject("data");
+                    JSONArray data = array.getJSONArray("data");
 
-                    JSONArray userPosts = data.getJSONArray("user_posts");
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject post = data.getJSONObject(i);
 
-                    for (int i = 0; i < userPosts.length(); i++) {
-                        JSONObject post = userPosts.getJSONObject(i);
+                        JSONArray postMedia = post.getJSONArray("media_set");
+                        Log.e("ApiResponse", String.valueOf(data.length()));
 
                         postList.add(new Post(
                                 post.getString("description"),
-                                post.getString("time"),
+                                post.getString("time_text"),
                                 post.getString("username"),
                                 post.getString("avatar"),
-                                post.getString("file"),
+                                postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
                                 post.getString("likes"),
                                 post.getString("comments"),
                                 post.getBoolean("is_liked"),
@@ -190,6 +191,11 @@ public class HomeFragment extends Fragment{
         });
 
         return itemView;
+    }
+
+    @Override
+    public void postImageOnClick(View v, int position) {
+
     }
 /*    @Override
     public void onClickCallback(Post post, String view) {

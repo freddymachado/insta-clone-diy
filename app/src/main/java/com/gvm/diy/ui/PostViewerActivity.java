@@ -217,9 +217,7 @@ public class PostViewerActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
-
-            case R.id.textViewLikes:
+                case R.id.textViewLikes:
                 //TODO: Probar
                 Intent intentLikes = new Intent(PostViewerActivity.this, FollowersActivity.class);
                 intentLikes.putExtra("function", "likes");

@@ -44,10 +44,11 @@ import okhttp3.Response;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolder>{
 
-    private Context mContext;
+    Context mContext;
     private List<Post> mPosts;
     private String access_token, server_key = "1539874186", post_id, user_id;
     private Boolean is_liked, is_saved;
+    public PostListener postListener;
 
     AlertDialog.Builder builder;
 
@@ -74,10 +75,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         Post post = mPosts.get(position);
 
         try{
-            Glide.with(mContext).load("https://diys.co/"+post.getFile())
+            Glide.with(mContext).load(post.getFile()+".jpg")
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.post_image);
-            Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
+            Glide.with(mContext).load(post.getAvatar())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.user_profile_image);
         }catch (Exception e){
@@ -88,6 +89,90 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.username.setText(post.getUsername());
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(post.getComments()+" comments");
+
+        is_liked = mPosts.get(position).getIs_liked();
+        is_saved = mPosts.get(position).getIs_saved();
+        post_id = mPosts.get(position).getPost_id();
+        //user_id = mPosts.get(position).getUser_id();
+        /*
+        holder.post_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //postListener.postImageOnClick(v,position);
+                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                intentPostViewer.putExtra("access_token", access_token);
+                intentPostViewer.putExtra("is_liked", is_liked);
+                intentPostViewer.putExtra("is_saved", is_saved);
+                intentPostViewer.putExtra("post_id", post_id);
+                intentPostViewer.putExtra("user_id", user_id);
+                mContext.startActivity(intentPostViewer);
+            }
+        });*/
+
+        holder.imageViewComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Probar
+                Intent intentComments = new Intent(mContext, FollowersActivity.class);
+                intentComments.putExtra("function", "comments");
+                intentComments.putExtra("post_id", post_id);
+                intentComments.putExtra("access_token", access_token);
+                mContext.startActivity(intentComments);
+            }
+        });
+
+        //TODO: Verificar respuesta para ver cómo darle color al botón
+        holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Cargamos la animcion del boton
+                final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
+
+                //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
+                myAnim.setInterpolator(interpolator);
+
+                holder.imageViewLike.startAnimation(myAnim);
+                if(is_liked){
+                    is_liked = false;
+                    holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                }
+                else{
+                    is_liked = true;
+                    holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                }
+
+                OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("post_id",post_id)
+                        .addFormDataPart("access_token",access_token)
+                        .build();
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/like_post")
+                        .post(requestBody)
+                        .build();
+
+
+                imageUploadClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("Like Response", mMessage);
+
+                    }
+                });
+            }
+        });
 
     }
 
@@ -114,11 +199,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageButtonMore = itemView.findViewById(R.id.more);
             imageViewLike = itemView.findViewById(R.id.like);
             imageViewComment = itemView.findViewById(R.id.comment);
-
-            is_liked = mPosts.get(getAdapterPosition()).getIs_liked();
-            is_saved = mPosts.get(getAdapterPosition()).getIs_saved();
-            post_id = mPosts.get(getAdapterPosition()).getPost_id();
-            user_id = mPosts.get(getAdapterPosition()).getPost_id();
 
             builder = new AlertDialog.Builder(mContext);
             builder.setTitle("Post")
@@ -163,20 +243,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                         }
                     });
 
-            post_image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                    intentPostViewer.putExtra("access_token", access_token);
-                    intentPostViewer.putExtra("is_liked", is_liked);
-                    intentPostViewer.putExtra("is_saved", is_saved);
-                    intentPostViewer.putExtra("post_id", post_id);
-                    intentPostViewer.putExtra("user_id", user_id);
-                    mContext.startActivity(intentPostViewer);
-                }
-            });
-
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -194,69 +260,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     //TODO: Probar MoreDialog
                     builder.show();
                     Toast.makeText(mContext, "more", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            //TODO: Verificar respuesta para ver cómo darle color al botón
-            imageViewLike.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Cargamos la animcion del boton
-                    final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
-
-                    //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
-                    MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
-                    myAnim.setInterpolator(interpolator);
-
-                    OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
-                    RequestBody requestBody = new MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("server_key",server_key)
-                            .addFormDataPart("post_id",post_id)
-                            .addFormDataPart("access_token",access_token)
-                            .build();
-                    okhttp3.Request request = new okhttp3.Request.Builder()
-                            .url("https://diys.co/endpoints/v1/post/like_post")
-                            .post(requestBody)
-                            .build();
-
-
-                    imageUploadClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            String mMessage = e.getMessage().toString();
-                            //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
-                            Log.e("failure Response", mMessage);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                            final String mMessage = response.body().string();
-                            Log.e("Like Response", mMessage);
-                            imageViewLike.startAnimation(myAnim);
-                            if(is_liked){
-                                is_liked = false;
-                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                            }
-                            else{
-                                is_liked = true;
-                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                            }
-
-                        }
-                    });
-                }
-            });
-
-            imageViewComment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Probar
-                    Intent intentComments = new Intent(mContext, FollowersActivity.class);
-                    intentComments.putExtra("function", "comments");
-                    intentComments.putExtra("post_id", post_id);
-                    intentComments.putExtra("access_token", access_token);
-                    mContext.startActivity(intentComments);
                 }
             });
 
@@ -293,8 +296,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         }
     }
 
-
-    public interface PostAdapterCallback{
-        void onClickCallback(Post post, String view);
+    public interface PostListener{
+        void postImageOnClick(View v, int position);
     }
 }

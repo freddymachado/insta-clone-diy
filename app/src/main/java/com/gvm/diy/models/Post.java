@@ -3,7 +3,7 @@ package com.gvm.diy.models;
 import java.io.Serializable;
 
 public class Post implements Serializable {
-    private String description, time, username, avatar, file, likes,comments, post_id;
+    private String description, time_text, username, avatar, file, likes,comments, post_id;
     private Boolean is_liked, is_saved;
 
     public Boolean getIs_liked() {
@@ -22,9 +22,9 @@ public class Post implements Serializable {
         this.is_saved = is_saved;
     }
 
-    public Post(String description, String time, String username, String avatar, String file, String likes, String comments, Boolean is_liked, Boolean is_saved, String post_id) {
+    public Post(String description, String time_text, String username, String avatar, String file, String likes, String comments, Boolean is_liked, Boolean is_saved, String post_id) {
         this.description = description;
-        this.time = time;
+        this.time_text = time_text;
         this.username = username;
         this.avatar = avatar;
         this.file = file;
@@ -38,9 +38,9 @@ public class Post implements Serializable {
     public Post() {
     }
 
-    public Post(String description, String time, String username, String avatar, String file, String likes, String comments, String post_id) {
+    public Post(String description, String time_text, String username, String avatar, String file, String likes, String comments, String post_id) {
         this.description = description;
-        this.time = time;
+        this.time_text = time_text;
         this.username = username;
         this.avatar = avatar;
         this.file = file;
@@ -74,12 +74,12 @@ public class Post implements Serializable {
         this.description = description;
     }
 
-    public String getTime() {
-        return time;
+    public String getTime_text() {
+        return time_text;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setTime_text(String time_text) {
+        this.time_text = time_text;
     }
 
     public String getUsername() {
