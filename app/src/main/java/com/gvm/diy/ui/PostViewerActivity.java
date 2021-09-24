@@ -46,14 +46,16 @@ import okhttp3.Response;
 
 public class PostViewerActivity extends AppCompatActivity {
     //TODO: Probar diseño PostViewerActivity
+    //TODO: Probar datos del user
     //TODO: BottomBar que llame los métodos del MainActivity (4ta entrega?)
     ImageButton imageButtonBack, imageButtonMore;
 
-    ImageView user_profile_image, post_image, imageViewLike, imageViewComment, imageViewReply, imageViewFav;
+    ImageView user_profile_image, post_imageImageView, imageViewLike, imageViewComment, imageViewReply, imageViewFav;
 
-    TextView username, textViewDescription, textViewLikes, textViewComments;
+    TextView usernameTextView, textViewDescription, textViewLikes, textViewComments;
 
-    String access_token, post_id, user_id, server_key = "1539874186", name, favourites, following, followers;
+    String access_token, post_id, user_id, server_key = "1539874186", username, avatar, post_image,
+            comment, description;
 
     Boolean is_liked, is_saved;
 
@@ -70,13 +72,13 @@ public class PostViewerActivity extends AppCompatActivity {
         imageButtonBack = findViewById(R.id.imageButtonBack);
         imageButtonMore = findViewById(R.id.imageButtonMore);
         user_profile_image = findViewById(R.id.user_profile_image);
-        post_image = findViewById(R.id.post_image);
+        post_imageImageView = findViewById(R.id.post_image);
         imageViewLike = findViewById(R.id.imageViewLike);
         imageViewComment = findViewById(R.id.imageViewComment);
         imageViewReply = findViewById(R.id.imageViewReply);
         imageViewFav = findViewById(R.id.imageViewFav);
-        username = findViewById(R.id.username);
-        textViewDescription = findViewById(R.id.textViewDescription);
+        usernameTextView = findViewById(R.id.username);
+        textViewDescription = findViewById(R.id.readMoreTextView);
         textViewLikes = findViewById(R.id.textViewLikes);
         textViewComments = findViewById(R.id.textViewComments);
 
@@ -84,8 +86,29 @@ public class PostViewerActivity extends AppCompatActivity {
         access_token = intent.getStringExtra("access_token");
         post_id = intent.getStringExtra("post_id");
         user_id = intent.getStringExtra("user_id");
+        username = intent.getStringExtra("username");
+        avatar = intent.getStringExtra("avatar");
+        post_image = intent.getStringExtra("post_image");
+        description = intent.getStringExtra("description");
+        comment = intent.getStringExtra("comment");
         intent.getBooleanExtra("is_liked", is_liked);
         intent.getBooleanExtra("is_saved", is_saved);
+
+        try{
+            Glide.with(PostViewerActivity.this).load(post_image)
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(post_imageImageView);
+            Glide.with(PostViewerActivity.this).load(avatar)
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(user_profile_image);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        usernameTextView.setText(username);
+        textViewDescription.setText(description);
+        textViewComments.setText(comment);
+
         Log.e("isLiked", is_liked.toString() + is_saved.toString());
 
         client = new OkHttpClient().newBuilder().build();
@@ -170,7 +193,7 @@ public class PostViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.textViewDescription:
-                //TODO: Alargar descripcion
+                //TODO: Probar descripcion
                 break;
 
             case R.id.imageViewLike:

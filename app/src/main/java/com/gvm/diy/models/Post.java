@@ -3,8 +3,31 @@ package com.gvm.diy.models;
 import java.io.Serializable;
 
 public class Post implements Serializable {
-    private String description, time_text, username, avatar, file, likes,comments, post_id;
+    private String description, time_text, username, avatar, file, likes,comments, post_id, user_id;
     private Boolean is_liked, is_saved;
+
+    public Post(String description, String time_text, String username, String avatar,
+                String file, String likes, String comments, String post_id, String user_id, Boolean is_liked, Boolean is_saved) {
+        this.description = description;
+        this.time_text = time_text;
+        this.username = username;
+        this.avatar = avatar;
+        this.file = file;
+        this.likes = likes;
+        this.comments = comments;
+        this.post_id = post_id;
+        this.user_id = user_id;
+        this.is_liked = is_liked;
+        this.is_saved = is_saved;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 
     public Boolean getIs_liked() {
         return is_liked;

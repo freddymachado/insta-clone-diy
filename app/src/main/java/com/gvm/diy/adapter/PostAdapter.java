@@ -90,11 +90,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(post.getComments()+" comments");
 
-        is_liked = mPosts.get(position).getIs_liked();
-        is_saved = mPosts.get(position).getIs_saved();
-        post_id = mPosts.get(position).getPost_id();
-        //user_id = mPosts.get(position).getUser_id();
-        /*
+        is_liked = post.getIs_liked();
+        is_saved = post.getIs_saved();
+        post_id = post.getPost_id();
+        user_id = post.getUser_id();
+
         holder.post_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,9 +106,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("is_saved", is_saved);
                 intentPostViewer.putExtra("post_id", post_id);
                 intentPostViewer.putExtra("user_id", user_id);
+                intentPostViewer.putExtra("username", post.getUsername());
+                intentPostViewer.putExtra("avatar", post.getAvatar());
+                intentPostViewer.putExtra("post_image", post.getFile()+".jpg");
+                intentPostViewer.putExtra("description", post.getDescription());
+                intentPostViewer.putExtra("comment", post.getComments());
                 mContext.startActivity(intentPostViewer);
             }
-        });*/
+        });
 
         holder.imageViewComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,7 +271,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             description.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Alargar descripcion
+                    //TODO: Probar descripcion
                 }
             });
 

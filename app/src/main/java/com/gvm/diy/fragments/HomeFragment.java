@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -39,12 +41,10 @@ import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class HomeFragment extends Fragment implements PostAdapter.PostListener{
-    //TODO: set onClickListener to make conections, go to other activities, open description or toggle the menu bar
+    //TODO: Probar onClickListener to make conections, go to other activities, open description or toggle the menu bar
     //TODO: Keep user logged in
 
     private static final String URL_POSTS = "https://diys.co/punto.php";
@@ -82,8 +82,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         Intent intent = getActivity().getIntent();
         access_token = intent.getStringExtra("access_token");
 
-        /*
-
+        //TODO: Probar Obtenemos la info desde endpoint punto porque la respuesta a fetch_home_posts sólo retorna posts propios.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
                 new Response.Listener<String>() {
                     @Override
@@ -97,11 +96,16 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
                                 postList.add(new Post(
                                         post.getString("description"),
+                                        post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("avatar"),
                                         post.getString("file"),
                                         post.getString("likes"),
-                                        post.getString("comments")
+                                        post.getString("comments"),
+                                        post.getString("post_id"),
+                                        post.getString("user_id"),
+                                        post.getBoolean("is_liked"),
+                                        post.getBoolean("is_saved")
                                 ));
                             }
                             PostAdapter adapter = new PostAdapter(getContext(),
@@ -121,7 +125,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             }
         });
 
-        Volley.newRequestQueue(getContext()).add(stringRequest);*/
+        Volley.newRequestQueue(getContext()).add(stringRequest);
+        /*
 
         //Iniciamos la solicitud para obtener los datos del usuario
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -148,7 +153,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String mMessage = response.body().string();
-                //TODO: Parece que vamos a tener que usar mi script para obtener los posts del home.
                 Log.e("ApiResponse", mMessage);
                 JSONObject array = null;
                 try {
@@ -188,7 +192,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                     }
                 });
             }
-        });
+        });*/
 
         return itemView;
     }
