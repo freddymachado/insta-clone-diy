@@ -36,7 +36,9 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_chat.xml" value="0.2" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_home.xml" value="0.35885416666666664" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_profile.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search.xml" value="0.33" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search.xml" value="0.1" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search_hashtags.xml" value="0.35885416666666664" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search_users.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_upload.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_comment.xml" value="0.17222222222222222" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_message_received.xml" value="0.35885416666666664" />

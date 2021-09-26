@@ -16,11 +16,14 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
+import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.EditActivity;
@@ -67,25 +70,16 @@ public class ProfileFragment extends Fragment {
 
     JSONObject userData;
 
+    OkHttpClient client;
+    RequestBody requestBody;
+    Request UserPostsRequest;
+    private List<Post> postList;
+
     private RecyclerView recycler_view;
     private List<ProfileItem> profileItems;
 
     public ProfileFragment() {
         // Required empty public constructor
-    }
-
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
     }
 
     @Override
@@ -125,16 +119,16 @@ public class ProfileFragment extends Fragment {
         username = intent.getStringExtra("username");
 
         //Iniciamos la solicitud para obtener los datos del usuario
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        client = new OkHttpClient().newBuilder().build();
 
-        RequestBody requestBody = new MultipartBody.Builder()
+        requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("server_key",server_key)
                 .addFormDataPart("user_id",user_id)
                 .addFormDataPart("access_token",access_token)
                 .build();
 
-        Request UserPostsRequest = new Request.Builder()
+        UserPostsRequest = new Request.Builder()
                 .url("https://diys.co/endpoints/v1/post/fetch_user_posts")
                 .post(requestBody)
                 .build();
@@ -346,13 +340,67 @@ public class ProfileFragment extends Fragment {
         imageButtonList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: colocar el postItem en este caso.
+                //TODO: Probar el postItem en este caso.
                 recycler_view.setLayoutManager(linearLayoutManager);
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        Toast.makeText(getActivity().getApplicationContext(), "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("ApiResponse", mMessage);
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONObject data = array.getJSONObject("data");
+
+                            JSONArray userPosts = data.getJSONArray("user_posts");
+
+                            for (int i = 0; i < userPosts.length(); i++) {
+                                JSONObject post = userPosts.getJSONObject(i);
+
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                Log.e("ApiResponse", String.valueOf(data.length()));
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getBoolean("is_liked"),
+                                        post.getBoolean("is_saved"),
+                                        post.getString("post_id")
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                PostAdapter adapter = new PostAdapter(getContext(),
+                                        postList,
+                                        getActivity().getIntent().getStringExtra("access_token"));
+                                recycler_view.setAdapter(adapter);
+                            }
+                        });
+                    }
+                });
             }
         });
         imageButtonGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                recycler_view.setHasFixedSize(true);
                 recycler_view.setLayoutManager(gridLayoutManager);
 
             }

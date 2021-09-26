@@ -1,61 +1,57 @@
 package com.gvm.diy.fragments;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.tabs.TabLayout;
 import com.gvm.diy.adapter.ExploreAdapter;
-import com.gvm.diy.adapter.PostAdapter;
+import com.gvm.diy.adapter.ViewPagerAdapter;
 import com.gvm.diy.models.ExploreItem;
 import com.gvm.diy.R;
-import com.gvm.diy.models.Post;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-
-import static android.content.Context.MODE_PRIVATE;
-
 public class SearchFragment extends Fragment {
-
-    // TODO: Hacer 2do recycler al pulsar la búsqueda (tercera entrega)
+    // TODO: Hacer 2do recycler al pulsar la búsqueda (last entrega)
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String TAG ="SearchFragment";
 
     private static final String URL_POSTS = "https://diys.co/punto.php";
 
     private RecyclerView recycler_view;
-    private EditText editTextSearch;
+    public EditText editTextSearch;
+
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     public SearchFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,9 +67,36 @@ public class SearchFragment extends Fragment {
         View itemView = inflater.inflate(R.layout.fragment_search, container, false);
         recycler_view = itemView.findViewById(R.id.recycler_view);
         editTextSearch = itemView.findViewById(R.id.editTextSearch);
+        tabLayout = itemView.findViewById(R.id.tabLayout);
+        viewPager = itemView.findViewById(R.id.viewpager);
+
+        tabLayout.setupWithViewPager(viewPager);
+
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager(),
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+
+        viewPager.setAdapter(viewPagerAdapter);
+
         recycler_view.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         );
+
+        editTextSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId== EditorInfo.IME_ACTION_SEARCH){
+                    if (viewPagerAdapter.getPageTitle(viewPagerAdapter.getItemPosition(viewPager)).equals("Usuarios")){
+
+                        viewPagerAdapter.addFragment(new SearchUsersFragment(),"Usuarios",editTextSearch.getText().toString());
+                    }else{
+                        viewPagerAdapter.addFragment(new SearchHashtagsFragment(),"Hashtags",editTextSearch.getText().toString()
+                        );
+
+                    }
+                }
+                return false;
+            }
+        });
 
         List<ExploreItem> exploreItems = new ArrayList<>();
 /*
@@ -122,7 +145,6 @@ public class SearchFragment extends Fragment {
             }
         });
         thread.start();*/
-
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
                 new com.android.volley.Response.Listener<String>() {
                     @Override
@@ -158,29 +180,19 @@ public class SearchFragment extends Fragment {
         editTextSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Verificar comportamiento de la búsqueda y diseño del itemSearch
+                //TODO: Probar comportamiento de la búsqueda y diseño del itemSearch
                 recycler_view.setVisibility(View.GONE);
+                tabLayout.setVisibility(View.VISIBLE);
+                viewPager.setVisibility(View.VISIBLE);
                 recycler_view.setLayoutManager(
-                        new LinearLayoutManager(getContext())
+                        new LinearLayoutManager(getActivity().getApplicationContext())
                 );
             }
         });
         return itemView;
     }
-    private String getAccessToken() {
-        //Declaro el SharedPreferences
-        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
-        return pref.getString("access_token","");
-    }
-    private String getUsername() {
-        //Declaro el SharedPreferences
-        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
-        return pref.getString("username","");
-    }
-    private String getPass() {
-        //Declaro el SharedPreferences
-        SharedPreferences pref = getActivity().getSharedPreferences("myPrefs",MODE_PRIVATE);
-        return pref.getString("password","");
+    public String getData(){
+        return editTextSearch.getText().toString();
     }
 /*
 D/SearchFragment: {"code":"200","status":"OK","data":[{
