@@ -47,7 +47,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     Context mContext;
     private List<Post> mPosts;
     private String access_token, server_key = "1539874186", post_id, user_id;
-    private Boolean is_liked, is_saved;
+    private String is_liked, is_saved;
     public PostListener postListener;
 
     AlertDialog.Builder builder;
@@ -55,6 +55,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     OkHttpClient client;
     RequestBody body;
     Request request;
+
+    int Numberlikes;
 
 
     public PostAdapter(Context mContext, List<Post> mPosts, String access_token) {
@@ -75,10 +77,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         Post post = mPosts.get(position);
 
         try{
-            Glide.with(mContext).load(post.getFile()+".jpg")
+            Glide.with(mContext).load("https://diys.co/"+post.getFile())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.post_image);
-            Glide.with(mContext).load(post.getAvatar())
+            Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.user_profile_image);
         }catch (Exception e){
@@ -90,10 +92,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(post.getComments()+" comments");
 
+
+
         is_liked = post.getIs_liked();
         is_saved = post.getIs_saved();
         post_id = post.getPost_id();
         user_id = post.getUser_id();
+
+        if (is_liked.equals("1"))
+            holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+        if (is_saved.equals("1"))
+            holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
+
+        Numberlikes = Integer.parseInt(post.getLikes());
 
         holder.post_image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,8 +118,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("post_id", post_id);
                 intentPostViewer.putExtra("user_id", user_id);
                 intentPostViewer.putExtra("username", post.getUsername());
-                intentPostViewer.putExtra("avatar", post.getAvatar());
-                intentPostViewer.putExtra("post_image", post.getFile()+".jpg");
+                intentPostViewer.putExtra("avatar", "https://diys.co/"+post.getAvatar());
+                intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
                 intentPostViewer.putExtra("description", post.getDescription());
                 intentPostViewer.putExtra("comment", post.getComments());
                 mContext.startActivity(intentPostViewer);
@@ -127,7 +138,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
-        //TODO: Verificar respuesta para ver cómo darle color al botón
+        //TODO: Guardar número de likes para ver si de esa manera se guarda la variable
         holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,12 +150,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 myAnim.setInterpolator(interpolator);
 
                 holder.imageViewLike.startAnimation(myAnim);
-                if(is_liked){
-                    is_liked = false;
+                if(is_liked.equals("1")){
+                    is_liked = "0";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
                 }
                 else{
-                    is_liked = true;
+                    is_liked = "1";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
                 }
 
@@ -190,7 +201,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         ImageView user_profile_image, post_image;
         TextView time, username, description, like, comment;
         ImageButton imageButtonMore;
-        ImageView imageViewLike, imageViewComment;
+        ImageView imageViewLike, imageViewComment, imageViewFav;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -204,6 +215,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageButtonMore = itemView.findViewById(R.id.more);
             imageViewLike = itemView.findViewById(R.id.like);
             imageViewComment = itemView.findViewById(R.id.comment);
+            imageViewFav = itemView.findViewById(R.id.imageViewFav);
 
             builder = new AlertDialog.Builder(mContext);
             builder.setTitle("Post")
@@ -251,7 +263,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Probar
                     Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
                     intentProfileViewer.putExtra("access_token", access_token);
                     intentProfileViewer.putExtra("user_id", user_id);
@@ -262,7 +273,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageButtonMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Probar MoreDialog
                     builder.show();
                     Toast.makeText(mContext, "more", Toast.LENGTH_SHORT).show();
                 }

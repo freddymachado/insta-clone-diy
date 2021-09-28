@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
@@ -47,7 +49,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     //TODO: Probar onClickListener to make conections, go to other activities, open description or toggle the menu bar
     //TODO: Keep user logged in
 
-    private static final String URL_POSTS = "https://diys.co/punto.php";
+    private static final String URL_POSTS = "https://diys.co/pointed.php";
 
     private RecyclerView recycler_view;
     private List<Post> postList;
@@ -81,22 +83,30 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();
         access_token = intent.getStringExtra("access_token");
+        user_id = intent.getStringExtra("user_id");
+
+        JSONArray jsonBody = new JSONArray();
+        try {
+            jsonBody.put(0,user_id);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         //TODO: Probar Obtenemos la info desde endpoint punto porque la respuesta a fetch_home_posts sólo retorna posts propios.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
-                new Response.Listener<String>() {
+        JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URL_POSTS, jsonBody,
+                new Response.Listener<JSONArray>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONArray response) {
                         try {
-                            JSONArray array = new JSONArray(response);
-                            Log.d("ApiResponse", response);
+                            //JSONArray array = new JSONArray(response.toString());
+                            Log.d("ApiResponse", String.valueOf(response));
 
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject post = array.getJSONObject(i);
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject post = response.getJSONObject(i);
 
                                 postList.add(new Post(
                                         post.getString("description"),
-                                        post.getString("time_text"),
+                                        post.getString("time"),
                                         post.getString("username"),
                                         post.getString("avatar"),
                                         post.getString("file"),
@@ -104,8 +114,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                                         post.getString("comments"),
                                         post.getString("post_id"),
                                         post.getString("user_id"),
-                                        post.getBoolean("is_liked"),
-                                        post.getBoolean("is_saved")
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved")
                                 ));
                             }
                             PostAdapter adapter = new PostAdapter(getContext(),
@@ -125,7 +135,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             }
         });
 
-        Volley.newRequestQueue(getContext()).add(stringRequest);
+        Volley.newRequestQueue(getContext()).add(jsonObjectRequest);
         /*
 
         //Iniciamos la solicitud para obtener los datos del usuario

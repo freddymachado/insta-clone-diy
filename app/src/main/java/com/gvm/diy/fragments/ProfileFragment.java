@@ -45,11 +45,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ProfileFragment extends Fragment {
     //TODO: Guardar valores en SharedPreferences para evitar conexiones (tercera entrega)
 
@@ -375,8 +370,8 @@ public class ProfileFragment extends Fragment {
                                         postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
                                         post.getString("likes"),
                                         post.getString("comments"),
-                                        post.getBoolean("is_liked"),
-                                        post.getBoolean("is_saved"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
                                         post.getString("post_id")
                                 ));
                             }

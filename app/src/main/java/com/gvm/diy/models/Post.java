@@ -3,13 +3,13 @@ package com.gvm.diy.models;
 import java.io.Serializable;
 
 public class Post implements Serializable {
-    private String description, time_text, username, avatar, file, likes,comments, post_id, user_id;
-    private Boolean is_liked, is_saved;
+    private String description, time, username, avatar, file, likes,comments, post_id, user_id;
+    private String is_liked, is_saved;
 
-    public Post(String description, String time_text, String username, String avatar,
-                String file, String likes, String comments, String post_id, String user_id, Boolean is_liked, Boolean is_saved) {
+    public Post(String description, String time, String username, String avatar,
+                String file, String likes, String comments, String post_id, String user_id, String is_liked, String is_saved) {
         this.description = description;
-        this.time_text = time_text;
+        this.time = time;
         this.username = username;
         this.avatar = avatar;
         this.file = file;
@@ -29,25 +29,25 @@ public class Post implements Serializable {
         this.user_id = user_id;
     }
 
-    public Boolean getIs_liked() {
+    public String getIs_liked() {
         return is_liked;
     }
 
-    public void setIs_liked(Boolean is_liked) {
+    public void setIs_liked(String is_liked) {
         this.is_liked = is_liked;
     }
 
-    public Boolean getIs_saved() {
+    public String getIs_saved() {
         return is_saved;
     }
 
-    public void setIs_saved(Boolean is_saved) {
+    public void setIs_saved(String is_saved) {
         this.is_saved = is_saved;
     }
 
-    public Post(String description, String time_text, String username, String avatar, String file, String likes, String comments, Boolean is_liked, Boolean is_saved, String post_id) {
+    public Post(String description, String time, String username, String avatar, String file, String likes, String comments, String is_liked, String is_saved, String post_id) {
         this.description = description;
-        this.time_text = time_text;
+        this.time = time;
         this.username = username;
         this.avatar = avatar;
         this.file = file;
@@ -61,9 +61,9 @@ public class Post implements Serializable {
     public Post() {
     }
 
-    public Post(String description, String time_text, String username, String avatar, String file, String likes, String comments, String post_id) {
+    public Post(String description, String time, String username, String avatar, String file, String likes, String comments, String post_id) {
         this.description = description;
-        this.time_text = time_text;
+        this.time = time;
         this.username = username;
         this.avatar = avatar;
         this.file = file;
@@ -97,12 +97,12 @@ public class Post implements Serializable {
         this.description = description;
     }
 
-    public String getTime_text() {
-        return time_text;
+    public String getTime() {
+        return time;
     }
 
-    public void setTime_text(String time_text) {
-        this.time_text = time_text;
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public String getUsername() {

@@ -322,7 +322,7 @@ public class FollowersActivity extends AppCompatActivity {
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key",server_key)
                         .addFormDataPart("access_token",access_token)
-                        .addFormDataPart("user_id",post_id)
+                        .addFormDataPart("post_id",post_id)
                         .build();
 
                 UserPostsRequest = new Request.Builder()
@@ -334,7 +334,7 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        Toast.makeText(FollowersActivity.this, "Error de red "+mMessage, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(FollowersActivity.this, "Error de red "+mMessage, Toast.LENGTH_LONG).show();
 
                         Log.e("failure Response", mMessage);
                     }

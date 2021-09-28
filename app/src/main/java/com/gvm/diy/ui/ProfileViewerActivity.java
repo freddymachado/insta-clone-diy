@@ -211,13 +211,10 @@ public class ProfileViewerActivity extends AppCompatActivity {
         switch (view.getId()) {
 
             case R.id.imageButtonBack:
-                imageButtonBack.startAnimation(myAnim);
                 finish();
                 break;
 
             case R.id.imageButtonMore:
-                //TODO: Probar MoreDialog
-                imageButtonMore.startAnimation(myAnim);
                 builder.show();
                 break;
 
