@@ -334,8 +334,12 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(FollowersActivity.this, "Error de red "+mMessage, Toast.LENGTH_LONG).show();
-
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 

@@ -29,6 +29,7 @@ import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.MainActivity;
 import com.gvm.diy.ui.PostViewerActivity;
 import com.gvm.diy.ui.ProfileViewerActivity;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.io.IOException;
 import java.util.List;
@@ -129,7 +130,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.imageViewComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Probar
                 Intent intentComments = new Intent(mContext, FollowersActivity.class);
                 intentComments.putExtra("function", "comments");
                 intentComments.putExtra("post_id", post_id);
@@ -198,10 +198,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
-        ImageView user_profile_image, post_image;
+        ImageView  post_image;
         TextView time, username, description, like, comment;
         ImageButton imageButtonMore;
         ImageView imageViewLike, imageViewComment, imageViewFav;
+        RoundedImageView user_profile_image;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -281,7 +282,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             description.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Probar descripcion
+                    //TODO: Alargar descripcion
                 }
             });
 
@@ -299,7 +300,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Probar
                     Intent intentComments = new Intent(mContext, FollowersActivity.class);
                     intentComments.putExtra("function", "comments");
                     intentComments.putExtra("post_id", post_id);

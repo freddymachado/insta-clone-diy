@@ -22,7 +22,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
+import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -53,6 +55,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     private List<ProfileItem> profileItems;
+    private List<Post> postList;
 
     String access_token, avatar, user_id, server_key = "1539874186", name, favourites, following, followers;
 
@@ -60,9 +63,10 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
     AlertDialog.Builder builder;
 
+
     OkHttpClient client;
-    RequestBody body;
-    Request request;
+    RequestBody requestBody;
+    Request UserPostsRequest;
 
     GridLayoutManager gridLayoutManager;
     LinearLayoutManager linearLayoutManager;
@@ -108,18 +112,19 @@ public class ProfileViewerActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(gridLayoutManager);
 
         profileItems = new ArrayList<>();
+        postList = new ArrayList<>();
 
         //Iniciamos la solicitud para obtener los datos del usuario
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        client = new OkHttpClient().newBuilder().build();
 
-        RequestBody requestBody = new MultipartBody.Builder()
+        requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("server_key",server_key)
                 .addFormDataPart("user_id",user_id)
                 .addFormDataPart("access_token",access_token)
                 .build();
 
-        Request UserPostsRequest = new Request.Builder()
+        UserPostsRequest = new Request.Builder()
                 .url("https://diys.co/endpoints/v1/post/fetch_user_posts")
                 .post(requestBody)
                 .build();
@@ -128,7 +133,12 @@ public class ProfileViewerActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ProfileViewerActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
                 Log.e("failure Response", mMessage);
             }
 
@@ -229,6 +239,59 @@ public class ProfileViewerActivity extends AppCompatActivity {
             case R.id.imageButtonList:
                 //TODO: Probar
                 recyclerView.setLayoutManager(linearLayoutManager);
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        Toast.makeText(ProfileViewerActivity.this, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("ApiResponse", mMessage);
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONObject data = array.getJSONObject("data");
+
+                            JSONArray userPosts = data.getJSONArray("user_posts");
+
+                            for (int i = 0; i < userPosts.length(); i++) {
+                                JSONObject post = userPosts.getJSONObject(i);
+
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                Log.e("ApiResponse", String.valueOf(data.length()));
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
+                                        post.getString("post_id")
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                PostAdapter adapter = new PostAdapter(ProfileViewerActivity.this,
+                                        postList,
+                                        access_token);
+                                recyclerView.setAdapter(adapter);
+                            }
+                        });
+                    }
+                });
                 break;
 
 

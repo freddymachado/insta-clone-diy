@@ -28,6 +28,7 @@ import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.EditActivity;
 import com.gvm.diy.ui.SettingsActivity;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,11 +47,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ProfileFragment extends Fragment {
-    //TODO: Guardar valores en SharedPreferences para evitar conexiones (tercera entrega)
+    //TODO: Guardar valores en SharedPreferences para evitar conexiones (última entrega)
 
     ImageButton imageButtonSettings, imageButtonGrid, imageButtonAdd, imageButtonList;
 
-    ImageView imageViewProfile;
+    RoundedImageView imageViewProfile;
 
     Button buttonEdit;
 
@@ -106,6 +107,7 @@ public class ProfileFragment extends Fragment {
         recycler_view.setLayoutManager(gridLayoutManager);
 
         profileItems = new ArrayList<>();
+        postList = new ArrayList<>();
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();
@@ -132,7 +134,12 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
                 Log.e("failure Response", mMessage);
             }
 
@@ -157,7 +164,7 @@ public class ProfileFragment extends Fragment {
                         JSONObject post = userPosts.getJSONObject(i);
                         JSONArray postMedia = post.getJSONArray("media_set");
                         //Por alguna razón el jsonArray postMedia tiene la info en string plano.
-                        //TODO: actualizar para los tipo de archivo soportados (tercera entrega)
+                        //TODO: actualizar para los tipo de archivo soportados (última entrega)
                         Log.e("ApiResponse", postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""));
                         profileItems.add(new ProfileItem(
                                 postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\","")
@@ -360,14 +367,17 @@ public class ProfileFragment extends Fragment {
                                 JSONObject post = userPosts.getJSONObject(i);
 
                                 JSONArray postMedia = post.getJSONArray("media_set");
-                                Log.e("ApiResponse", String.valueOf(data.length()));
+                                String postImageLink = postMedia.getString(0).split("diy")[1].substring(3)/*.split(".")[0].substring(1).replace("\\","")*/;
+                                String extension = postMedia.getString(0).split("diys")[1].substring(3).split(".")[1].substring(0,2);
+                                //TODO: Parwece que el split(".") produce problemas
 
+                                Log.e("ApiResponse", postImageLink+extension);
                                 postList.add(new Post(
                                         post.getString("description"),
                                         post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("avatar"),
-                                        postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
+                                        postImageLink+"."+extension,
                                         post.getString("likes"),
                                         post.getString("comments"),
                                         post.getString("is_liked"),
@@ -433,7 +443,7 @@ public class ProfileFragment extends Fragment {
         imageButtonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Investigar cómo acceder a los botones del MainActivity. (tercera entrega)
+                //TODO: Investigar cómo acceder a los botones del MainActivity. (última entrega)
             }
         });
         buttonEdit.setOnClickListener(new View.OnClickListener() {

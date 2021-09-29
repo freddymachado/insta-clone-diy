@@ -47,7 +47,7 @@ import okhttp3.RequestBody;
 
 public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     //TODO: Probar onClickListener to make conections, go to other activities, open description or toggle the menu bar
-    //TODO: Keep user logged in
+    //TODO: Keep user logged in (last entrega)
 
     private static final String URL_POSTS = "https://diys.co/pointed.php";
 
@@ -92,7 +92,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             e.printStackTrace();
         }
 
-        //TODO: Probar Obtenemos la info desde endpoint punto porque la respuesta a fetch_home_posts sólo retorna posts propios.
         JsonArrayRequest jsonObjectRequest = new JsonArrayRequest(Request.Method.POST, URL_POSTS, jsonBody,
                 new Response.Listener<JSONArray>() {
                     @Override
