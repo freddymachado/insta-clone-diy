@@ -16,9 +16,7 @@ import android.widget.Toast;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.CommentsAdapter;
 import com.gvm.diy.adapter.FollowAdapter;
-import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.CommentsItem;
-import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.models.FollowItem;
 
 import org.json.JSONArray;
@@ -264,7 +262,7 @@ public class FollowersActivity extends AppCompatActivity {
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key",server_key)
                         .addFormDataPart("access_token",access_token)
-                        .addFormDataPart("user_id",post_id)
+                        .addFormDataPart("post_id",post_id)
                         .build();
 
                 UserPostsRequest = new Request.Builder()
@@ -362,7 +360,7 @@ public class FollowersActivity extends AppCompatActivity {
                                         post.getString("time"),
                                         post.getString("likes"),
                                         post.getString("comment_id"),
-                                        post.getBoolean("is_liked")
+                                        user_id, post.getBoolean("is_liked")
                                 ));
                             }
                         } catch (JSONException e) {
@@ -372,7 +370,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token);
+                                CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
                                 recycler_view.setAdapter(adapter);
                             }
                         });

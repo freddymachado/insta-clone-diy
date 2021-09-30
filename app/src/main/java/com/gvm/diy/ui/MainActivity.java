@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-        //TODO: Subir Videos, crear el flujo de subida y mejorar UI
+        //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
         Request request = new Request.Builder()
                 .url("https://diys.co/endpoints/v1/post/new_post")
                 .post(requestBody)

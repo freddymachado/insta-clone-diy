@@ -4,10 +4,18 @@ import java.io.Serializable;
 
 public class Post implements Serializable {
     private String description, time, username, avatar, file, likes,comments, post_id, user_id;
-    private String is_liked, is_saved;
+    private String is_liked, is_saved, website;
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
 
     public Post(String description, String time, String username, String avatar,
-                String file, String likes, String comments, String post_id, String user_id, String is_liked, String is_saved) {
+                String file, String likes, String comments, String post_id, String user_id, String is_liked, String is_saved, String website) {
         this.description = description;
         this.time = time;
         this.username = username;
@@ -19,6 +27,7 @@ public class Post implements Serializable {
         this.user_id = user_id;
         this.is_liked = is_liked;
         this.is_saved = is_saved;
+        this.website = website;
     }
 
     public String getUser_id() {

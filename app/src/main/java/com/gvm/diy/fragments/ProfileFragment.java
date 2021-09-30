@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -342,8 +341,6 @@ public class ProfileFragment extends Fragment {
         imageButtonList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Probar el postItem en este caso.
-                recycler_view.setLayoutManager(linearLayoutManager);
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -367,11 +364,12 @@ public class ProfileFragment extends Fragment {
                                 JSONObject post = userPosts.getJSONObject(i);
 
                                 JSONArray postMedia = post.getJSONArray("media_set");
-                                String postImageLink = postMedia.getString(0).split("diy")[1].substring(3)/*.split(".")[0].substring(1).replace("\\","")*/;
-                                String extension = postMedia.getString(0).split("diys")[1].substring(3).split(".")[1].substring(0,2);
-                                //TODO: Parwece que el split(".") produce problemas
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
 
-                                Log.e("ApiResponse", postImageLink+extension);
+                                Log.e("PFApiResponse", postImageLink+extension);
                                 postList.add(new Post(
                                         post.getString("description"),
                                         post.getString("time_text"),
@@ -394,8 +392,9 @@ public class ProfileFragment extends Fragment {
                             public void run() {
                                 PostAdapter adapter = new PostAdapter(getContext(),
                                         postList,
-                                        getActivity().getIntent().getStringExtra("access_token"));
+                                        getActivity().getIntent().getStringExtra("access_token"), getActivity().getIntent().getStringExtra("access_token"));
                                 recycler_view.setAdapter(adapter);
+                                recycler_view.setLayoutManager(linearLayoutManager);
                             }
                         });
                     }

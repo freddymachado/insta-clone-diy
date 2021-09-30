@@ -1,7 +1,10 @@
 package com.gvm.diy.adapter;
 
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
-import android.provider.MediaStore;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +24,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.CommentsItem;
-import com.gvm.diy.models.Post;
-import com.gvm.diy.ui.PostViewerActivity;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,13 +38,16 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     private Context mContext;
     private List<CommentsItem> commentsItems;
-    private String access_token, server_key = "1539874186", comment_id;
+    private String access_token, server_key = "1539874186", comment_id, user_id;
     private Boolean is_liked, is_saved;
 
-    public CommentsAdapter(Context mContext, List<CommentsItem> commentsItems, String access_token) {
+    AlertDialog.Builder builder;
+
+    public CommentsAdapter(Context mContext, List<CommentsItem> commentsItems, String access_token, String user_id) {
         this.mContext = mContext;
         this.commentsItems = commentsItems;
         this.access_token = access_token;
+        this.user_id = user_id;
     }
 
     @NonNull
@@ -58,11 +62,83 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         CommentsItem commentsItem = commentsItems.get(position);
 
         try{
-            Glide.with(mContext).load(commentsItem.getAvatar())
+            Glide.with(mContext).load("https://diys.co/"+commentsItem.getAvatar())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.imageViewAvatar);
         }catch (Exception e){
             e.printStackTrace();
+        }
+        ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+
+        if(user_id.equals(commentsItem.getUser_id())){
+            builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Copiar","Borrar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
+                                case 0:
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getComment());
+
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                case 1:
+                                    //TODO: Probar borrado de comentario (last entrega, debuggear con el envío de comentarios)
+                                    OkHttpClient eraseComment = new OkHttpClient.Builder().build();
+                                    RequestBody requestBody = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key",server_key)
+                                            .addFormDataPart("comment_id",commentsItem.getComment_id())
+                                            .addFormDataPart("access_token",access_token)
+                                            .build();
+                                    okhttp3.Request request = new okhttp3.Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/delete_comment")
+                                            .post(requestBody)
+                                            .build();
+
+
+                                    eraseComment.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            Toast.makeText(mContext, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
+                                            Log.e("failure Response", mMessage);
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                            removeItem(holder.getAdapterPosition());
+
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+        }else{
+            builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Copiar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
+                                case 0:
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getComment());
+
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+
         }
 
         holder.textViewLikes.setText("Me gusta("+commentsItem.getLikes()+")");
@@ -145,9 +221,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             imageButtonMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Verificar diseño MoreDialog
+                    //TODO: Probar diseño MoreDialog (Cuando se obtenga erspuesta en FollowersActivity)
+                    builder.show();
                 }
             });
         }
+    }
+
+    public void removeItem(int position){
+        commentsItems.remove(position);
+        notifyItemRemoved(position);
     }
 }

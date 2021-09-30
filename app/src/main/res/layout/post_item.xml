@@ -133,10 +133,11 @@
             android:text="..."
             android:layout_marginStart="10dp"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             app:trimExpandedText="leer menos"
             app:trimCollapsedText="leer más"
             app:trimMode="trimModeLine"
-            app:trimLines="5"
+            app:trimLines="1"
             app:colorClickableText="@color/bluee"/>
     </LinearLayout>
 

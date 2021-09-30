@@ -17,36 +17,20 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.R;
-import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.Post;
-import com.gvm.diy.models.ProfileItem;
-import com.gvm.diy.ui.MainActivity;
-import com.gvm.diy.ui.PostViewerActivity;
+import com.gvm.diy.ui.FollowersActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-
 public class HomeFragment extends Fragment implements PostAdapter.PostListener{
-    //TODO: Probar onClickListener to make conections, go to other activities, open description or toggle the menu bar
     //TODO: Keep user logged in (last entrega)
 
     private static final String URL_POSTS = "https://diys.co/pointed.php";
@@ -114,12 +98,13 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                                         post.getString("post_id"),
                                         post.getString("user_id"),
                                         post.getString("is_liked"),
-                                        post.getString("is_saved")
+                                        post.getString("is_saved"),
+                                        post.getString("website")
                                 ));
                             }
                             PostAdapter adapter = new PostAdapter(getContext(),
                                     postList,
-                                    getActivity().getIntent().getStringExtra("access_token"));
+                                    getActivity().getIntent().getStringExtra("access_token"),"home");
                             recycler_view.setAdapter(adapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -130,6 +115,12 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("ApiResponse", String.valueOf(error));
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+error, Toast.LENGTH_LONG).show();
+                    }
+                });
 
             }
         });

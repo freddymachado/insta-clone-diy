@@ -68,7 +68,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         void setProfileImageView(ProfileItem profileItem){
 
             try{
-                Glide.with(mContext).load(profileItem.getFile()+".jpg")
+                Glide.with(mContext).load("https://diys.co/"+profileItem.getFile())
                         .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                         .into(profileImageView);
             }catch (Exception e){

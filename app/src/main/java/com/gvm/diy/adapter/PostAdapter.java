@@ -16,27 +16,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
-import com.gvm.diy.fragments.HomeFragment;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.ui.FollowersActivity;
-import com.gvm.diy.ui.MainActivity;
 import com.gvm.diy.ui.PostViewerActivity;
 import com.gvm.diy.ui.ProfileViewerActivity;
 import com.makeramen.roundedimageview.RoundedImageView;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -47,7 +45,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
 
     Context mContext;
     private List<Post> mPosts;
-    private String access_token, server_key = "1539874186", post_id, user_id;
+    private String access_token, server_key = "1539874186", post_id, user_id, web, place;
     private String is_liked, is_saved;
     public PostListener postListener;
 
@@ -60,10 +58,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     int Numberlikes;
 
 
-    public PostAdapter(Context mContext, List<Post> mPosts, String access_token) {
+    public PostAdapter(Context mContext, List<Post> mPosts, String accessToken, String place) {
         this.mContext = mContext;
         this.mPosts = mPosts;
-        this.access_token = access_token;
+        this.access_token = accessToken;
+        this.place = place;
     }
 
     @NonNull
@@ -81,9 +80,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             Glide.with(mContext).load("https://diys.co/"+post.getFile())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.post_image);
-            Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
-                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                    .into(holder.user_profile_image);
+            if(place.equals("home")){
+                Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
+                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                        .into(holder.user_profile_image);
+            }else {
+                Glide.with(mContext).load(post.getAvatar())
+                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                        .into(holder.user_profile_image);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -94,6 +99,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.comment.setText(post.getComments()+" comments");
 
 
+        web = post.getWebsite();
 
         is_liked = post.getIs_liked();
         is_saved = post.getIs_saved();
@@ -123,6 +129,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
                 intentPostViewer.putExtra("description", post.getDescription());
                 intentPostViewer.putExtra("comment", post.getComments());
+                intentPostViewer.putExtra("web", web);
                 mContext.startActivity(intentPostViewer);
             }
         });
@@ -267,6 +274,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
                     intentProfileViewer.putExtra("access_token", access_token);
                     intentProfileViewer.putExtra("user_id", user_id);
+                    intentProfileViewer.putExtra("web", web);
                     mContext.startActivity(intentProfileViewer);
                 }
             });
@@ -282,7 +290,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             description.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Alargar descripcion
+                    //TODO: Probar Alargar descripcion
                 }
             });
 
@@ -291,9 +299,53 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 public void onClick(View v) {
                     //TODO: Probar
                     Intent intentLikes = new Intent(mContext, FollowersActivity.class);
+                    intentLikes.putExtra("access_token", access_token);
                     intentLikes.putExtra("function", "likes");
                     intentLikes.putExtra("post_id", post_id);
                     mContext.startActivity(intentLikes);
+                }
+            });
+
+            imageViewFav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: Probar
+
+                    body = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("server_key", server_key)
+                            .addFormDataPart("post_id", post_id)
+                            .addFormDataPart("access_token", access_token)
+                            .build();
+
+                    request = new Request.Builder()
+                            .url("https://diys.co/endpoints/v1/post/add_to_favorite")
+                            .post(body)
+                            .build();
+
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            String mMessage = e.getMessage().toString();
+                            Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                            Log.e("failure Response", mMessage);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            final String mMessage = response.body().string();
+                            Log.e("fav Response", mMessage);
+                            JSONObject array = null;
+                            //imageViewFav.startAnimation(myAnim);
+                            if (is_saved.equals("1")) {
+                                is_saved = "0";
+                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_outline_24));
+                            } else {
+                                is_saved = "1";
+                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
+                            }
+                        }
+                    });
                 }
             });
 

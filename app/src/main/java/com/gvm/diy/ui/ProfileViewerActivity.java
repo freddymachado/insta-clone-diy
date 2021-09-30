@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -57,7 +58,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
     private List<ProfileItem> profileItems;
     private List<Post> postList;
 
-    String access_token, avatar, user_id, server_key = "1539874186", name, favourites, following, followers;
+    String access_token, avatar, user_id, server_key = "1539874186", name, favourites, following, followers, web;
 
     Boolean is_liked, is_saved;
 
@@ -81,12 +82,17 @@ public class ProfileViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
         user_id = intent.getStringExtra("user_id");
+        web = intent.getStringExtra("web");
 
         imageButtonBack = findViewById(R.id.imageButtonBack);
         imageButtonMore = findViewById(R.id.imageButtonMore);
         imageButtonGrid = findViewById(R.id.imageButtonGrid);
         imageButtonWeb = findViewById(R.id.imageButtonWeb);
         imageButtonList = findViewById(R.id.imageButtonList);
+
+        if(web.isEmpty()){
+            imageButtonWeb.setVisibility(View.GONE);
+        }
 
         roundedImageViewAvatar = findViewById(R.id.imageViewAvatar);
 
@@ -163,10 +169,15 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         JSONObject post = userPosts.getJSONObject(i);
                         JSONArray postMedia = post.getJSONArray("media_set");
                         //Por alguna razón el jsonArray postMedia tiene la info en string plano.
-                        //TODO: actualizar para los tipo de archivo soportados (tercera entrega)
-                        Log.e("ApiResponse", postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""));
+                        String postImageLink = postMedia.getString(0).split("diy")[1]
+                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                        String extension = postMedia.getString(0).split("diys")[1]
+                                .substring(3).split("\\.")[1].substring(0,3);
+
+                        Log.e("PVApiResponse", postImageLink+"."+extension);
+
                         profileItems.add(new ProfileItem(
-                                postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\","")
+                                postImageLink+"."+extension
                         ));
                     }
                 } catch (JSONException e) {
@@ -233,17 +244,24 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonWeb:
-                //TODO: Verificar funcionamiento
+                //TODO: Ver si funciona la web
+                    Uri uriWeb = Uri.parse(web);
+                    Intent intentWeb = new Intent(Intent.ACTION_VIEW, uriWeb);
+                    startActivity(intentWeb);
                 break;
 
             case R.id.imageButtonList:
                 //TODO: Probar
-                recyclerView.setLayoutManager(linearLayoutManager);
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        Toast.makeText(ProfileViewerActivity.this, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(ProfileViewerActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -262,14 +280,19 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 JSONObject post = userPosts.getJSONObject(i);
 
                                 JSONArray postMedia = post.getJSONArray("media_set");
-                                Log.e("ApiResponse", String.valueOf(data.length()));
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
+
+                                Log.e("PVApiResponse", postImageLink+"."+extension);
 
                                 postList.add(new Post(
                                         post.getString("description"),
                                         post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("avatar"),
-                                        postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
+                                        postImageLink+"."+extension,
                                         post.getString("likes"),
                                         post.getString("comments"),
                                         post.getString("is_liked"),
@@ -286,8 +309,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
                             public void run() {
                                 PostAdapter adapter = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
-                                        access_token);
+                                        access_token, "PV");
                                 recyclerView.setAdapter(adapter);
+                                recyclerView.setLayoutManager(linearLayoutManager);
                             }
                         });
                     }

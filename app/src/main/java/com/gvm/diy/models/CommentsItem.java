@@ -3,7 +3,7 @@ package com.gvm.diy.models;
 import java.io.Serializable;
 
 public class CommentsItem implements Serializable {
-    private String avatar, comment, time, likes, comment_id;
+    private String avatar, comment, time, likes, comment_id, user_id;
     private Boolean is_liked;
 
     public String getComment_id() {
@@ -14,13 +14,22 @@ public class CommentsItem implements Serializable {
         this.comment_id = comment_id;
     }
 
-    public CommentsItem(String avatar, String comment, String time, String likes, String comment_id, Boolean is_liked) {
+    public CommentsItem(String avatar, String comment, String time, String likes, String comment_id, String user_id, Boolean is_liked) {
         this.avatar = avatar;
         this.comment = comment;
         this.time = time;
         this.likes = likes;
         this.comment_id = comment_id;
+        this.user_id = user_id;
         this.is_liked = is_liked;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public String getAvatar() {

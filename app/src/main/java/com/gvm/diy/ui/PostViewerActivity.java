@@ -28,6 +28,7 @@ import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.ProfileItem;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,12 +51,13 @@ public class PostViewerActivity extends AppCompatActivity {
     //TODO: BottomBar que llame los métodos del MainActivity (4ta entrega?)
     ImageButton imageButtonBack, imageButtonMore;
 
-    ImageView user_profile_image, post_imageImageView, imageViewLike, imageViewComment, imageViewReply, imageViewFav;
+    ImageView post_imageImageView, imageViewLike, imageViewComment, imageViewReply, imageViewFav;
+    RoundedImageView user_profile_image;
 
     TextView usernameTextView, textViewDescription, textViewLikes, textViewComments;
 
     String access_token, post_id, user_id, server_key = "1539874186", username, avatar, post_image,
-            comment, description;
+            comment, description, web;
 
     String is_liked, is_saved;
 
@@ -93,6 +95,7 @@ public class PostViewerActivity extends AppCompatActivity {
         comment = intent.getStringExtra("comment");
         is_liked = intent.getStringExtra("is_liked");
         is_saved = intent.getStringExtra("is_saved");
+        web = intent.getStringExtra("web");
 
         try{
             Glide.with(PostViewerActivity.this).load(post_image)
@@ -180,7 +183,6 @@ public class PostViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonMore:
-                //TODO: Probar MoreDialog
                 builder.show();
                 Toast.makeText(PostViewerActivity.this, "more", Toast.LENGTH_SHORT).show();
                 break;
@@ -188,6 +190,7 @@ public class PostViewerActivity extends AppCompatActivity {
             case R.id.username:
                 Intent intentProfileViewer = new Intent(PostViewerActivity.this, ProfileViewerActivity.class);
                 intentProfileViewer.putExtra("access_token", access_token);
+                intentProfileViewer.putExtra("web", web);
                 intentProfileViewer.putExtra("user_id", user_id);
                 startActivity(intentProfileViewer);
                 break;
