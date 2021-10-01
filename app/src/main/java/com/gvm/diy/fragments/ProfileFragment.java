@@ -57,7 +57,8 @@ public class ProfileFragment extends Fragment {
     TextView textViewFullname, textViewDescription, textViewFollowers, textViewNumberFollowers,
             textViewNumberFollowing, textViewFollowing, textViewNumberFavorites, textViewFavorites;
 
-    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
+    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following,
+            fname, lname, about, website, followers;
 
     GridLayoutManager gridLayoutManager;
 
@@ -155,6 +156,10 @@ public class ProfileFragment extends Fragment {
                     followers = userData.getString("followers");
                     favourites = userData.getString("favourites");
                     avatar = userData.getString("avatar");
+                    fname = userData.getString("fname");
+                    lname = userData.getString("lname");
+                    about = userData.getString("about");
+                    website = userData.getString("website");
 
                     JSONArray userPosts = data.getJSONArray("user_posts");
                     JSONObject file = new JSONObject();
@@ -162,11 +167,14 @@ public class ProfileFragment extends Fragment {
                     for (int i = 0; i < userPosts.length(); i++) {
                         JSONObject post = userPosts.getJSONObject(i);
                         JSONArray postMedia = post.getJSONArray("media_set");
-                        //Por alguna razón el jsonArray postMedia tiene la info en string plano.
-                        //TODO: actualizar para los tipo de archivo soportados (última entrega)
-                        Log.e("ApiResponse", postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""));
+                        String postImageLink = postMedia.getString(0).split("diy")[1]
+                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                        String extension = postMedia.getString(0).split("diys")[1]
+                                .substring(3).split("\\.")[1].substring(0,3);
+
+                        Log.e("PrFApiResponse", postImageLink+extension);
                         profileItems.add(new ProfileItem(
-                                postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\","")
+                                postImageLink+"."+extension
                         ));
                     }
                 } catch (JSONException e) {
@@ -452,6 +460,10 @@ public class ProfileFragment extends Fragment {
                 intentFollowing.putExtra("function", "following");
                 intentFollowing.putExtra("user_id", user_id);
                 intentFollowing.putExtra("access_token", access_token);
+                intentFollowing.putExtra("fname", fname);
+                intentFollowing.putExtra("lname", lname);
+                intentFollowing.putExtra("about", about);
+                intentFollowing.putExtra("website", website);
                 startActivity(intentFollowing);
             }
         });

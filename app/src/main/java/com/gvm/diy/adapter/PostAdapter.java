@@ -1,6 +1,8 @@
 package com.gvm.diy.adapter;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.borjabravo.readmoretextview.ReadMoreTextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
@@ -84,10 +87,52 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
                         .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                         .into(holder.user_profile_image);
+
+                holder.post_image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        //postListener.postImageOnClick(v,position);
+                        Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                        intentPostViewer.putExtra("access_token", access_token);
+                        intentPostViewer.putExtra("is_liked", is_liked);
+                        intentPostViewer.putExtra("is_saved", is_saved);
+                        intentPostViewer.putExtra("post_id", post_id);
+                        intentPostViewer.putExtra("user_id", user_id);
+                        intentPostViewer.putExtra("username", post.getUsername());
+                        intentPostViewer.putExtra("avatar", "https://diys.co/"+post.getAvatar());
+                        intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                        intentPostViewer.putExtra("description", post.getDescription());
+                        intentPostViewer.putExtra("comment", post.getComments());
+                        intentPostViewer.putExtra("web", web);
+                        mContext.startActivity(intentPostViewer);
+                    }
+                });
             }else {
                 Glide.with(mContext).load(post.getAvatar())
                         .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                         .into(holder.user_profile_image);
+
+                holder.post_image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        //postListener.postImageOnClick(v,position);
+                        Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                        intentPostViewer.putExtra("access_token", access_token);
+                        intentPostViewer.putExtra("is_liked", is_liked);
+                        intentPostViewer.putExtra("is_saved", is_saved);
+                        intentPostViewer.putExtra("post_id", post_id);
+                        intentPostViewer.putExtra("user_id", user_id);
+                        intentPostViewer.putExtra("username", post.getUsername());
+                        intentPostViewer.putExtra("avatar", post.getAvatar());
+                        intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                        intentPostViewer.putExtra("description", post.getDescription());
+                        intentPostViewer.putExtra("comment", post.getComments());
+                        intentPostViewer.putExtra("web", web);
+                        mContext.startActivity(intentPostViewer);
+                    }
+                });
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -98,6 +143,53 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(post.getComments()+" comments");
 
+        ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+
+        builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Post")
+                .setItems(new String[]{"Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                body = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("server_key", server_key)
+                                        .addFormDataPart("post_id", post_id)
+                                        .addFormDataPart("access_token", access_token)
+                                        .build();
+
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/post/report_post")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
+                                break;
+                            case 1:
+                                ClipData clip = ClipData.newPlainText("description",post.getDescription());
+
+                                Toast.makeText(mContext, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                clipboardManager.setPrimaryClip(clip);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
 
         web = post.getWebsite();
 
@@ -206,8 +298,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView  post_image;
-        TextView time, username, description, like, comment;
+        TextView time, username, like, comment;
         ImageButton imageButtonMore;
+        ReadMoreTextView description;
         ImageView imageViewLike, imageViewComment, imageViewFav;
         RoundedImageView user_profile_image;
 
@@ -225,49 +318,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageViewComment = itemView.findViewById(R.id.comment);
             imageViewFav = itemView.findViewById(R.id.imageViewFav);
 
-            builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Post")
-                    .setItems(new String[]{"Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0:
-                                    body = new MultipartBody.Builder()
-                                            .setType(MultipartBody.FORM)
-                                            .addFormDataPart("server_key", server_key)
-                                            .addFormDataPart("post_id", post_id)
-                                            .addFormDataPart("access_token", access_token)
-                                            .build();
-
-                                    request = new Request.Builder()
-                                            .url("https://diys.co/endpoints/v1/post/report_post")
-                                            .post(body)
-                                            .build();
-
-                                    client.newCall(request).enqueue(new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-                                            String mMessage = e.getMessage().toString();
-                                            Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                                            Log.e("failure Response", mMessage);
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, Response response) throws IOException {
-                                            final String mMessage = response.body().string();
-                                            Log.e("Like Response", mMessage);
-                                        }
-                                    });
-                                    break;
-                                case 1:
-                                    //TODO: Verificar comportamiento
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    });
-
             username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -283,14 +333,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 @Override
                 public void onClick(View v) {
                     builder.show();
-                    Toast.makeText(mContext, "more", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            description.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Probar Alargar descripcion
                 }
             });
 

@@ -1,17 +1,30 @@
 package com.gvm.diy.ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gvm.diy.R;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class EditActivity extends AppCompatActivity {
-    //TODO: clickListeners de los botones y rellenar info con extras
     ImageButton imageButtonBack;
 
     TextView textViewSave;
@@ -20,6 +33,7 @@ public class EditActivity extends AppCompatActivity {
 
     String access_token,username, user_id, website, server_key = "1539874186", name, surname, about, followers;
 
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +45,7 @@ public class EditActivity extends AppCompatActivity {
         editTextSurname = findViewById(R.id.editTextSurname);
         editTextAbout = findViewById(R.id.editTextAbout);
         editTextWeb = findViewById(R.id.editTextWeb);
+        progressBar = findViewById(R.id.progressBar);
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
@@ -55,10 +70,11 @@ public class EditActivity extends AppCompatActivity {
         textViewSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                website = editTextWeb.getText();
-                name = editTextName.getText();
-                surname = editTextSurname.getText();
-                about = editTextAbout.getText();
+                progressBar.setVisibility(View.VISIBLE);
+                website = editTextWeb.getText().toString();
+                name = editTextName.getText().toString();
+                surname = editTextSurname.getText().toString();
+                about = editTextAbout.getText().toString();
 
                 OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
                 RequestBody requestBody = new MultipartBody.Builder()
@@ -80,26 +96,27 @@ public class EditActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //
-                        Log.e("failure Response", mMessage);
-
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(EditActivity.this, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(EditActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
+                        });
+                        Log.e("failure Response", mMessage);
                     }
 
                     @Override
                     public void onResponse(Call call, okhttp3.Response response) throws IOException {
                         final String mMessage = response.body().string();
                         Log.e("Like Response", mMessage);
-
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(EditActivity.this, "Cambios guardados", Toast.LENGTH_LONG).show();
                             }
+                        });
 
                     }
                 });

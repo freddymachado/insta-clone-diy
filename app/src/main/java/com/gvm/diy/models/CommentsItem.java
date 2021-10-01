@@ -3,23 +3,23 @@ package com.gvm.diy.models;
 import java.io.Serializable;
 
 public class CommentsItem implements Serializable {
-    private String avatar, comment, time, likes, comment_id, user_id;
+    private String avatar, text, time_text, likes, id, user_id;
     private Boolean is_liked;
 
-    public String getComment_id() {
-        return comment_id;
+    public String getId() {
+        return id;
     }
 
-    public void setComment_id(String comment_id) {
-        this.comment_id = comment_id;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public CommentsItem(String avatar, String comment, String time, String likes, String comment_id, String user_id, Boolean is_liked) {
+    public CommentsItem(String avatar, String text, String time_text, String likes, String id, String user_id, Boolean is_liked) {
         this.avatar = avatar;
-        this.comment = comment;
-        this.time = time;
+        this.text = text;
+        this.time_text = time_text;
         this.likes = likes;
-        this.comment_id = comment_id;
+        this.id = id;
         this.user_id = user_id;
         this.is_liked = is_liked;
     }
@@ -40,20 +40,20 @@ public class CommentsItem implements Serializable {
         this.avatar = avatar;
     }
 
-    public String getComment() {
-        return comment;
+    public String getText() {
+        return text;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public String getTime() {
-        return time;
+    public String getTime_text() {
+        return time_text;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setTime_text(String time_text) {
+        this.time_text = time_text;
     }
 
     public String getLikes() {
@@ -75,10 +75,10 @@ public class CommentsItem implements Serializable {
     public CommentsItem() {
     }
 
-    public CommentsItem(String avatar, String comment, String time, String likes, Boolean is_liked) {
+    public CommentsItem(String avatar, String text, String time_text, String likes, Boolean is_liked) {
         this.avatar = avatar;
-        this.comment = comment;
-        this.time = time;
+        this.text = text;
+        this.time_text = time_text;
         this.likes = likes;
         this.is_liked = is_liked;
     }

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -40,6 +41,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
     String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
 
+    ProgressBar progressBar;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -57,6 +60,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_home, container, false);
         recycler_view = itemView.findViewById(R.id.recycler_view);
+        progressBar = itemView.findViewById(R.id.progressBar);
 
         recycler_view.setHasFixedSize(true);
         recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -80,6 +84,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
+                        progressBar.setVisibility(View.GONE);
                         try {
                             //JSONArray array = new JSONArray(response.toString());
                             Log.d("ApiResponse", String.valueOf(response));
@@ -118,6 +123,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+error, Toast.LENGTH_LONG).show();
                     }
                 });

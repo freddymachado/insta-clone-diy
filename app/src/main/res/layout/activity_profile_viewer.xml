@@ -110,7 +110,7 @@
             android:layout_marginLeft="8dp"
             android:textSize="12sp"
             android:maxWidth="300dp"
-            android:text="username"
+            android:text=""
             android:textColor="@color/white_with_alpha"
             app:layout_constraintLeft_toRightOf="@+id/imageViewAvatar"
             app:layout_constraintTop_toBottomOf="@+id/textViewName" />
@@ -263,7 +263,7 @@
             android:layout_marginLeft="8dp"
             android:textSize="12sp"
             android:maxWidth="300dp"
-            android:text="Descripción"
+            android:text=""
             android:textColor="@color/white_with_alpha" />
         <RelativeLayout
             android:layout_width="match_parent"

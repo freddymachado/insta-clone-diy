@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.borjabravo.readmoretextview.ReadMoreTextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -54,7 +58,8 @@ public class PostViewerActivity extends AppCompatActivity {
     ImageView post_imageImageView, imageViewLike, imageViewComment, imageViewReply, imageViewFav;
     RoundedImageView user_profile_image;
 
-    TextView usernameTextView, textViewDescription, textViewLikes, textViewComments;
+    TextView usernameTextView, textViewLikes, textViewComments;
+    ReadMoreTextView textViewDescription;
 
     String access_token, post_id, user_id, server_key = "1539874186", username, avatar, post_image,
             comment, description, web;
@@ -114,6 +119,9 @@ public class PostViewerActivity extends AppCompatActivity {
 
         Log.e("isLiked", is_liked.toString() + is_saved.toString());
 
+        ClipboardManager clipboardManager = (ClipboardManager) PostViewerActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
+
+
         client = new OkHttpClient().newBuilder().build();
 
         builder = new AlertDialog.Builder(PostViewerActivity.this);
@@ -151,7 +159,10 @@ public class PostViewerActivity extends AppCompatActivity {
                         });
                         break;
                     case 1:
-                        //TODO: Verificar comportamiento
+                        ClipData clip = ClipData.newPlainText("description",description);
+
+                        Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                        clipboardManager.setPrimaryClip(clip);
                         break;
                     default:
                         break;
@@ -193,10 +204,6 @@ public class PostViewerActivity extends AppCompatActivity {
                 intentProfileViewer.putExtra("web", web);
                 intentProfileViewer.putExtra("user_id", user_id);
                 startActivity(intentProfileViewer);
-                break;
-
-            case R.id.textViewDescription:
-                //TODO: Probar descripcion
                 break;
 
             case R.id.imageViewLike:
@@ -263,7 +270,15 @@ public class PostViewerActivity extends AppCompatActivity {
 
 
             case R.id.imageViewReply:
-                //TODO: Verificar funcionamiento
+                //TODO: Probar funcionamiento
+                //don't forget the https://
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                String message = description+"https://diys.co//post/"+post_id;
+                share.putExtra(Intent.EXTRA_SUBJECT,"App");
+                share.putExtra(Intent.EXTRA_TEXT,message);
+                startActivity(Intent.createChooser(share,"Compartir vía"));
+
                 break;
 
 

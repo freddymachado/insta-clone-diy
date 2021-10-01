@@ -244,7 +244,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonWeb:
-                //TODO: Ver si funciona la web
+                //TODO: Cambiar mimundodemoda
                     Uri uriWeb = Uri.parse(web);
                     Intent intentWeb = new Intent(Intent.ACTION_VIEW, uriWeb);
                     startActivity(intentWeb);

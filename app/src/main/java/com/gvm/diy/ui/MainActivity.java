@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(int itemIndex, String itemName) {
-                Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
                 switch(itemIndex){
                     case 0:
                         setFragment(new HomeFragment());

@@ -79,7 +79,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             switch (which){
                                 //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
                                 case 0:
-                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getComment());
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
 
                                     clipboardManager.setPrimaryClip(clip);
                                     break;
@@ -89,7 +89,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                     RequestBody requestBody = new MultipartBody.Builder()
                                             .setType(MultipartBody.FORM)
                                             .addFormDataPart("server_key",server_key)
-                                            .addFormDataPart("comment_id",commentsItem.getComment_id())
+                                            .addFormDataPart("comment_id",commentsItem.getId())
                                             .addFormDataPart("access_token",access_token)
                                             .build();
                                     okhttp3.Request request = new okhttp3.Request.Builder()
@@ -129,7 +129,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             switch (which){
                                 //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
                                 case 0:
-                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getComment());
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
 
                                     clipboardManager.setPrimaryClip(clip);
                                     break;
@@ -142,8 +142,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         holder.textViewLikes.setText("Me gusta("+commentsItem.getLikes()+")");
-        holder.textViewComment.setText(commentsItem.getComment());
-        holder.textViewTime.setText(commentsItem.getTime());
+        holder.textViewComment.setText(commentsItem.getText());
+        holder.textViewTime.setText(commentsItem.getTime_text());
     }
 
     @Override
@@ -166,7 +166,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             imageButtonMore = itemView.findViewById(R.id.imageButtonMore);
 
             is_liked = commentsItems.get(getAdapterPosition()).getIs_liked();
-            comment_id = commentsItems.get(getAdapterPosition()).getComment_id();
+            comment_id = commentsItems.get(getAdapterPosition()).getId();
 
             //Cargamos la animcion del boton
             final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);

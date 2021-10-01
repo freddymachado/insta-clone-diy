@@ -99,7 +99,12 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -156,7 +161,12 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -215,7 +225,12 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -274,7 +289,12 @@ public class FollowersActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        Toast.makeText(FollowersActivity.this, "Error de red "+mMessage, Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -353,13 +373,13 @@ public class FollowersActivity extends AppCompatActivity {
 
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
-                                Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                Log.e("FAApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
                                 commentsItems.add(new CommentsItem(
                                         post.getString("avatar"),
-                                        post.getString("comment"),
-                                        post.getString("time"),
+                                        post.getString("text"),
+                                        post.getString("time_text"),
                                         post.getString("likes"),
-                                        post.getString("comment_id"),
+                                        post.getString("id"),
                                         user_id, post.getBoolean("is_liked")
                                 ));
                             }
