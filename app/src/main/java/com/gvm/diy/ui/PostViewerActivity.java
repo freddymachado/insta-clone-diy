@@ -62,9 +62,11 @@ public class PostViewerActivity extends AppCompatActivity {
     ReadMoreTextView textViewDescription;
 
     String access_token, post_id, user_id, server_key = "1539874186", username, avatar, post_image,
-            comment, description, web;
+            comment, description, web, name, favourites, following, followers, about, isFollowing;
 
     String is_liked, is_saved, likes;
+
+    int numLike;
 
     AlertDialog.Builder builder;
 
@@ -119,15 +121,23 @@ public class PostViewerActivity extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-        
-        JSONArray commentsArray = array.getJSONArray(comment);
+
+        JSONArray commentsArray = null;
+        try {
+            commentsArray = new JSONArray(comment);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         usernameTextView.setText(username);
         textViewDescription.setText(description);
         textViewComments.setText(commentsArray.length()+" comments");
-        textViewLikes.setText(likes+" likes");
+        if(likes.equals("null"))
+            textViewLikes.setText("0 likes");
+        else
+            textViewLikes.setText(likes+" likes");
 
-        Log.e("isLiked", is_liked.toString() + is_saved.toString());
+        Log.e("isLiked", is_liked + is_saved);
 
         ClipboardManager clipboardManager = (ClipboardManager) PostViewerActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
 
@@ -276,6 +286,14 @@ public class PostViewerActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                if(likes.equals("null")) {
+                                    likes = "1";
+                                }
+                                else {
+                                    numLike =+ Integer.parseInt(likes);
+                                    likes = String.valueOf(numLike);
+                                }
+                                textViewLikes.setText(likes+" likes");
 
                             }
                         });

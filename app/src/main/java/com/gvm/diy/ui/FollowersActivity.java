@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +57,7 @@ public class FollowersActivity extends AppCompatActivity {
         textViewTitle = findViewById(R.id.textViewTitle);
         imageButtonBack = findViewById(R.id.imageButtonBack);
 
-        progressBar = itemView.findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
         gridLayoutManager = new GridLayoutManager(FollowersActivity.this,2,GridLayoutManager.VERTICAL,false);
         linearLayoutManager = new LinearLayoutManager(FollowersActivity.this);

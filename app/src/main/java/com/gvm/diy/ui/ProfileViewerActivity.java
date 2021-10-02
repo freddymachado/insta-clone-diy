@@ -58,12 +58,12 @@ public class ProfileViewerActivity extends AppCompatActivity {
     private List<ProfileItem> profileItems;
     private List<Post> postList;
 
-    String access_token, avatar, user_id, server_key = "1539874186", name, favourites, following, followers, web;
+    String access_token, avatar, user_id, server_key = "1539874186", name, favourites, following,
+            followers, web, about, username, isFollowing, isFollowingN, website;
 
     Boolean is_liked, is_saved;
 
     AlertDialog.Builder builder;
-
 
     OkHttpClient client;
     RequestBody requestBody;
@@ -135,7 +135,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
         postList = new ArrayList<>();
 
         textViewName.setText(name);
-        textViewUser.setText(textViewUser);
+        textViewUser.setText(username);
         textViewNumberFollowing.setText(following);
         textViewNumberFollowers.setText(followers);
         textViewNumberFavorites.setText(favourites);
@@ -181,7 +181,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     JSONObject data = array.getJSONObject("data");
                     userData = data.getJSONObject("user_data");
 
-                    isFollowingN = userData.getString("is_following");
+                    isFollowingN = userData.getString("following");
 
                     JSONArray userPosts = data.getJSONArray("user_posts");
  
@@ -213,7 +213,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                         post.getString("post_id"),
                                         post.getString("user_id"),
                                         name, following, followers,
-                                        favourites, about, website,
+                                        favourites, about, web,
                                         isFollowingN
                                 ));
                     }
@@ -328,7 +328,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
 
             case R.id.buttonMessage:
-                //TODO: Verificar funcionamiento
+                //TODO: Funcion de mensajería (last entrega)
 
                 break;
 

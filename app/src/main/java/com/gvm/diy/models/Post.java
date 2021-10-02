@@ -4,7 +4,86 @@ import java.io.Serializable;
 
 public class Post implements Serializable {
     private String description, time, username, avatar, file, likes,comments, post_id, user_id;
-    private String is_liked, is_saved, website;
+    private String is_liked, is_saved, website, time_text, name, following,followers, favourites, about, isFollowing;
+
+    public Post(String description, String time_text, String username, String avatar, String file, String likes,
+                String comments, String is_liked, String is_saved, String post_id, String user_id, String name,
+                String following, String followers, String favourites, String about, String website, String isFollowing) {
+        this.description = description;
+        this.time_text = time_text;
+        this.username = username;
+        this.avatar = avatar;
+        this.file = file;
+        this.likes = likes;
+        this.comments = comments;
+        this.is_liked = is_liked;
+        this.is_saved = is_saved;
+        this.post_id = post_id;
+        this.user_id = user_id;
+        this.name = name;
+        this.following = following;
+        this.followers = followers;
+        this.favourites = favourites;
+        this.about = about;
+        this.website = website;
+        this.isFollowing = isFollowing;
+    }
+
+    public String getTime_text() {
+        return time_text;
+    }
+
+    public void setTime_text(String time_text) {
+        this.time_text = time_text;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(String following) {
+        this.following = following;
+    }
+
+    public String getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(String followers) {
+        this.followers = followers;
+    }
+
+    public String getFavourites() {
+        return favourites;
+    }
+
+    public void setFavourites(String favourites) {
+        this.favourites = favourites;
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
+    public String getIsFollowing() {
+        return isFollowing;
+    }
+
+    public void setIsFollowing(String isFollowing) {
+        this.isFollowing = isFollowing;
+    }
 
     public String getWebsite() {
         return website;

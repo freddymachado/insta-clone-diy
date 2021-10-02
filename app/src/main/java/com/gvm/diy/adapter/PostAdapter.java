@@ -31,6 +31,8 @@ import com.gvm.diy.ui.PostViewerActivity;
 import com.gvm.diy.ui.ProfileViewerActivity;
 import com.makeramen.roundedimageview.RoundedImageView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -92,10 +94,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             e.printStackTrace();
         }
 
+        JSONArray commentsArray = null;
+        try {
+            commentsArray = new JSONArray(post.getComments());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         holder.description.setText(post.getDescription());
         holder.username.setText(post.getUsername());
         holder.like.setText(post.getLikes()+" likes");
-        holder.comment.setText(post.getComments()+" comments");
+        holder.comment.setText(commentsArray.length()+" comments");
 
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 

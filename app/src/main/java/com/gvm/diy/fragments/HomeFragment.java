@@ -13,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
+/*
 import com.android.volley.Request;
-import com.android.volley.Response;
+import com.android.volley.Response;*/
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
@@ -28,8 +28,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     //TODO: Keep user logged in (last entrega)
@@ -39,7 +48,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     private RecyclerView recycler_view;
     private List<Post> postList;
 
-    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
+    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites,
+            following, followers, fname, lname, about, website, isFollowing;
 
     ProgressBar progressBar;
 
@@ -155,7 +165,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                     }
                 });
                 //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
@@ -167,7 +177,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 final String mMessage = response.body().string();
                 Log.e("ApiResponse", mMessage);
                 JSONObject array = null;
-                progressBar.setVisibility(View.GONE);
                 try {
                     array = new JSONObject(mMessage);
                     JSONArray data = array.getJSONArray("data");
@@ -184,7 +193,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                         lname = userData.getString("lname");
                         about = userData.getString("about");
                         website = userData.getString("website");
-                        isFollowing = userData.getString("is_following");
+                        isFollowing = userData.getString("following");
 
                         JSONArray postMedia = post.getJSONArray("media_set");
                         String postImageLink = postMedia.getString(0).split("diy")[1]
@@ -202,13 +211,13 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                                 postImageLink+"."+extension,
                                 post.getString("likes"),
                                 post.getString("comments"),
-                                post.getBoolean("is_liked"),
-                                post.getBoolean("is_saved"),
+                                post.getString("is_liked"),
+                                post.getString("is_saved"),
                                 post.getString("post_id"),
                                 post.getString("user_id"),
                                 name, following, followers,
                                 favourites, about, website,
-                                "false"
+                                isFollowing
                         ));
                     }
                 } catch (JSONException e) {
@@ -218,9 +227,10 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         PostAdapter adapter = new PostAdapter(getContext(),
                                 postList,
-                                getActivity().getIntent().getStringExtra("access_token"));
+                                getActivity().getIntent().getStringExtra("access_token"), "home");
                         recycler_view.setAdapter(adapter);
                     }
                 });

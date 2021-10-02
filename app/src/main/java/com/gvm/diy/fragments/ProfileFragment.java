@@ -193,6 +193,7 @@ public class ProfileFragment extends Fragment {
                                         post.getString("user_id"),
                                         name, following, followers,
                                         favourites, about, website,
+                                        "false"
                                 ));
                     }
                 } catch (JSONException e) {
@@ -203,6 +204,7 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void run() {
                         textViewFullname.setText(name);
+                        textViewDescription.setText(about);
                         textViewNumberFollowing.setText(following);
                         textViewNumberFollowers.setText(followers);
                         textViewNumberFavorites.setText(favourites);
