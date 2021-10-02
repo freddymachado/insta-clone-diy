@@ -46,6 +46,7 @@ public class FollowersActivity extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     String access_token,username, user_id, function, server_key = "1539874186", post_id, favourites, following, followers;
 
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,8 @@ public class FollowersActivity extends AppCompatActivity {
         recycler_view = findViewById(R.id.recycler_view);
         textViewTitle = findViewById(R.id.textViewTitle);
         imageButtonBack = findViewById(R.id.imageButtonBack);
+
+        progressBar = itemView.findViewById(R.id.progressBar);
 
         gridLayoutManager = new GridLayoutManager(FollowersActivity.this,2,GridLayoutManager.VERTICAL,false);
         linearLayoutManager = new LinearLayoutManager(FollowersActivity.this);
@@ -102,6 +105,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -133,6 +137,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
                                 recycler_view.setAdapter(adapter);
                             }
@@ -164,6 +169,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -196,6 +202,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
                                 recycler_view.setAdapter(adapter);
                             }
@@ -228,6 +235,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -259,6 +267,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
                                 recycler_view.setAdapter(adapter);
                             }
@@ -292,6 +301,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -323,6 +333,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
                                 recycler_view.setAdapter(adapter);
                             }
@@ -355,6 +366,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -390,6 +402,7 @@ public class FollowersActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                progressBar.setVisibility(View.GONE);
                                 CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
                                 recycler_view.setAdapter(adapter);
                             }

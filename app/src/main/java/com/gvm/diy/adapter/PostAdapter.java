@@ -83,57 +83,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             Glide.with(mContext).load("https://diys.co/"+post.getFile())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.post_image);
-            if(place.equals("home")){
-                Glide.with(mContext).load("https://diys.co/"+post.getAvatar())
-                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                        .into(holder.user_profile_image);
+            
+            Glide.with(mContext).load(post.getAvatar())
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(holder.user_profile_image);
 
-                holder.post_image.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        //postListener.postImageOnClick(v,position);
-                        Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                        intentPostViewer.putExtra("access_token", access_token);
-                        intentPostViewer.putExtra("is_liked", is_liked);
-                        intentPostViewer.putExtra("is_saved", is_saved);
-                        intentPostViewer.putExtra("post_id", post_id);
-                        intentPostViewer.putExtra("user_id", user_id);
-                        intentPostViewer.putExtra("username", post.getUsername());
-                        intentPostViewer.putExtra("avatar", "https://diys.co/"+post.getAvatar());
-                        intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
-                        intentPostViewer.putExtra("description", post.getDescription());
-                        intentPostViewer.putExtra("comment", post.getComments());
-                        intentPostViewer.putExtra("web", web);
-                        mContext.startActivity(intentPostViewer);
-                    }
-                });
-            }else {
-                Glide.with(mContext).load(post.getAvatar())
-                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                        .into(holder.user_profile_image);
-
-                holder.post_image.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        //postListener.postImageOnClick(v,position);
-                        Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                        intentPostViewer.putExtra("access_token", access_token);
-                        intentPostViewer.putExtra("is_liked", is_liked);
-                        intentPostViewer.putExtra("is_saved", is_saved);
-                        intentPostViewer.putExtra("post_id", post_id);
-                        intentPostViewer.putExtra("user_id", user_id);
-                        intentPostViewer.putExtra("username", post.getUsername());
-                        intentPostViewer.putExtra("avatar", post.getAvatar());
-                        intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
-                        intentPostViewer.putExtra("description", post.getDescription());
-                        intentPostViewer.putExtra("comment", post.getComments());
-                        intentPostViewer.putExtra("web", web);
-                        mContext.startActivity(intentPostViewer);
-                    }
-                });
-            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -217,11 +171,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("post_id", post_id);
                 intentPostViewer.putExtra("user_id", user_id);
                 intentPostViewer.putExtra("username", post.getUsername());
-                intentPostViewer.putExtra("avatar", "https://diys.co/"+post.getAvatar());
+                intentPostViewer.putExtra("avatar", post.getAvatar());
                 intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
                 intentPostViewer.putExtra("description", post.getDescription());
                 intentPostViewer.putExtra("comment", post.getComments());
                 intentPostViewer.putExtra("web", web);
+                intentPostViewer.putExtra("name", post.getName());
+                intentPostViewer.putExtra("following", post.getFollowing());
+                intentPostViewer.putExtra("followers", post.getFollowers());
+                intentPostViewer.putExtra("favourites", post.getFavourites());
+                intentPostViewer.putExtra("about", post.getAbout());
+                intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
                 mContext.startActivity(intentPostViewer);
             }
         });
@@ -289,6 +249,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
+        holder.username.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
+                    intentProfileViewer.putExtra("access_token", access_token);
+                    intentProfileViewer.putExtra("user_id", user_id);
+                    intentProfileViewer.putExtra("web", web);
+                    intentProfileViewer.putExtra("username", post.getUsername());
+                    intentProfileViewer.putExtra("avatar", post.getAvatar());
+                    intentProfileViewer.putExtra("name", post.getName());
+                    intentProfileViewer.putExtra("following", post.getFollowing());
+                    intentProfileViewer.putExtra("followers", post.getFollowers());
+                    intentProfileViewer.putExtra("favourites", post.getFavourites());
+                    intentProfileViewer.putExtra("about", post.getAbout());
+                    intentProfileViewer.putExtra("isFollowing", post.getIsFollowing());
+
+                    mContext.startActivity(intentProfileViewer);
+                }
+            });
+
     }
 
     @Override
@@ -318,16 +298,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageViewComment = itemView.findViewById(R.id.comment);
             imageViewFav = itemView.findViewById(R.id.imageViewFav);
 
-            username.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
-                    intentProfileViewer.putExtra("access_token", access_token);
-                    intentProfileViewer.putExtra("user_id", user_id);
-                    intentProfileViewer.putExtra("web", web);
-                    mContext.startActivity(intentProfileViewer);
-                }
-            });
 
             imageButtonMore.setOnClickListener(new View.OnClickListener() {
                 @Override

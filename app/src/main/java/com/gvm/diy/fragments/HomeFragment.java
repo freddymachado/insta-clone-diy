@@ -72,7 +72,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         Intent intent = getActivity().getIntent();
         access_token = intent.getStringExtra("access_token");
         user_id = intent.getStringExtra("user_id");
-
+/*
         JSONArray jsonBody = new JSONArray();
         try {
             jsonBody.put(0,user_id);
@@ -132,8 +132,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         });
 
         Volley.newRequestQueue(getContext()).add(jsonObjectRequest);
-        /*
-
+*/
         //Iniciamos la solicitud para obtener los datos del usuario
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -152,6 +151,13 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+error, Toast.LENGTH_LONG).show();
+                    }
+                });
                 //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
                 Log.e("failure Response", mMessage);
             }
@@ -161,27 +167,48 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 final String mMessage = response.body().string();
                 Log.e("ApiResponse", mMessage);
                 JSONObject array = null;
+                progressBar.setVisibility(View.GONE);
                 try {
                     array = new JSONObject(mMessage);
                     JSONArray data = array.getJSONArray("data");
 
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject post = data.getJSONObject(i);
+                        JSONObject userData = post.getJSONObject("user_data");
+
+                        name = userData.getString("name");
+                        following = userData.getString("following");
+                        followers = userData.getString("followers");
+                        favourites = userData.getString("favourites");
+                        fname = userData.getString("fname");
+                        lname = userData.getString("lname");
+                        about = userData.getString("about");
+                        website = userData.getString("website");
+                        isFollowing = userData.getString("is_following");
 
                         JSONArray postMedia = post.getJSONArray("media_set");
-                        Log.e("ApiResponse", String.valueOf(data.length()));
+                        String postImageLink = postMedia.getString(0).split("diy")[1]
+                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                        String extension = postMedia.getString(0).split("diys")[1]
+                                .substring(3).split("\\.")[1].substring(0,3);
+
+                        Log.e("PFApiResponse", postImageLink+extension);
 
                         postList.add(new Post(
                                 post.getString("description"),
                                 post.getString("time_text"),
                                 post.getString("username"),
                                 post.getString("avatar"),
-                                postMedia.getString(0).split("file")[1].substring(3).split(".jpg")[0].replace("\\",""),
+                                postImageLink+"."+extension,
                                 post.getString("likes"),
                                 post.getString("comments"),
                                 post.getBoolean("is_liked"),
                                 post.getBoolean("is_saved"),
-                                post.getString("post_id")
+                                post.getString("post_id"),
+                                post.getString("user_id"),
+                                name, following, followers,
+                                favourites, about, website,
+                                "false"
                         ));
                     }
                 } catch (JSONException e) {
@@ -198,7 +225,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                     }
                 });
             }
-        });*/
+        });
 
         return itemView;
     }

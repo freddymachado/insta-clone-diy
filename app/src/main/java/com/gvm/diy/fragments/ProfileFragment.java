@@ -74,6 +74,9 @@ public class ProfileFragment extends Fragment {
     private RecyclerView recycler_view;
     private List<ProfileItem> profileItems;
 
+    PostAdapter adapterLinear;
+    ProfileAdapter adapterGrid;
+
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -162,7 +165,6 @@ public class ProfileFragment extends Fragment {
                     website = userData.getString("website");
 
                     JSONArray userPosts = data.getJSONArray("user_posts");
-                    JSONObject file = new JSONObject();
 
                     for (int i = 0; i < userPosts.length(); i++) {
                         JSONObject post = userPosts.getJSONObject(i);
@@ -176,6 +178,22 @@ public class ProfileFragment extends Fragment {
                         profileItems.add(new ProfileItem(
                                 postImageLink+"."+extension
                         ));
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postImageLink+"."+extension,
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
+                                        post.getString("post_id"),
+                                        post.getString("user_id"),
+                                        name, following, followers,
+                                        favourites, about, website,
+                                ));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -191,8 +209,11 @@ public class ProfileFragment extends Fragment {
                         Glide.with(getActivity().getApplicationContext()).load(avatar)
                                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                                 .into(imageViewProfile);
-                        ProfileAdapter adapter = new ProfileAdapter(getContext(), profileItems);
-                        recycler_view.setAdapter(adapter);
+                        adapterGrid = new ProfileAdapter(getContext(), profileItems);
+                        recycler_view.setAdapter(adapterGrid);
+                        adapterLinear = new PostAdapter(getContext(),
+                                        postList,
+                                        getActivity().getIntent().getStringExtra("access_token"), getActivity().getIntent().getStringExtra("access_token"));
                     }
                 });
             }
@@ -349,64 +370,8 @@ public class ProfileFragment extends Fragment {
         imageButtonList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                client.newCall(UserPostsRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        String mMessage = e.getMessage().toString();
-                        Toast.makeText(getActivity().getApplicationContext(), "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("ApiResponse", mMessage);
-                        JSONObject array = null;
-                        try {
-                            array = new JSONObject(mMessage);
-                            JSONObject data = array.getJSONObject("data");
-
-                            JSONArray userPosts = data.getJSONArray("user_posts");
-
-                            for (int i = 0; i < userPosts.length(); i++) {
-                                JSONObject post = userPosts.getJSONObject(i);
-
-                                JSONArray postMedia = post.getJSONArray("media_set");
-                                String postImageLink = postMedia.getString(0).split("diy")[1]
-                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
-                                String extension = postMedia.getString(0).split("diys")[1]
-                                        .substring(3).split("\\.")[1].substring(0,3);
-
-                                Log.e("PFApiResponse", postImageLink+extension);
-                                postList.add(new Post(
-                                        post.getString("description"),
-                                        post.getString("time_text"),
-                                        post.getString("username"),
-                                        post.getString("avatar"),
-                                        postImageLink+"."+extension,
-                                        post.getString("likes"),
-                                        post.getString("comments"),
-                                        post.getString("is_liked"),
-                                        post.getString("is_saved"),
-                                        post.getString("post_id")
-                                ));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                PostAdapter adapter = new PostAdapter(getContext(),
-                                        postList,
-                                        getActivity().getIntent().getStringExtra("access_token"), getActivity().getIntent().getStringExtra("access_token"));
-                                recycler_view.setAdapter(adapter);
-                                recycler_view.setLayoutManager(linearLayoutManager);
-                            }
-                        });
-                    }
-                });
+                recycler_view.setAdapter(adapterLinear);
+                recycler_view.setLayoutManager(linearLayoutManager);
             }
         });
         imageButtonGrid.setOnClickListener(new View.OnClickListener() {
@@ -414,6 +379,7 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 recycler_view.setHasFixedSize(true);
                 recycler_view.setLayoutManager(gridLayoutManager);
+                recycler_view.setAdapter(adapterGrid);
 
             }
         });

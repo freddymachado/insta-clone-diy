@@ -73,6 +73,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     JSONObject userData;
 
+    ProfileAdapter adapterGrid;
+    PostAdapter adapterLinear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +85,15 @@ public class ProfileViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
         user_id = intent.getStringExtra("user_id");
-        web = intent.getStringExtra("web");
+        web = intent.getStringExtra("web");;
+        name = intent.getStringExtra("name");
+        following = intent.getStringExtra("following");
+        followers = intent.getStringExtra("followers");
+        favourites = intent.getStringExtra("favourites");
+        about = intent.getStringExtra("about");
+        username = intent.getStringExtra("username");
+        avatar = intent.getStringExtra("avatar");
+        isFollowing = intent.getStringExtra("isFollowing");
 
         imageButtonBack = findViewById(R.id.imageButtonBack);
         imageButtonMore = findViewById(R.id.imageButtonMore);
@@ -109,6 +120,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
         buttonFollowing = findViewById(R.id.buttonFollowing);
         buttonMessage = findViewById(R.id.buttonMessage);
 
+        if(isFollowing.equals("false")){
+            buttonFollowing.setText("Follow");            
+        }
         recyclerView = findViewById(R.id.recyclerView);
 
         gridLayoutManager = new GridLayoutManager(getApplicationContext(),2,GridLayoutManager.VERTICAL,false);
@@ -119,6 +133,16 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
         profileItems = new ArrayList<>();
         postList = new ArrayList<>();
+
+        textViewName.setText(name);
+        textViewUser.setText(textViewUser);
+        textViewNumberFollowing.setText(following);
+        textViewNumberFollowers.setText(followers);
+        textViewNumberFavorites.setText(favourites);
+        textViewDescription.setText(about);
+        Glide.with(getApplicationContext()).load(avatar)
+                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                .into(roundedImageViewAvatar);
 
         //Iniciamos la solicitud para obtener los datos del usuario
         client = new OkHttpClient().newBuilder().build();
@@ -156,15 +180,11 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     array = new JSONObject(mMessage);
                     JSONObject data = array.getJSONObject("data");
                     userData = data.getJSONObject("user_data");
-                    name = userData.getString("name");
-                    following = userData.getString("following");
-                    followers = userData.getString("followers");
-                    favourites = userData.getString("favourites");
-                    avatar = userData.getString("avatar");
+
+                    isFollowingN = userData.getString("is_following");
 
                     JSONArray userPosts = data.getJSONArray("user_posts");
-                    JSONObject file = new JSONObject();
-
+ 
                     for (int i = 0; i < userPosts.length(); i++) {
                         JSONObject post = userPosts.getJSONObject(i);
                         JSONArray postMedia = post.getJSONArray("media_set");
@@ -179,6 +199,23 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         profileItems.add(new ProfileItem(
                                 postImageLink+"."+extension
                         ));
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postImageLink+"."+extension,
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
+                                        post.getString("post_id"),
+                                        post.getString("user_id"),
+                                        name, following, followers,
+                                        favourites, about, website,
+                                        isFollowingN
+                                ));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -187,15 +224,11 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        textViewName.setText(name);
-                        textViewNumberFollowing.setText(following);
-                        textViewNumberFollowers.setText(followers);
-                        textViewNumberFavorites.setText(favourites);
-                        Glide.with(getApplicationContext()).load(avatar)
-                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                                .into(roundedImageViewAvatar);
-                        ProfileAdapter adapter = new ProfileAdapter(getApplicationContext(), profileItems);
-                        recyclerView.setAdapter(adapter);
+                        adapterGrid = new ProfileAdapter(getApplicationContext(), profileItems);
+                        recyclerView.setAdapter(adapterGrid);
+                        adapterLinear = new PostAdapter(ProfileViewerActivity.this,
+                                        postList,
+                                        access_token, "PV");
                     }
                 });
             }
@@ -240,7 +273,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonGrid:
+            //TODO: Probar
                 recyclerView.setLayoutManager(gridLayoutManager);
+                recyclerView.setAdapter(adapterGrid);
                 break;
 
             case R.id.imageButtonWeb:
@@ -252,70 +287,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
             case R.id.imageButtonList:
                 //TODO: Probar
-                client.newCall(UserPostsRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        String mMessage = e.getMessage().toString();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(ProfileViewerActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("ApiResponse", mMessage);
-                        JSONObject array = null;
-                        try {
-                            array = new JSONObject(mMessage);
-                            JSONObject data = array.getJSONObject("data");
-
-                            JSONArray userPosts = data.getJSONArray("user_posts");
-
-                            for (int i = 0; i < userPosts.length(); i++) {
-                                JSONObject post = userPosts.getJSONObject(i);
-
-                                JSONArray postMedia = post.getJSONArray("media_set");
-                                String postImageLink = postMedia.getString(0).split("diy")[1]
-                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
-                                String extension = postMedia.getString(0).split("diys")[1]
-                                        .substring(3).split("\\.")[1].substring(0,3);
-
-                                Log.e("PVApiResponse", postImageLink+"."+extension);
-
-                                postList.add(new Post(
-                                        post.getString("description"),
-                                        post.getString("time_text"),
-                                        post.getString("username"),
-                                        post.getString("avatar"),
-                                        postImageLink+"."+extension,
-                                        post.getString("likes"),
-                                        post.getString("comments"),
-                                        post.getString("is_liked"),
-                                        post.getString("is_saved"),
-                                        post.getString("post_id")
-                                ));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                PostAdapter adapter = new PostAdapter(ProfileViewerActivity.this,
-                                        postList,
-                                        access_token, "PV");
-                                recyclerView.setAdapter(adapter);
-                                recyclerView.setLayoutManager(linearLayoutManager);
-                            }
-                        });
-                    }
-                });
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setAdapter(adapterLinear);
                 break;
 
 

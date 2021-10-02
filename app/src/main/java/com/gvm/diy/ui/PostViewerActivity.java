@@ -64,7 +64,7 @@ public class PostViewerActivity extends AppCompatActivity {
     String access_token, post_id, user_id, server_key = "1539874186", username, avatar, post_image,
             comment, description, web;
 
-    String is_liked, is_saved;
+    String is_liked, is_saved, likes;
 
     AlertDialog.Builder builder;
 
@@ -101,6 +101,13 @@ public class PostViewerActivity extends AppCompatActivity {
         is_liked = intent.getStringExtra("is_liked");
         is_saved = intent.getStringExtra("is_saved");
         web = intent.getStringExtra("web");
+        likes = intent.getStringExtra("likes");
+        name = intent.getStringExtra("name");
+        following = intent.getStringExtra("following");
+        followers = intent.getStringExtra("followers");
+        favourites = intent.getStringExtra("favourites");
+        about = intent.getStringExtra("about");
+        isFollowing = intent.getStringExtra("isFollowing");
 
         try{
             Glide.with(PostViewerActivity.this).load(post_image)
@@ -112,10 +119,13 @@ public class PostViewerActivity extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+        
+        JSONArray commentsArray = array.getJSONArray(comment);
 
         usernameTextView.setText(username);
         textViewDescription.setText(description);
-        textViewComments.setText(comment);
+        textViewComments.setText(commentsArray.length()+" comments");
+        textViewLikes.setText(likes+" likes");
 
         Log.e("isLiked", is_liked.toString() + is_saved.toString());
 
@@ -195,7 +205,6 @@ public class PostViewerActivity extends AppCompatActivity {
 
             case R.id.imageButtonMore:
                 builder.show();
-                Toast.makeText(PostViewerActivity.this, "more", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.username:
@@ -203,11 +212,28 @@ public class PostViewerActivity extends AppCompatActivity {
                 intentProfileViewer.putExtra("access_token", access_token);
                 intentProfileViewer.putExtra("web", web);
                 intentProfileViewer.putExtra("user_id", user_id);
+                intentProfileViewer.putExtra("avatar", avatar);
+                intentProfileViewer.putExtra("username", username);
+                intentProfileViewer.putExtra("web", web);
+                intentProfileViewer.putExtra("name", name);
+                intentProfileViewer.putExtra("following", following);
+                intentProfileViewer.putExtra("followers", followers);
+                intentProfileViewer.putExtra("favourites", favourites);
+                intentProfileViewer.putExtra("about", about);
+                intentProfileViewer.putExtra("isFollowing", isFollowing);
                 startActivity(intentProfileViewer);
                 break;
 
             case R.id.imageViewLike:
                 //TODO: Probar
+                imageViewLike.startAnimation(myAnim);
+                if (is_liked.equals("1")) {
+                    is_liked = "0";
+                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                } else {
+                    is_liked = "1";
+                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                }
                 body = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key", server_key)
@@ -224,15 +250,6 @@ public class PostViewerActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("Like Response", mMessage);
-                        JSONObject array = null;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -244,6 +261,21 @@ public class PostViewerActivity extends AppCompatActivity {
                                     is_liked = "1";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
                                 }
+                                Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("Like Response", mMessage);
+                        JSONObject array = null;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
 
                             }
                         });
@@ -270,7 +302,7 @@ public class PostViewerActivity extends AppCompatActivity {
 
 
             case R.id.imageViewReply:
-                //TODO: Probar funcionamiento
+                //TODO: Solucionar bug (last entrega)
                 //don't forget the https://
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
@@ -284,6 +316,14 @@ public class PostViewerActivity extends AppCompatActivity {
 
             case R.id.imageViewFav:
                 //TODO: Probar
+                imageViewFav.startAnimation(myAnim);
+                if (is_saved.equals("1")) {
+                    is_saved = "0";
+                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                } else {
+                    is_saved = "1";
+                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                }
 
                 body = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
@@ -301,15 +341,6 @@ public class PostViewerActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("fav Response", mMessage);
-                        JSONObject array = null;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -321,9 +352,18 @@ public class PostViewerActivity extends AppCompatActivity {
                                     is_saved = "1";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
                                 }
+                                Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
 
                             }
                         });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("fav Response", mMessage);
+                        JSONObject array = null;
                     }
                 });
                 break;
