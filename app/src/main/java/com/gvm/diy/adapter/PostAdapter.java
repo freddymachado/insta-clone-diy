@@ -51,7 +51,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     Context mContext;
     private List<Post> mPosts;
     private String access_token, server_key = "1539874186", post_id, user_id, web, place;
-    private String is_liked, is_saved;
+    private String is_liked, is_saved, likes;
     public PostListener postListener;
 
     AlertDialog.Builder builder;
@@ -80,6 +80,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Post post = mPosts.get(position);
+
+        web = post.getWebsite();
+
+        is_liked = post.getIs_liked();
+        is_saved = post.getIs_saved();
+        post_id = post.getPost_id();
+        user_id = post.getUser_id();
+        likes = post.getLikes();
+
+        if(likes.equals("null")) {
+            likes = "1";
+        }
 
         try{
             Glide.with(mContext).load("https://diys.co/"+post.getFile())
@@ -154,19 +166,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     }
                 });
 
-        web = post.getWebsite();
-
-        is_liked = post.getIs_liked();
-        is_saved = post.getIs_saved();
-        post_id = post.getPost_id();
-        user_id = post.getUser_id();
-
         if (is_liked.equals("1"))
             holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
         if (is_saved.equals("1"))
             holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
 
-        Numberlikes = Integer.parseInt(post.getLikes());
 
         holder.post_image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,6 +188,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
                 intentPostViewer.putExtra("description", post.getDescription());
                 intentPostViewer.putExtra("comment", post.getComments());
+                intentPostViewer.putExtra("likes", likes);
                 intentPostViewer.putExtra("web", web);
                 intentPostViewer.putExtra("name", post.getName());
                 intentPostViewer.putExtra("following", post.getFollowing());
@@ -244,7 +249,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        mContext.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                holder.imageViewLike.startAnimation(myAnim);
+                                if(is_liked.equals("1")){
+                                    is_liked = "0";
+                                    holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                                }
+                                else{
+                                    is_liked = "1";
+                                    holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                                }
+                                Toast.makeText(mContext, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
                         Log.e("failure Response", mMessage);
                     }
 
@@ -252,6 +271,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     public void onResponse(Call call, okhttp3.Response response) throws IOException {
                         final String mMessage = response.body().string();
                         Log.e("Like Response", mMessage);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {                                
+                                numLike =+ Integer.parseInt(likes);
+                                likes = String.valueOf(numLike);
+                                textViewLikes.setText(likes+" likes");
+
+                            }
+                        });
 
                     }
                 });

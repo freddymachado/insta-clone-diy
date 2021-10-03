@@ -77,6 +77,8 @@ public class ProfileFragment extends Fragment {
     PostAdapter adapterLinear;
     ProfileAdapter adapterGrid;
 
+    ProgressBar progressBar;
+
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -102,6 +104,8 @@ public class ProfileFragment extends Fragment {
         textViewFavorites = itemView.findViewById(R.id.textViewFavorites);
 
         recycler_view = itemView.findViewById(R.id.recycler_view);
+
+        progressBar = itemView.findViewById(R.id.progressBar);
 
         gridLayoutManager = new GridLayoutManager(getActivity().getApplicationContext(),2,GridLayoutManager.VERTICAL,false);
         linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -140,6 +144,7 @@ public class ProfileFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                     }
                 });
@@ -203,6 +208,7 @@ public class ProfileFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         textViewFullname.setText(name);
                         textViewDescription.setText(about);
                         textViewNumberFollowing.setText(following);

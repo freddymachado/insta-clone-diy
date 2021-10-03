@@ -76,6 +76,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
     ProfileAdapter adapterGrid;
     PostAdapter adapterLinear;
 
+    ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +102,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
         imageButtonGrid = findViewById(R.id.imageButtonGrid);
         imageButtonWeb = findViewById(R.id.imageButtonWeb);
         imageButtonList = findViewById(R.id.imageButtonList);
+
+        progressBar = findViewById(R.id.progressBar);
 
         if(web.isEmpty()){
             imageButtonWeb.setVisibility(View.GONE);
@@ -166,6 +170,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(ProfileViewerActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                     }
                 });
@@ -224,6 +229,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.GONE);
                         adapterGrid = new ProfileAdapter(getApplicationContext(), profileItems);
                         recyclerView.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
@@ -322,7 +328,59 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
 
             case R.id.buttonFollowing:
-                //TODO: Verificar funcionamiento
+                //TODO: Probar funcionamiento
+                buttonFollowing.startAnimation(myAnim);
+                if (buttonFollowing.getText().equals("following")) {
+                    buttonFollowing.setText("follow");
+                } else {
+                    buttonFollowing.setText("following");
+                }
+                body = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key", server_key)
+                        .addFormDataPart("post_id", post_id)
+                        .addFormDataPart("access_token", access_token)
+                        .build();
+
+                request = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/user/follow")
+                        .post(body)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                imageViewLike.startAnimation(myAnim);
+                                buttonFollowing.startAnimation(myAnim);
+                                if (buttonFollowing.getText().equals("following")) {
+                                    buttonFollowing.setText("follow");
+                                } else {
+                                    buttonFollowing.setText("following");
+                                }
+                                Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("Like Response", mMessage);
+                        JSONObject array = null;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+                });
 
                 break;
 

@@ -45,11 +45,22 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+
+    <com.madapps.liquid.LiquidRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/appBar" />
+        android:layout_height="match_parent"
+        app:AniBackColor="@color/colorAccent"
+        app:AniForeColor="@color/colorBackground"
+        app:CircleSmaller="6"
+        android:layout_below="@+id/appBar">
+        
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.madapps.liquid.LiquidRefreshLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

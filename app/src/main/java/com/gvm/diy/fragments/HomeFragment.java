@@ -77,6 +77,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
         postList = new ArrayList<>();
 
+        refreshLayout.setOnRefreshListener
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();
