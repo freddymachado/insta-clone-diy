@@ -1,5 +1,6 @@
 package com.gvm.diy.adapter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -52,6 +53,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     private List<Post> mPosts;
     private String access_token, server_key = "1539874186", post_id, user_id, web, place;
     private String is_liked, is_saved, likes;
+    String likess;
     public PostListener postListener;
 
     AlertDialog.Builder builder;
@@ -90,7 +92,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         likes = post.getLikes();
 
         if(likes.equals("null")) {
-            likes = "1";
+            likes = "0";
         }
 
         try{
@@ -127,6 +129,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0:
+
+                                OkHttpClient client = new OkHttpClient.Builder().build();
                                 body = new MultipartBody.Builder()
                                         .setType(MultipartBody.FORM)
                                         .addFormDataPart("server_key", server_key)
@@ -166,11 +170,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     }
                 });
 
-        if (is_liked.equals("1"))
+        if (is_liked.equals("true"))
             holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-        if (is_saved.equals("1"))
+        if (is_saved.equals("true"))
             holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
 
+        //Cargamos la animcion del boton
+        final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
+
+        //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
+        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
+        myAnim.setInterpolator(interpolator);
 
         holder.post_image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,6 +217,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentComments.putExtra("function", "comments");
                 intentComments.putExtra("post_id", post_id);
                 intentComments.putExtra("access_token", access_token);
+                intentComments.putExtra("user_id", user_id);
                 mContext.startActivity(intentComments);
             }
         });
@@ -215,24 +226,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Cargamos la animcion del boton
-                final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
-
-                //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
-                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
-                myAnim.setInterpolator(interpolator);
 
                 holder.imageViewLike.startAnimation(myAnim);
-                if(is_liked.equals("1")){
-                    is_liked = "0";
+                if(is_liked.equals("true")){
+                    is_liked = "false";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                    int numLike =- Integer.parseInt(likes);
+                    Log.e("failure Response", String.valueOf(numLike));
+                    likes = String.valueOf(numLike);
+                    holder.like.setText(likes+" likes");
                 }
                 else{
-                    is_liked = "1";
+                    is_liked = "true";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                    int numLike =+ Integer.parseInt(likes);
+                    Log.e("failure Response", String.valueOf(numLike));
+                    likes = String.valueOf(numLike);
+                    holder.like.setText(likes+" likes");
                 }
 
-                OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
+                OkHttpClient LikeClient = new OkHttpClient.Builder().build();
                 RequestBody requestBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key",server_key)
@@ -245,25 +258,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                         .build();
 
 
-                imageUploadClient.newCall(request).enqueue(new Callback() {
+                LikeClient.newCall(request).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        mContext.runOnUiThread(new Runnable() {
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+
                                 holder.imageViewLike.startAnimation(myAnim);
-                                if(is_liked.equals("1")){
-                                    is_liked = "0";
+                                if(is_liked.equals("true")){
+                                    is_liked = "false";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                                    int numLike =- Integer.parseInt(likes);
+                                    likes = String.valueOf(numLike);
+                                    holder.like.setText(likes+" likes");
                                 }
                                 else{
-                                    is_liked = "1";
+                                    is_liked = "true";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                                    int numLike =+ Integer.parseInt(likes);
+                                    likes = String.valueOf(numLike);
+                                    holder.like.setText(likes+" likes");
                                 }
                                 Toast.makeText(mContext, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
+
                         Log.e("failure Response", mMessage);
                     }
 
@@ -271,16 +292,70 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     public void onResponse(Call call, okhttp3.Response response) throws IOException {
                         final String mMessage = response.body().string();
                         Log.e("Like Response", mMessage);
-                        runOnUiThread(new Runnable() {
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
                             @Override
-                            public void run() {                                
-                                numLike =+ Integer.parseInt(likes);
-                                likes = String.valueOf(numLike);
-                                textViewLikes.setText(likes+" likes");
-
+                            public void run() {
                             }
                         });
 
+                    }
+                });
+            }
+        });
+
+        holder.imageViewFav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Probar
+
+                holder.imageViewFav.startAnimation(myAnim);
+                if (is_saved.equals("true")) {
+                    is_saved = "false";
+                    holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_outline_24));
+                } else {
+                    is_saved = "true";
+                    holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
+                }
+
+                OkHttpClient client = new OkHttpClient.Builder().build();
+                body = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key", server_key)
+                        .addFormDataPart("post_id", post_id)
+                        .addFormDataPart("access_token", access_token)
+                        .build();
+
+                request = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/add_to_favorite")
+                        .post(body)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                holder.imageViewFav.startAnimation(myAnim);
+                                if (is_saved.equals("true")) {
+                                    is_saved = "false";
+                                    holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_outline_24));
+                                } else {
+                                    is_saved = "true";
+                                    holder.imageViewFav.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
+                                }
+                                Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("fav Response", mMessage);
+                        JSONObject array = null;
                     }
                 });
             }
@@ -355,55 +430,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 }
             });
 
-            imageViewFav.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Probar
-
-                    body = new MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("server_key", server_key)
-                            .addFormDataPart("post_id", post_id)
-                            .addFormDataPart("access_token", access_token)
-                            .build();
-
-                    request = new Request.Builder()
-                            .url("https://diys.co/endpoints/v1/post/add_to_favorite")
-                            .post(body)
-                            .build();
-
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            String mMessage = e.getMessage().toString();
-                            Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                            Log.e("failure Response", mMessage);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            final String mMessage = response.body().string();
-                            Log.e("fav Response", mMessage);
-                            JSONObject array = null;
-                            //imageViewFav.startAnimation(myAnim);
-                            if (is_saved.equals("1")) {
-                                is_saved = "0";
-                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_outline_24));
-                            } else {
-                                is_saved = "1";
-                                imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_star_yellow));
-                            }
-                        }
-                    });
-                }
-            });
-
             comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intentComments = new Intent(mContext, FollowersActivity.class);
                     intentComments.putExtra("function", "comments");
                     intentComments.putExtra("post_id", post_id);
+                    intentComments.putExtra("user_id", user_id);
                     intentComments.putExtra("access_token", access_token);
                     mContext.startActivity(intentComments);
                 }

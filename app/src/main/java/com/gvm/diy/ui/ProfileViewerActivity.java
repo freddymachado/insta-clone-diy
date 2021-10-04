@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,8 +67,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
     AlertDialog.Builder builder;
 
     OkHttpClient client;
-    RequestBody requestBody;
-    Request UserPostsRequest;
+    RequestBody requestBody, FollowBody;
+    Request UserPostsRequest, FollowRequest;
 
     GridLayoutManager gridLayoutManager;
     LinearLayoutManager linearLayoutManager;
@@ -89,9 +90,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
         user_id = intent.getStringExtra("user_id");
         web = intent.getStringExtra("web");;
         name = intent.getStringExtra("name");
-        following = intent.getStringExtra("following");
-        followers = intent.getStringExtra("followers");
-        favourites = intent.getStringExtra("favourites");
         about = intent.getStringExtra("about");
         username = intent.getStringExtra("username");
         avatar = intent.getStringExtra("avatar");
@@ -140,9 +138,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
         textViewName.setText(name);
         textViewUser.setText(username);
-        textViewNumberFollowing.setText(following);
-        textViewNumberFollowers.setText(followers);
-        textViewNumberFavorites.setText(favourites);
         textViewDescription.setText(about);
         Glide.with(getApplicationContext()).load(avatar)
                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
@@ -185,8 +180,11 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     array = new JSONObject(mMessage);
                     JSONObject data = array.getJSONObject("data");
                     userData = data.getJSONObject("user_data");
+                    following = userData.getString("following");
+                    followers = userData.getString("followers");
+                    favourites = userData.getString("favourites");
 
-                    isFollowingN = userData.getString("following");
+                    isFollowingN = data.getString("is_following");
 
                     JSONArray userPosts = data.getJSONArray("user_posts");
  
@@ -235,6 +233,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
                                         access_token, "PV");
+                        textViewNumberFollowing.setText(following);
+                        textViewNumberFollowers.setText(followers);
+                        textViewNumberFavorites.setText(favourites);
                     }
                 });
             }
@@ -279,7 +280,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonGrid:
-            //TODO: Probar
                 recyclerView.setLayoutManager(gridLayoutManager);
                 recyclerView.setAdapter(adapterGrid);
                 break;
@@ -292,7 +292,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonList:
-                //TODO: Probar
                 recyclerView.setLayoutManager(linearLayoutManager);
                 recyclerView.setAdapter(adapterLinear);
                 break;
@@ -335,33 +334,32 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 } else {
                     buttonFollowing.setText("following");
                 }
-                body = new MultipartBody.Builder()
+                FollowBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key", server_key)
-                        .addFormDataPart("post_id", post_id)
+                        .addFormDataPart("user_id", user_id)
                         .addFormDataPart("access_token", access_token)
                         .build();
 
-                request = new Request.Builder()
+                FollowRequest = new Request.Builder()
                         .url("https://diys.co/endpoints/v1/user/follow")
-                        .post(body)
+                        .post(FollowBody)
                         .build();
 
-                client.newCall(request).enqueue(new Callback() {
+                client.newCall(FollowRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                imageViewLike.startAnimation(myAnim);
                                 buttonFollowing.startAnimation(myAnim);
                                 if (buttonFollowing.getText().equals("following")) {
                                     buttonFollowing.setText("follow");
                                 } else {
                                     buttonFollowing.setText("following");
                                 }
-                                Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                Toast.makeText(ProfileViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
 
                             }
                         });

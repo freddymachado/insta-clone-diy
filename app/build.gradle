@@ -72,7 +72,8 @@ dependencies {
     implementation 'com.borjabravo:readmoretextview:2.1.0'
 
 
-    //implementation 'com.ramotion.circlemenu:circle-menu:0.3.2'
-    //implementation 'com.github.mukeshsolanki:liquidrefreshlayout:<latest-version>'
+    implementation 'com.ramotion.circlemenu:circle-menu:0.3.2'
+    implementation 'com.baoyz.pullrefreshlayout:library:1.2.0'
+    implementation 'com.github.mukeshsolanki:liquidrefreshlayout:1.0.2'
 
 }

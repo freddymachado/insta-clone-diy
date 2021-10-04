@@ -1,5 +1,6 @@
 package com.gvm.diy.adapter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -39,7 +40,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private Context mContext;
     private List<CommentsItem> commentsItems;
     private String access_token, server_key = "1539874186", comment_id, user_id;
-    private Boolean is_liked, is_saved;
+    private String is_liked, is_saved;
 
     AlertDialog.Builder builder;
 
@@ -60,6 +61,78 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         CommentsItem commentsItem = commentsItems.get(position);
+
+
+        is_liked = commentsItem.getIs_liked();
+        comment_id = commentsItem.getId();
+
+        //Cargamos la animcion del boton
+        final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
+
+        //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
+        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
+        myAnim.setInterpolator(interpolator);
+
+        holder.imageButtonLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("comment_id",comment_id)
+                        .addFormDataPart("access_token",access_token)
+                        .build();
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/like_comment")
+                        .post(requestBody)
+                        .build();
+
+
+                imageUploadClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("Like Response", mMessage);
+                        ((Activity)mContext).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                holder.imageButtonLike.startAnimation(myAnim);
+                                if(is_liked.equals("true")){
+                                    is_liked = "false";
+                                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_red));
+                                }
+                                else{
+                                    is_liked = "true";
+                                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                                }
+                            }
+                        });
+
+                    }
+                });
+
+            }
+        });
+        holder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Probar diseño MoreDialog (Cuando se obtenga erspuesta en FollowersActivity)
+                builder.show();
+            }
+        });
 
         try{
             Glide.with(mContext).load("https://diys.co/"+commentsItem.getAvatar())
@@ -164,67 +237,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             textViewTime = itemView.findViewById(R.id.textViewTime);
             imageButtonLike = itemView.findViewById(R.id.imageButtonLike);
             imageButtonMore = itemView.findViewById(R.id.imageButtonMore);
-
-            is_liked = commentsItems.get(getAdapterPosition()).getIs_liked();
-            comment_id = commentsItems.get(getAdapterPosition()).getId();
-
-            //Cargamos la animcion del boton
-            final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
-
-            //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
-            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
-            myAnim.setInterpolator(interpolator);
-
-            imageButtonLike.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
-                    RequestBody requestBody = new MultipartBody.Builder()
-                            .setType(MultipartBody.FORM)
-                            .addFormDataPart("server_key",server_key)
-                            .addFormDataPart("comment_id",comment_id)
-                            .addFormDataPart("access_token",access_token)
-                            .build();
-                    okhttp3.Request request = new okhttp3.Request.Builder()
-                            .url("https://diys.co/endpoints/v1/post/like_comment")
-                            .post(requestBody)
-                            .build();
-
-
-                    imageUploadClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            String mMessage = e.getMessage().toString();
-                            Toast.makeText(mContext, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
-                            Log.e("failure Response", mMessage);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                            final String mMessage = response.body().string();
-                            Log.e("Like Response", mMessage);
-                            imageButtonLike.startAnimation(myAnim);
-                            if(is_liked){
-                                is_liked = false;
-                                imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_red));
-                            }
-                            else{
-                                is_liked = true;
-                                imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                            }
-
-                        }
-                    });
-
-                }
-            });
-            imageButtonMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Probar diseño MoreDialog (Cuando se obtenga erspuesta en FollowersActivity)
-                    builder.show();
-                }
-            });
         }
     }
 

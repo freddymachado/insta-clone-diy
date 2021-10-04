@@ -17,8 +17,10 @@ import android.widget.Toast;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.CommentsAdapter;
 import com.gvm.diy.adapter.FollowAdapter;
+import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.CommentsItem;
 import com.gvm.diy.models.FollowItem;
+import com.gvm.diy.models.ProfileItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +45,7 @@ public class FollowersActivity extends AppCompatActivity {
     GridLayoutManager gridLayoutManager;
     private List<FollowItem> followItems;
     private List<CommentsItem> commentsItems;
+    private List<ProfileItem> profileItems;
 
     LinearLayoutManager linearLayoutManager;
     String access_token,username, user_id, function, server_key = "1539874186", post_id, favourites, following, followers;
@@ -66,6 +69,8 @@ public class FollowersActivity extends AppCompatActivity {
 
         followItems = new ArrayList<>();
         commentsItems = new ArrayList<>();
+
+        profileItems = new ArrayList<>();
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
@@ -124,11 +129,13 @@ public class FollowersActivity extends AppCompatActivity {
 
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
-                                Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
                                 followItems.add(new FollowItem(
                                         post.getString("avatar"),
                                         post.getString("time_text"),
-                                        post.getString("username")
+                                        post.getString("username"),
+                                        post.getString("is_following"),
+                                        post.getString("user_id")
                                 ));
                             }
                         } catch (JSONException e) {
@@ -139,7 +146,7 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems,access_token);
                                 recycler_view.setAdapter(adapter);
                             }
                         });
@@ -184,16 +191,18 @@ public class FollowersActivity extends AppCompatActivity {
                         Log.e("ApiResponse", mMessage);
                         try {
                             array = new JSONObject(mMessage);
-                            JSONObject data = array.getJSONObject("data");
 
-                            JSONArray userPosts = data.getJSONArray("user_posts");
+                            JSONArray userPosts = array.getJSONArray("data");
                             JSONObject file = new JSONObject();
 
                             for (int i = 0; i < userPosts.length(); i++) {
                                 JSONObject post = userPosts.getJSONObject(i);
-                                Log.e("ApiResponse", post.getString("file"));
-                                followItems.add(new FollowItem(
-                                        mMessage
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                JSONObject media_set = postMedia.getJSONObject(0);
+
+                                Log.e("FavApiResponse", mMessage);
+                                profileItems.add(new ProfileItem(
+                                        media_set.getString("file").substring(16)
                                 ));
                             }
                         } catch (JSONException e) {
@@ -204,7 +213,7 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                ProfileAdapter adapter = new ProfileAdapter(FollowersActivity.this, profileItems);
                                 recycler_view.setAdapter(adapter);
                             }
                         });
@@ -258,7 +267,9 @@ public class FollowersActivity extends AppCompatActivity {
                                 followItems.add(new FollowItem(
                                         post.getString("avatar"),
                                         post.getString("time_text"),
-                                        post.getString("username")
+                                        post.getString("username"),
+                                        post.getString("is_following"),
+                                        post.getString("user_id")
                                 ));
                             }
                         } catch (JSONException e) {
@@ -269,7 +280,9 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this,
+                                        followItems,
+                                        access_token);
                                 recycler_view.setAdapter(adapter);
                             }
                         });
@@ -324,7 +337,10 @@ public class FollowersActivity extends AppCompatActivity {
                                 followItems.add(new FollowItem(
                                         post.getString("avatar"),
                                         post.getString("time_text"),
-                                        post.getString("username")
+                                        post.getString("username"),
+                                        post.getString("is_following"),
+                                        "likes"
+
                                 ));
                             }
                         } catch (JSONException e) {
@@ -393,7 +409,8 @@ public class FollowersActivity extends AppCompatActivity {
                                         post.getString("time_text"),
                                         post.getString("likes"),
                                         post.getString("id"),
-                                        user_id, post.getBoolean("is_liked")
+                                        post.getString("user_id"),
+                                        post.getString("is_liked")
                                 ));
                             }
                         } catch (JSONException e) {

@@ -1,5 +1,6 @@
 package com.gvm.diy.ui;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,6 +48,7 @@ import com.luseen.spacenavigation.SpaceOnClickListener;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
+import com.ramotion.circlemenu.CircleMenuView;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
         spaceNavigationView.addSpaceItem(new SpaceItem("", R.drawable.ic_baseline_chat_24));
         spaceNavigationView.addSpaceItem(new SpaceItem("", R.drawable.ic_baseline_person_24));
 
-        CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors)
-
+        //CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors)
+/*
         final CircleMenuView menu = (CircleMenuView) findViewById(R.id.circle_menu);
         
         menu.setEventListener(new CircleMenuView.EventListener() {
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             public void onButtonClickAnimationEnd(@NonNull CircleMenuView view, int index) {
                 Log.d("D", "onButtonClickAnimationEnd| index: " + index);
             }
-        });
+        });*/
 
         int buttonSize = getResources().getDimensionPixelSize(R.dimen.action_button_size);
 

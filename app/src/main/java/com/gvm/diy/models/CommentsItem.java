@@ -4,17 +4,9 @@ import java.io.Serializable;
 
 public class CommentsItem implements Serializable {
     private String avatar, text, time_text, likes, id, user_id;
-    private Boolean is_liked;
+    private String is_liked;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public CommentsItem(String avatar, String text, String time_text, String likes, String id, String user_id, Boolean is_liked) {
+    public CommentsItem(String avatar, String text, String time_text, String likes, String id, String user_id, String is_liked) {
         this.avatar = avatar;
         this.text = text;
         this.time_text = time_text;
@@ -22,6 +14,17 @@ public class CommentsItem implements Serializable {
         this.id = id;
         this.user_id = user_id;
         this.is_liked = is_liked;
+    }
+
+    public CommentsItem() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUser_id() {
@@ -64,23 +67,11 @@ public class CommentsItem implements Serializable {
         this.likes = likes;
     }
 
-    public Boolean getIs_liked() {
+    public String getIs_liked() {
         return is_liked;
     }
 
-    public void setIs_liked(Boolean is_liked) {
+    public void setIs_liked(String is_liked) {
         this.is_liked = is_liked;
     }
-
-    public CommentsItem() {
-    }
-
-    public CommentsItem(String avatar, String text, String time_text, String likes, Boolean is_liked) {
-        this.avatar = avatar;
-        this.text = text;
-        this.time_text = time_text;
-        this.likes = likes;
-        this.is_liked = is_liked;
-    }
-
 }

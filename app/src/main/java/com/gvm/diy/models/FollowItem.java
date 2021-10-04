@@ -1,16 +1,59 @@
 package com.gvm.diy.models;
 
-public class FollowItem {
+import java.io.Serializable;
+
+public class FollowItem implements Serializable {
 
     private String file;
     private String avatar;
     private String time_text;
-    private String username;
+    private String username, user_id, is_following, is_blocked;
 
     public FollowItem(String avatar, String time_text, String username) {
         this.avatar = avatar;
         this.time_text = time_text;
         this.username = username;
+    }
+
+    public FollowItem(String avatar, String time_text, String username, String is_following, String user_id) {
+        this.avatar = avatar;
+        this.time_text = time_text;
+        this.username = username;
+        this.is_following = is_following;
+        this.user_id = user_id;
+
+    }
+
+    public FollowItem(String avatar, String time_text, String username, String user_id) {
+        this.avatar = avatar;
+        this.time_text = time_text;
+        this.username = username;
+        this.user_id = user_id;
+
+    }
+
+    public String getIs_following() {
+        return is_following;
+    }
+
+    public void setIs_following(String is_following) {
+        this.is_following = is_following;
+    }
+
+    public String getIs_blocked() {
+        return is_blocked;
+    }
+
+    public void setIs_blocked(String is_blocked) {
+        this.is_blocked = is_blocked;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public String getAvatar() {

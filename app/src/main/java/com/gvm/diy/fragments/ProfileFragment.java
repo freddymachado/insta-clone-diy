@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -179,7 +180,7 @@ public class ProfileFragment extends Fragment {
                         String extension = postMedia.getString(0).split("diys")[1]
                                 .substring(3).split("\\.")[1].substring(0,3);
 
-                        Log.e("PrFApiResponse", postImageLink+extension);
+                        Log.e("PrFApiResponse", mMessage);
                         profileItems.add(new ProfileItem(
                                 postImageLink+"."+extension
                         ));
@@ -209,6 +210,15 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
+                        if(followers.equals("false")){
+                            followers = "0";
+                        }
+                        if(following.equals("false")){
+                            following = "0";
+                        }
+                        if(favourites.equals("false")){
+                            favourites = "0";
+                        }
                         textViewFullname.setText(name);
                         textViewDescription.setText(about);
                         textViewNumberFollowing.setText(following);
@@ -221,7 +231,8 @@ public class ProfileFragment extends Fragment {
                         recycler_view.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(getContext(),
                                         postList,
-                                        getActivity().getIntent().getStringExtra("access_token"), getActivity().getIntent().getStringExtra("access_token"));
+                                        getActivity().getIntent().getStringExtra("access_token"),
+                                        getActivity().getIntent().getStringExtra("access_token"));
                     }
                 });
             }

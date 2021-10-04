@@ -50,8 +50,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PostViewerActivity extends AppCompatActivity {
-    //TODO: Probar diseño PostViewerActivity
-    //TODO: Probar datos del user
     //TODO: BottomBar que llame los métodos del MainActivity (4ta entrega?)
     ImageButton imageButtonBack, imageButtonMore;
 
@@ -190,9 +188,9 @@ public class PostViewerActivity extends AppCompatActivity {
             }
         });
 
-        if (is_liked.equals("1"))
+        if (is_liked.equals("true"))
             imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
-        if (is_saved.equals("1"))
+        if (is_saved.equals("true"))
             imageViewFav.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_yellow));
     }
 
@@ -237,11 +235,11 @@ public class PostViewerActivity extends AppCompatActivity {
             case R.id.imageViewLike:
                 //TODO: Probar
                 imageViewLike.startAnimation(myAnim);
-                if (is_liked.equals("1")) {
-                    is_liked = "0";
+                if (is_liked.equals("true")) {
+                    is_liked = "false";
                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
                 } else {
-                    is_liked = "1";
+                    is_liked = "true";
                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
                 }
                 body = new MultipartBody.Builder()
@@ -264,11 +262,11 @@ public class PostViewerActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 imageViewLike.startAnimation(myAnim);
-                                if (is_liked.equals("1")) {
-                                    is_liked = "0";
+                                if (is_liked.equals("true")) {
+                                    is_liked = "false";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
                                 } else {
-                                    is_liked = "1";
+                                    is_liked = "true";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
                                 }
                                 Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
@@ -286,13 +284,8 @@ public class PostViewerActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(likes.equals("null")) {
-                                    likes = "1";
-                                }
-                                else {
-                                    numLike =+ Integer.parseInt(likes);
-                                    likes = String.valueOf(numLike);
-                                }
+                                numLike =+ Integer.parseInt(likes);
+                                likes = String.valueOf(numLike);
                                 textViewLikes.setText(likes+" likes");
 
                             }
@@ -301,19 +294,19 @@ public class PostViewerActivity extends AppCompatActivity {
                 });
                 break;
                 case R.id.textViewLikes:
-                //TODO: Probar
                 Intent intentLikes = new Intent(PostViewerActivity.this, FollowersActivity.class);
                 intentLikes.putExtra("function", "likes");
                 intentLikes.putExtra("post_id", post_id);
+                intentLikes.putExtra("access_token", access_token);
                 startActivity(intentLikes);
                 break;
 
             case R.id.imageViewComment:
             case R.id.textViewComments:
-                //TODO: Probar
                 Intent intentComments = new Intent(PostViewerActivity.this, FollowersActivity.class);
                 intentComments.putExtra("function", "comments");
                 intentComments.putExtra("post_id", post_id);
+                intentComments.putExtra("user_id", user_id);
                 intentComments.putExtra("access_token", access_token);
                 startActivity(intentComments);
                 break;
@@ -335,12 +328,12 @@ public class PostViewerActivity extends AppCompatActivity {
             case R.id.imageViewFav:
                 //TODO: Probar
                 imageViewFav.startAnimation(myAnim);
-                if (is_saved.equals("1")) {
-                    is_saved = "0";
-                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                if (is_saved.equals("true")) {
+                    is_saved = "false";
+                    imageViewFav.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_outline_24));
                 } else {
-                    is_saved = "1";
-                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                    is_saved = "true";
+                    imageViewFav.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_yellow));
                 }
 
                 body = new MultipartBody.Builder()
@@ -363,12 +356,12 @@ public class PostViewerActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 imageViewFav.startAnimation(myAnim);
-                                if (is_saved.equals("1")) {
-                                    is_saved = "0";
-                                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                                if (is_saved.equals("true")) {
+                                    is_saved = "false";
+                                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_outline_24));
                                 } else {
-                                    is_saved = "1";
-                                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                                    is_saved = "true";
+                                    imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_star_yellow));
                                 }
                                 Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
 
