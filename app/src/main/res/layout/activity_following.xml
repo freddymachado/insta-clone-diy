@@ -105,14 +105,14 @@
         android:id="@+id/editTextAbout"
         android:layout_width="250dp"
         android:layout_height="48dp"
+        android:layout_below="@+id/editTextSurname"
+        android:layout_centerHorizontal="true"
         android:backgroundTint="#303030"
         android:ems="10"
         android:hint="Acerca de ti..."
         android:inputType="text"
         android:textColor="@color/white"
-        android:layout_centerHorizontal="true"
-        android:textColorHint="@android:color/darker_gray"
-        android:layout_below="@+id/editTextSurname"/>
+        android:textColorHint="@android:color/darker_gray" />
 
     <EditText
         android:id="@+id/editTextWeb"

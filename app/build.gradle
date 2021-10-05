@@ -73,8 +73,8 @@ dependencies {
 
 
     implementation 'com.ramotion.circlemenu:circle-menu:0.3.2'
-    implementation 'com.baoyz.pullrefreshlayout:library:1.2.0'
     implementation 'com.github.mukeshsolanki:liquidrefreshlayout:1.0.2'
-    //implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.github.Hitomis:CircleMenu:v1.1.0'
 
 }

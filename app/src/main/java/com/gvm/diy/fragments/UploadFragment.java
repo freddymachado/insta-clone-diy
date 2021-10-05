@@ -1,5 +1,6 @@
 package com.gvm.diy.fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,24 +11,23 @@ import android.view.ViewGroup;
 
 import com.gvm.diy.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link UploadFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class UploadFragment extends Fragment {
+    Uri resultUri;
 
 
     public UploadFragment() {
         // Required empty public constructor
     }
-
+    public UploadFragment(Uri resultUri) {
+        this.resultUri = resultUri;
+    }
+/*
     public static UploadFragment newInstance(String param1, String param2) {
-        UploadFragment fragment = new UploadFragment();
+        UploadFragment fragment = new UploadFragment(resultUri);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
+    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

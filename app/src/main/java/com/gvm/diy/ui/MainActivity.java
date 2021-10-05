@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ import com.gvm.diy.fragments.SearchFragment;
 import com.gvm.diy.fragments.UploadFragment;
 import com.gvm.diy.models.CountingRequestBody;
 import com.gvm.diy.models.Post;
+import com.hitomi.cmlibrary.CircleMenu;
+import com.hitomi.cmlibrary.OnMenuSelectedListener;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -49,6 +52,8 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.ramotion.circlemenu.CircleMenuView;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,7 +83,11 @@ public class MainActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
 
+    CircleMenuView circleMenuView;
+
     String access_token,username, user_id, password, server_key = "1539874186";
+
+    String arrayName[]={"image","video"};
 
     private static final int PHOTO_SENT = 24;
 
@@ -108,9 +117,21 @@ public class MainActivity extends AppCompatActivity {
         spaceNavigationView.addSpaceItem(new SpaceItem("", R.drawable.ic_baseline_person_24));
 
         //CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors)
-/*
-        final CircleMenuView menu = (CircleMenuView) findViewById(R.id.circle_menu);
-        
+        //final CircleMenuView menu = (CircleMenuView) findViewById(R.id.circleMenu);
+
+        CircleMenu menu = (CircleMenu) findViewById(R.id.circleMenu);
+
+        menu.setMainMenu(Color.parseColor("#CDCDCD"),R.drawable.ic_add,R.drawable.ic_close_black_24dp)
+                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_add_photo_alternate_24)
+                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_videocam_24)
+                .setOnMenuSelectedListener(new OnMenuSelectedListener() {
+                    @Override
+                    public void onMenuSelected(int index) {
+                        Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
         menu.setEventListener(new CircleMenuView.EventListener() {
             @Override
             public void onMenuOpenAnimationStart(@NonNull CircleMenuView view) {
@@ -212,8 +233,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCentreButtonClick() {
                 spaceNavigationView.setCentreButtonSelectable(true);
-                actionMenu.toggle(true);
-                setFragment(new UploadFragment());
+                //actionMenu.toggle(true);
+                menu.openMenu();
+                //menu.open(true);
+                //setFragment(new UploadFragment());
                 Dexter.withActivity(MainActivity.this)
                         .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .withListener(new PermissionListener() {
@@ -316,14 +339,30 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG,"CHimbo");
             }
         }
+        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if(resultCode== RESULT_OK){
+                Uri resultUri = result.getUri();
+                setFragment(new UploadFragment(resultUri));
+
+            }else if(resultCode  == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
+                Exception error = result.getError();
+                Toast.makeText(MainActivity.this, "Error: "+error, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
     
     private void cropImage(Uri uri){
 
         // start cropping activity for pre-acquired image saved on the device
         CropImage.activity(uri)
-          .setGuidelines(CropImageView.Guidelines.ON)
-         .start(this);
+          .setGuidelines(CropImageView.Guidelines.ON).setCropMenuCropButtonTitle("Listo")
+                .setCropShape(CropImageView.CropShape.RECTANGLE)
+            .setActivityTitle("Recortar imagen")
+            .setFixAspectRatio(true)
+            .start(this);
+
+
 
     }
 

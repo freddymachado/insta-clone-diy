@@ -70,12 +70,12 @@ public class SearchFragment extends Fragment {
         tabLayout = itemView.findViewById(R.id.tabLayout);
         viewPager = itemView.findViewById(R.id.viewpager);
 
+        tabLayout.setupWithViewPager(viewPager);
+
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
         viewPager.setAdapter(viewPagerAdapter);
-
-        tabLayout.setupWithViewPager(viewPager);
 
         recycler_view.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
@@ -98,8 +98,6 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        //Hacer el viewPager  y el tabLayout visibles con el onClick
-        editTextSearch.setOnClickListener
 
         List<ExploreItem> exploreItems = new ArrayList<>();
 /*
