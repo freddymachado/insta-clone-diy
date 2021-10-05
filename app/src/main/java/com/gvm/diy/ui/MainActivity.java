@@ -197,8 +197,6 @@ public class MainActivity extends AppCompatActivity {
                 thread.start();*/
                 performFileSearch();
                 actionMenu.toggle(true);
-
-
             }
         });
         buttonUploadVideo.setOnClickListener(new View.OnClickListener() {
@@ -275,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemReselected(int itemIndex, String itemName) {
-                Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -312,114 +310,221 @@ public class MainActivity extends AppCompatActivity {
             if (data != null){
                 uri = data.getData();
                 Log.i(TAG,"Uri: "+uri.toString());
-                uploadImage();
+                //uploadImage(); Hay que ver qué se obtiene al cortarla porque hay que colocarla en UploadFragment, for video, we only need to call uploadImage
+                cropImage(uri);
             }else{
                 Log.i(TAG,"CHimbo");
             }
         }
+    }
+    
+    private void cropImage(Uri uri){
+
+        // start cropping activity for pre-acquired image saved on the device
+        CropImage.activity(uri)
+          .setGuidelines(CropImageView.Guidelines.ON)
+         .start(this);
 
     }
 
-    private void uploadImage() {
+    private void uploadImage(String type) {
         if (uri == null){
             Log.i(TAG,uriToFileName(uri));
             return;
         }
+        if(type.equals("image")){
+            final File imageFile = new File(uriToFileName(uri));
+            //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
+            Uri uris = Uri.fromFile(imageFile);
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+            String imageName = imageFile.getName();
 
-        final File imageFile = new File(uriToFileName(uri));
-        //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
-        Uri uris = Uri.fromFile(imageFile);
-        String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-        String imageName = imageFile.getName();
+            Log.i(TAG,imageFile.getName()+" "+mime+" "+uriToFileName(uri));
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("server_key",server_key)
+                    .addFormDataPart("caption","prueba1")
+                    .addFormDataPart("access_token",access_token)
+                    .addFormDataPart("images[]",imageName,
+                            RequestBody.create(imageFile,MediaType.parse(mime)))
+                    .build();
 
-        Log.i(TAG,imageFile.getName()+" "+mime+" "+uriToFileName(uri));
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("server_key",server_key)
-                .addFormDataPart("caption","prueba1")
-                .addFormDataPart("access_token",access_token)
-                .addFormDataPart("images[]",imageName,
-                        RequestBody.create(imageFile,MediaType.parse(mime)))
-                .build();
-
-        final CountingRequestBody.Listener progressListener = new CountingRequestBody.Listener() {
-            @Override
-            public void onRequestProgress(long bytesRead, long contentLength) {
-                if (bytesRead >= contentLength) {
-                    if (progressBar != null)
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        });
-                } else {
-                    if (contentLength > 0) {
-                        final int progress = (int) (((double) bytesRead / contentLength) * 100);
+            final CountingRequestBody.Listener progressListener = new CountingRequestBody.Listener() {
+                @Override
+                public void onRequestProgress(long bytesRead, long contentLength) {
+                    if (bytesRead >= contentLength) {
                         if (progressBar != null)
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    progressBar.setVisibility(View.VISIBLE);
-                                    progressBar.setProgress(progress);
+                                    progressBar.setVisibility(View.GONE);
                                 }
                             });
+                    } else {
+                        if (contentLength > 0) {
+                            final int progress = (int) (((double) bytesRead / contentLength) * 100);
+                            if (progressBar != null)
+                                MainActivity.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressBar.setVisibility(View.VISIBLE);
+                                        progressBar.setProgress(progress);
+                                    }
+                                });
 
-                        if(progress >= 100){
-                            progressBar.setVisibility(View.GONE);
+                            if(progress >= 100){
+                                progressBar.setVisibility(View.GONE);
+                            }
+                            Log.e("uploadProgress called", progress+" ");
                         }
-                        Log.e("uploadProgress called", progress+" ");
                     }
                 }
-            }
-        };
+            };
 
-        OkHttpClient imageUploadClient = new OkHttpClient.Builder()
-                .addNetworkInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request originalRequest = chain.request();
+            OkHttpClient imageUploadClient = new OkHttpClient.Builder()
+                    .addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request originalRequest = chain.request();
 
-                        if (originalRequest.body() == null) {
-                            return chain.proceed(originalRequest);
+                            if (originalRequest.body() == null) {
+                                return chain.proceed(originalRequest);
+                            }
+                            Request progressRequest = originalRequest.newBuilder()
+                                    .method(originalRequest.method(),
+                                            new CountingRequestBody(originalRequest.body(), progressListener))
+                                    .build();
+
+                            return chain.proceed(progressRequest);
+
                         }
-                        Request progressRequest = originalRequest.newBuilder()
-                                .method(originalRequest.method(),
-                                        new CountingRequestBody(originalRequest.body(), progressListener))
-                                .build();
+                    })
+                    .build();
+            //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
+            Request request = new Request.Builder()
+                    .url("https://diys.co/endpoints/v1/post/new_post")
+                    .post(requestBody)
+                    .build();
 
-                        return chain.proceed(progressRequest);
 
+            imageUploadClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    String mMessage = e.getMessage().toString();
+                    //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                    Log.e("failure Response", mMessage);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    final String mMessage = response.body().string();
+
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("UploadResponse", mMessage);
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            });
+
+        }else{
+            final File videoFile = new File(uriToFileName(uri));
+            //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
+            Uri uris = Uri.fromFile(videoFile);
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+            String videoName = videoFile.getName();
+
+            Log.i(TAG,videoFile.getName()+" "+mime+" "+uriToFileName(uri));
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("server_key",server_key)
+                    .addFormDataPart("caption","prueba1")
+                    .addFormDataPart("access_token",access_token)
+                    .addFormDataPart("video",videoName,
+                            RequestBody.create(videoFile,MediaType.parse(mime)))
+                    .build();
+
+            final CountingRequestBody.Listener progressListener = new CountingRequestBody.Listener() {
+                @Override
+                public void onRequestProgress(long bytesRead, long contentLength) {
+                    if (bytesRead >= contentLength) {
+                        if (progressBar != null)
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+                    } else {
+                        if (contentLength > 0) {
+                            final int progress = (int) (((double) bytesRead / contentLength) * 100);
+                            if (progressBar != null)
+                                MainActivity.this.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressBar.setVisibility(View.VISIBLE);
+                                        progressBar.setProgress(progress);
+                                    }
+                                });
+
+                            if(progress >= 100){
+                                progressBar.setVisibility(View.GONE);
+                            }
+                            Log.e("uploadProgress called", progress+" ");
+                        }
                     }
-                })
-                .build();
-        //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
-        Request request = new Request.Builder()
-                .url("https://diys.co/endpoints/v1/post/new_post")
-                .post(requestBody)
-                .build();
+                }
+            };
+
+            OkHttpClient imageUploadClient = new OkHttpClient.Builder()
+                    .addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request originalRequest = chain.request();
+
+                            if (originalRequest.body() == null) {
+                                return chain.proceed(originalRequest);
+                            }
+                            Request progressRequest = originalRequest.newBuilder()
+                                    .method(originalRequest.method(),
+                                            new CountingRequestBody(originalRequest.body(), progressListener))
+                                    .build();
+
+                            return chain.proceed(progressRequest);
+
+                        }
+                    })
+                    .build();
+            //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
+            Request request = new Request.Builder()
+                    .url("https://diys.co/endpoints/v1/post/new_post")
+                    .post(requestBody)
+                    .build();
 
 
-        imageUploadClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                String mMessage = e.getMessage().toString();
-                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
-                Log.e("failure Response", mMessage);
-            }
+            imageUploadClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    String mMessage = e.getMessage().toString();
+                    //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                    Log.e("failure Response", mMessage);
+                }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String mMessage = response.body().string();
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    final String mMessage = response.body().string();
 
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e("UploadResponse", mMessage);
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-            }
-        });
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("UploadResponse", mMessage);
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            });
+
+        }
 
     }
 
