@@ -225,7 +225,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     public class CommentViewHolder extends RecyclerView.ViewHolder{
-        ImageView imageViewAvatar;
+        RoundedImageView imageViewAvatar;
         TextView textViewLikes, textViewComment, textViewTime;
         ImageButton imageButtonLike, imageButtonMore;
 

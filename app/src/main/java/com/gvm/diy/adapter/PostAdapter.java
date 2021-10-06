@@ -119,16 +119,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.username.setText(post.getUsername());
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(commentsArray.length()+" comments");
+        holder.time.setText(post.getTime_text());
 
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 
+
         builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Post")
-                .setItems(new String[]{"Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0:
+                                //postListener.postImageOnClick(v,position);
+                                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                                intentPostViewer.putExtra("access_token", access_token);
+                                intentPostViewer.putExtra("is_liked", is_liked);
+                                intentPostViewer.putExtra("is_saved", is_saved);
+                                intentPostViewer.putExtra("post_id", post_id);
+                                intentPostViewer.putExtra("user_id", user_id);
+                                intentPostViewer.putExtra("username", post.getUsername());
+                                intentPostViewer.putExtra("avatar", post.getAvatar());
+                                intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                                intentPostViewer.putExtra("description", post.getDescription());
+                                intentPostViewer.putExtra("comment", post.getComments());
+                                intentPostViewer.putExtra("likes", likes);
+                                intentPostViewer.putExtra("web", web);
+                                intentPostViewer.putExtra("name", post.getName());
+                                intentPostViewer.putExtra("following", post.getFollowing());
+                                intentPostViewer.putExtra("followers", post.getFollowers());
+                                intentPostViewer.putExtra("favourites", post.getFavourites());
+                                intentPostViewer.putExtra("about", post.getAbout());
+                                intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
+                                mContext.startActivity(intentPostViewer);                                break;
+                            case 1:
 
                                 OkHttpClient client = new OkHttpClient.Builder().build();
                                 body = new MultipartBody.Builder()
@@ -158,8 +182,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                     }
                                 });
                                 break;
-                            case 1:
-                                ClipData clip = ClipData.newPlainText("description",post.getDescription());
+                            case 2:
+                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
 
                                 Toast.makeText(mContext, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
                                 clipboardManager.setPrimaryClip(clip);
@@ -361,6 +385,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
+
+            holder.imageViewReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                String message = description+"https://diys.co//post/"+post_id;
+                share.putExtra(Intent.EXTRA_SUBJECT,"App");
+                share.putExtra(Intent.EXTRA_TEXT,message);
+                startActivity(Intent.createChooser(share,"Compartir vía"));
+
+                }
+            });
+
         holder.username.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -380,7 +418,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                     mContext.startActivity(intentProfileViewer);
                 }
             });
-
     }
 
     @Override
@@ -393,7 +430,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         TextView time, username, like, comment;
         ImageButton imageButtonMore;
         ReadMoreTextView description;
-        ImageView imageViewLike, imageViewComment, imageViewFav;
+        ImageView imageViewLike, imageViewReply, imageViewComment, imageViewFav;
         RoundedImageView user_profile_image;
 
         public ImageViewHolder(@NonNull View itemView) {
@@ -409,12 +446,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageViewLike = itemView.findViewById(R.id.like);
             imageViewComment = itemView.findViewById(R.id.comment);
             imageViewFav = itemView.findViewById(R.id.imageViewFav);
+            time = itemView.findViewById(R.id.publisher_date);
 
+            imageViewReply = findViewById(R.id.imageViewReply);
 
             imageButtonMore.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     builder.show();
+                }
+            });
+
+
+            imageViewReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                String message = description+"https://diys.co//post/"+post_id;
+                share.putExtra(Intent.EXTRA_SUBJECT,"App");
+                share.putExtra(Intent.EXTRA_TEXT,message);
+                startActivity(Intent.createChooser(share,"Compartir vía"));
+
                 }
             });
 

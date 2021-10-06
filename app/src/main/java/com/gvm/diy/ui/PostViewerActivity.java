@@ -177,7 +177,7 @@ public class PostViewerActivity extends AppCompatActivity {
                         });
                         break;
                     case 1:
-                        ClipData clip = ClipData.newPlainText("description",description);
+                        ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
 
                         Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
                         clipboardManager.setPrimaryClip(clip);

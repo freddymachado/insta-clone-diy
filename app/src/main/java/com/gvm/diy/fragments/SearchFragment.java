@@ -145,7 +145,8 @@ public class SearchFragment extends Fragment {
 
             }
         });
-        thread.start();*/
+        thread.start();
+*/
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_POSTS,
                 new com.android.volley.Response.Listener<String>() {
                     @Override
@@ -176,7 +177,7 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        Volley.newRequestQueue(getContext()).add(stringRequest);
+        //Volley.newRequestQueue(getContext()).add(stringRequest); 
 
         editTextSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,9 +186,6 @@ public class SearchFragment extends Fragment {
                 recycler_view.setVisibility(View.GONE);
                 tabLayout.setVisibility(View.VISIBLE);
                 viewPager.setVisibility(View.VISIBLE);
-                recycler_view.setLayoutManager(
-                        new LinearLayoutManager(getActivity().getApplicationContext())
-                );
             }
         });
         return itemView;

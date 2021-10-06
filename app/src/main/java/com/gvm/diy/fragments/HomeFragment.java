@@ -56,6 +56,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
     LiquidRefreshLayout refreshLayout;
 
+    ImageButton imageButtonMore;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -73,7 +75,9 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_home, container, false);
         recycler_view = itemView.findViewById(R.id.recycler_view);
+            imageButtonChat = itemView.findViewById(R.id.imageButtonChat);
         progressBar = itemView.findViewById(R.id.progressBar);
+        refreshLayout = itemView.findViewById(R.id.refreshLayout);
         refreshLayout = itemView.findViewById(R.id.refreshLayout);
 
         recycler_view.setHasFixedSize(true);
@@ -186,6 +190,14 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
             }
         });
+
+
+            imageButtonChat.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: Función de mensajería
+                }
+            });
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();

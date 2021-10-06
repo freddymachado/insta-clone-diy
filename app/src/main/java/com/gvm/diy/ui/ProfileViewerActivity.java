@@ -243,14 +243,94 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
         builder = new AlertDialog.Builder(ProfileViewerActivity.this);
         builder.setTitle("Post")
-                .setItems(new String[]{"Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                .setItems(new String[]{"Reportar usuario", "Bloquear usuario", "Copiar link del perfil}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             //TODO: Verificar comportamiento
                             case 0:
+                                body = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("server_key", server_key)
+                                        .addFormDataPart("user_id", user_id)
+                                        .addFormDataPart("access_token", access_token)
+                                        .build();
+
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/user/report_user")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(ProfileViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(ProfileViewerActivity.this, "usuario reportado", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
                                 break;
                             case 1:
+                                body = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("server_key", server_key)
+                                        .addFormDataPart("user_id", user_id)
+                                        .addFormDataPart("access_token", access_token)
+                                        .build();
+
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/user/block")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(ProfileViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(ProfileViewerActivity.this, "usuario bloqueado", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
+                                break;
+                            case 2:
+                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
+
+                                Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                clipboardManager.setPrimaryClip(clip);
                                 break;
                             default:
                                 break;

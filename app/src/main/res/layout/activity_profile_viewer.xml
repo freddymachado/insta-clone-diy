@@ -304,11 +304,21 @@
 
 
         </RelativeLayout>
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/recyclerView"
-            android:layout_below="@+id/appBar"/>
+    <com.madapps.liquid.LiquidRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:AniBackColor="@color/colorAccent"
+        app:AniForeColor="@color/colorBackground"
+        app:CircleSmaller="6"
+        android:layout_below="@+id/appBar">
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/recyclerView"
+                android:layout_below="@+id/appBar"/>
+
+    </com.madapps.liquid.LiquidRefreshLayout>
     </LinearLayout>
 
     <ProgressBar
