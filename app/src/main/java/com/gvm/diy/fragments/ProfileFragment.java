@@ -227,7 +227,7 @@ public class ProfileFragment extends Fragment {
                         Glide.with(getActivity().getApplicationContext()).load(avatar)
                                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                                 .into(imageViewProfile);
-                        adapterGrid = new ProfileAdapter(getContext(), profileItems);
+                        adapterGrid = new ProfileAdapter(getContext(), postList, access_token);
                         recycler_view.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(getContext(),
                                         postList,

@@ -9,11 +9,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.CommentsAdapter;
 import com.gvm.diy.adapter.FollowAdapter;
@@ -84,6 +87,12 @@ public class FollowersActivity extends AppCompatActivity {
 
         RequestBody requestBody;
         Request UserPostsRequest;
+        //Cargamos la animcion del boton
+        final Animation myAnim = AnimationUtils.loadAnimation(FollowersActivity.this,R.anim.bounce);
+
+        //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
+        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
+        myAnim.setInterpolator(interpolator);
 
         switch(function){
             case "followers":
@@ -466,6 +475,7 @@ public class FollowersActivity extends AppCompatActivity {
         imageButtonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageButtonBack.startAnimation(myAnim);
                 finish();
             }
         });

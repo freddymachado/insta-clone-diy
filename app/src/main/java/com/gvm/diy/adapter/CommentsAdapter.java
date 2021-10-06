@@ -25,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.CommentsItem;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.io.IOException;
 import java.util.List;

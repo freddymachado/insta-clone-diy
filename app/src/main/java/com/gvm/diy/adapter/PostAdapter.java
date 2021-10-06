@@ -56,7 +56,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     String likess;
     public PostListener postListener;
 
-    AlertDialog.Builder builder;
 
     OkHttpClient client;
     RequestBody body;
@@ -82,6 +81,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Post post = mPosts.get(position);
+        holder.setIsRecyclable(false);
 
         web = post.getWebsite();
 
@@ -122,77 +122,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.time.setText(post.getTime_text());
 
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-
-
-        builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Post")
-                .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case 0:
-                                //postListener.postImageOnClick(v,position);
-                                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                                intentPostViewer.putExtra("access_token", access_token);
-                                intentPostViewer.putExtra("is_liked", is_liked);
-                                intentPostViewer.putExtra("is_saved", is_saved);
-                                intentPostViewer.putExtra("post_id", post_id);
-                                intentPostViewer.putExtra("user_id", user_id);
-                                intentPostViewer.putExtra("username", post.getUsername());
-                                intentPostViewer.putExtra("avatar", post.getAvatar());
-                                intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
-                                intentPostViewer.putExtra("description", post.getDescription());
-                                intentPostViewer.putExtra("comment", post.getComments());
-                                intentPostViewer.putExtra("likes", likes);
-                                intentPostViewer.putExtra("web", web);
-                                intentPostViewer.putExtra("name", post.getName());
-                                intentPostViewer.putExtra("following", post.getFollowing());
-                                intentPostViewer.putExtra("followers", post.getFollowers());
-                                intentPostViewer.putExtra("favourites", post.getFavourites());
-                                intentPostViewer.putExtra("about", post.getAbout());
-                                intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
-                                mContext.startActivity(intentPostViewer);                                break;
-                            case 1:
-
-                                OkHttpClient client = new OkHttpClient.Builder().build();
-                                body = new MultipartBody.Builder()
-                                        .setType(MultipartBody.FORM)
-                                        .addFormDataPart("server_key", server_key)
-                                        .addFormDataPart("post_id", post_id)
-                                        .addFormDataPart("access_token", access_token)
-                                        .build();
-
-                                request = new Request.Builder()
-                                        .url("https://diys.co/endpoints/v1/post/report_post")
-                                        .post(body)
-                                        .build();
-
-                                client.newCall(request).enqueue(new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
-                                        String mMessage = e.getMessage().toString();
-                                        Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                                        Log.e("failure Response", mMessage);
-                                    }
-
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        final String mMessage = response.body().string();
-                                        Log.e("Like Response", mMessage);
-                                    }
-                                });
-                                break;
-                            case 2:
-                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
-
-                                Toast.makeText(mContext, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
-                                clipboardManager.setPrimaryClip(clip);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
 
         if (is_liked.equals("true"))
             holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
@@ -386,15 +315,95 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         });
 
 
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Post")
+                .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                //postListener.postImageOnClick(v,position);
+                                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                                intentPostViewer.putExtra("access_token", access_token);
+                                intentPostViewer.putExtra("is_liked", is_liked);
+                                intentPostViewer.putExtra("is_saved", is_saved);
+                                intentPostViewer.putExtra("post_id", post_id);
+                                intentPostViewer.putExtra("user_id", user_id);
+                                intentPostViewer.putExtra("username", post.getUsername());
+                                intentPostViewer.putExtra("avatar", post.getAvatar());
+                                intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                                intentPostViewer.putExtra("description", post.getDescription());
+                                intentPostViewer.putExtra("comment", post.getComments());
+                                intentPostViewer.putExtra("likes", likes);
+                                intentPostViewer.putExtra("web", web);
+                                intentPostViewer.putExtra("name", post.getName());
+                                intentPostViewer.putExtra("following", post.getFollowing());
+                                intentPostViewer.putExtra("followers", post.getFollowers());
+                                intentPostViewer.putExtra("favourites", post.getFavourites());
+                                intentPostViewer.putExtra("about", post.getAbout());
+                                intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
+                                mContext.startActivity(intentPostViewer);
+                                break;
+                            case 1:
+
+                                OkHttpClient client = new OkHttpClient.Builder().build();
+                                body = new MultipartBody.Builder()
+                                        .setType(MultipartBody.FORM)
+                                        .addFormDataPart("server_key", server_key)
+                                        .addFormDataPart("post_id", post_id)
+                                        .addFormDataPart("access_token", access_token)
+                                        .build();
+
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/post/report_post")
+                                        .post(body)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
+                                break;
+                            case 2:
+                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
+
+                                Toast.makeText(mContext, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                clipboardManager.setPrimaryClip(clip);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+
+        holder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.show();
+            }
+        });
+
             holder.imageViewReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
-                String message = description+"https://diys.co//post/"+post_id;
+                String message = post.getDescription()+"https://diys.co//post/"+post_id;
                 share.putExtra(Intent.EXTRA_SUBJECT,"App");
                 share.putExtra(Intent.EXTRA_TEXT,message);
-                startActivity(Intent.createChooser(share,"Compartir vía"));
+                mContext.startActivity(Intent.createChooser(share,"Compartir vía"));
 
                 }
             });
@@ -448,14 +457,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             imageViewFav = itemView.findViewById(R.id.imageViewFav);
             time = itemView.findViewById(R.id.publisher_date);
 
-            imageViewReply = findViewById(R.id.imageViewReply);
-
-            imageButtonMore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    builder.show();
-                }
-            });
+            imageViewReply = itemView.findViewById(R.id.imageViewReply);
 
 
             imageViewReply.setOnClickListener(new View.OnClickListener() {
@@ -466,7 +468,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 String message = description+"https://diys.co//post/"+post_id;
                 share.putExtra(Intent.EXTRA_SUBJECT,"App");
                 share.putExtra(Intent.EXTRA_TEXT,message);
-                startActivity(Intent.createChooser(share,"Compartir vía"));
+                mContext.startActivity(Intent.createChooser(share,"Compartir vía"));
 
                 }
             });

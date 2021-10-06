@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 /*
@@ -56,7 +57,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
     LiquidRefreshLayout refreshLayout;
 
-    ImageButton imageButtonMore;
+    ImageButton imageButtonChat;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -75,7 +76,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_home, container, false);
         recycler_view = itemView.findViewById(R.id.recycler_view);
-            imageButtonChat = itemView.findViewById(R.id.imageButtonChat);
+        imageButtonChat = itemView.findViewById(R.id.imageButtonChat);
         progressBar = itemView.findViewById(R.id.progressBar);
         refreshLayout = itemView.findViewById(R.id.refreshLayout);
         refreshLayout = itemView.findViewById(R.id.refreshLayout);

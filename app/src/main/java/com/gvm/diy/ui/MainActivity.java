@@ -23,6 +23,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -119,122 +120,36 @@ public class MainActivity extends AppCompatActivity {
         //CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors)
         //final CircleMenuView menu = (CircleMenuView) findViewById(R.id.circleMenu);
 
+        //add default fragment - HOME Fragment
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,new HomeFragment()).commit();
+
         CircleMenu menu = (CircleMenu) findViewById(R.id.circleMenu);
 
-        menu.setMainMenu(Color.parseColor("#CDCDCD"),R.drawable.ic_add,R.drawable.ic_close_black_24dp)
-                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_add_photo_alternate_24)
-                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_videocam_24)
+        menu.setMainMenu(Color.parseColor("#454859"),R.drawable.ic_add,R.drawable.ic_close_black_24dp)
+                .addSubMenu(Color.parseColor("#454859"),R.drawable.ic_baseline_add_photo_alternate_24)
+                .addSubMenu(Color.parseColor("#454859"),R.drawable.ic_baseline_videocam_24)
                 .setOnMenuSelectedListener(new OnMenuSelectedListener() {
                     @Override
                     public void onMenuSelected(int index) {
                         Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        /*
-        menu.setEventListener(new CircleMenuView.EventListener() {
-            @Override
-            public void onMenuOpenAnimationStart(@NonNull CircleMenuView view) {
-                Log.d("D", "onMenuOpenAnimationStart");
-            }
-
-            @Override
-            public void onMenuOpenAnimationEnd(@NonNull CircleMenuView view) {
-                Log.d("D", "onMenuOpenAnimationEnd");
-            }
-
-            @Override
-            public void onMenuCloseAnimationStart(@NonNull CircleMenuView view) {
-                Log.d("D", "onMenuCloseAnimationStart");
-            }
-
-            @Override
-            public void onMenuCloseAnimationEnd(@NonNull CircleMenuView view) {
-                Log.d("D", "onMenuCloseAnimationEnd");
-            }
-
-            @Override
-            public void onButtonClickAnimationStart(@NonNull CircleMenuView view, int index) {
-                Log.d("D", "onButtonClickAnimationStart| index: " + index);
-            }
-
-            @Override
-            public void onButtonClickAnimationEnd(@NonNull CircleMenuView view, int index) {
-                Log.d("D", "onButtonClickAnimationEnd| index: " + index);
-            }
-        });*/
-
-        int buttonSize = getResources().getDimensionPixelSize(R.dimen.action_button_size);
-
-        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
-
-        imageViewPhoto = new ImageView(this);
-        imageViewPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_photo_alternate_24));
-
-        SubActionButton buttonUploadPhoto = itemBuilder.setContentView(imageViewPhoto).setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_round)).build();
-
-        imageViewVideo = new ImageView(this);
-        imageViewVideo.setImageDrawable(getDrawable(R.drawable.ic_baseline_videocam_24));
-
-        SubActionButton buttonUploadVideo = itemBuilder.setBackgroundDrawable(getDrawable(R.drawable.bg_round)).setContentView(imageViewVideo).build();
-
-        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).setStartAngle(-45).setEndAngle(-165).addSubActionView(buttonUploadPhoto)
-                .setRadius(getResources().getDimensionPixelSize(R.dimen.action_button_size))
-                .addSubActionView(buttonUploadVideo).attachTo(spaceNavigationView).build();
-
-        //add default fragment - HOME Fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,new HomeFragment()).commit();
-
-        buttonUploadPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-/*
-                OkHttpClient client = new OkHttpClient().newBuilder().build();
-
-                MediaType mediaType = MediaType.parse("text/plain");
-                RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key","1539874186")
-                        .addFormDataPart("access_token",access_token)
-                        .addFormDataPart("images","12345678")
-                        .addFormDataPart("caption","12345678")
-                        .build();
-                Request request = new Request.Builder()
-                        .url("https://diys.co/endpoints/v1/post/new_post")
-                        .method("POST",body)
-                        .build();
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Response response = client.newCall(request).execute();
-                            Log.d(TAG, response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        performFileSearch();
+                        menu.closeMenu();
+                        menu.setVisibility(View.GONE);
 
                     }
                 });
-                thread.start();*/
-                performFileSearch();
-                actionMenu.toggle(true);
-            }
-        });
-        buttonUploadVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performFileSearch();
-                actionMenu.toggle(true);
-            }
-        });
 
         spaceNavigationView.setSpaceOnClickListener(new SpaceOnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.Q)
             @Override
             public void onCentreButtonClick() {
                 spaceNavigationView.setCentreButtonSelectable(true);
+                menu.setVisibility(View.VISIBLE);
                 //actionMenu.toggle(true);
-                menu.openMenu();
+                if(menu.isOpened())
+                    menu.closeMenu();
+                else
+                    menu.openMenu();
                 //menu.open(true);
                 //setFragment(new UploadFragment());
                 Dexter.withActivity(MainActivity.this)
@@ -299,6 +214,102 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
             }
         });
+
+        /*
+        menu.setEventListener(new CircleMenuView.EventListener() {
+            @Override
+            public void onMenuOpenAnimationStart(@NonNull CircleMenuView view) {
+                Log.d("D", "onMenuOpenAnimationStart");
+            }
+
+            @Override
+            public void onMenuOpenAnimationEnd(@NonNull CircleMenuView view) {
+                Log.d("D", "onMenuOpenAnimationEnd");
+            }
+
+            @Override
+            public void onMenuCloseAnimationStart(@NonNull CircleMenuView view) {
+                Log.d("D", "onMenuCloseAnimationStart");
+            }
+
+            @Override
+            public void onMenuCloseAnimationEnd(@NonNull CircleMenuView view) {
+                Log.d("D", "onMenuCloseAnimationEnd");
+            }
+
+            @Override
+            public void onButtonClickAnimationStart(@NonNull CircleMenuView view, int index) {
+                Log.d("D", "onButtonClickAnimationStart| index: " + index);
+            }
+
+            @Override
+            public void onButtonClickAnimationEnd(@NonNull CircleMenuView view, int index) {
+                Log.d("D", "onButtonClickAnimationEnd| index: " + index);
+            }
+        });
+
+        int buttonSize = getResources().getDimensionPixelSize(R.dimen.action_button_size);
+
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+
+        imageViewPhoto = new ImageView(this);
+        imageViewPhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_add_photo_alternate_24));
+
+        SubActionButton buttonUploadPhoto = itemBuilder.setContentView(imageViewPhoto).setBackgroundDrawable(getResources().getDrawable(R.drawable.bg_round)).build();
+
+        imageViewVideo = new ImageView(this);
+        imageViewVideo.setImageDrawable(getDrawable(R.drawable.ic_baseline_videocam_24));
+
+        SubActionButton buttonUploadVideo = itemBuilder.setBackgroundDrawable(getDrawable(R.drawable.bg_round)).setContentView(imageViewVideo).build();
+
+        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this).setStartAngle(-45).setEndAngle(-165).addSubActionView(buttonUploadPhoto)
+                .setRadius(getResources().getDimensionPixelSize(R.dimen.action_button_size))
+                .addSubActionView(buttonUploadVideo).attachTo(spaceNavigationView).build();
+
+
+        buttonUploadPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+                MediaType mediaType = MediaType.parse("text/plain");
+                RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key","1539874186")
+                        .addFormDataPart("access_token",access_token)
+                        .addFormDataPart("images","12345678")
+                        .addFormDataPart("caption","12345678")
+                        .build();
+                Request request = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/new_post")
+                        .method("POST",body)
+                        .build();
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Response response = client.newCall(request).execute();
+                            Log.d(TAG, response.body().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+                thread.start();
+                performFileSearch();
+                actionMenu.toggle(true);
+            }
+        });
+        buttonUploadVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performFileSearch();
+                actionMenu.toggle(true);
+            }
+        });
+        */
     }
 
     private void performFileSearch() {
@@ -326,19 +337,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.i(TAG, String.valueOf(resultCode));
         if(requestCode == PHOTO_SENT && resultCode == RESULT_OK){
             uri = null;
             if (data != null){
                 uri = data.getData();
                 Log.i(TAG,"Uri: "+uri.toString());
+                setFragment(new UploadFragment(uri));
                 //uploadImage(); Hay que ver qué se obtiene al cortarla porque hay que colocarla en UploadFragment, for video, we only need to call uploadImage
                 cropImage(uri);
             }else{
                 Log.i(TAG,"CHimbo");
             }
         }
+
         if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if(resultCode== RESULT_OK){
@@ -383,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("server_key",server_key)
-                    .addFormDataPart("caption","prueba1")
+                    .addFormDataPart("caption","prueba2")
                     .addFormDataPart("access_token",access_token)
                     .addFormDataPart("images[]",imageName,
                             RequestBody.create(imageFile,MediaType.parse(mime)))

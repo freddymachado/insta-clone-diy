@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,7 +71,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
     OkHttpClient client;
     RequestBody requestBody, FollowBody;
-    Request UserPostsRequest, FollowRequest;
+    Request UserPostsRequest, FollowRequest, request;
 
     GridLayoutManager gridLayoutManager;
     LinearLayoutManager linearLayoutManager;
@@ -142,6 +145,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(avatar)
                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                 .into(roundedImageViewAvatar);
+
+
+        ClipboardManager clipboardManager = (ClipboardManager) ProfileViewerActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
 
         //Iniciamos la solicitud para obtener los datos del usuario
         client = new OkHttpClient().newBuilder().build();
@@ -243,22 +249,16 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
         builder = new AlertDialog.Builder(ProfileViewerActivity.this);
         builder.setTitle("Post")
-                .setItems(new String[]{"Reportar usuario", "Bloquear usuario", "Copiar link del perfil}, new DialogInterface.OnClickListener() {
+                .setItems(new String[]{"Reportar usuario", "Bloquear usuario", "Copiar link del perfil"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             //TODO: Verificar comportamiento
                             case 0:
-                                body = new MultipartBody.Builder()
-                                        .setType(MultipartBody.FORM)
-                                        .addFormDataPart("server_key", server_key)
-                                        .addFormDataPart("user_id", user_id)
-                                        .addFormDataPart("access_token", access_token)
-                                        .build();
 
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/report_user")
-                                        .post(body)
+                                        .post(requestBody)
                                         .build();
 
                                 client.newCall(request).enqueue(new Callback() {
@@ -288,16 +288,10 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 });
                                 break;
                             case 1:
-                                body = new MultipartBody.Builder()
-                                        .setType(MultipartBody.FORM)
-                                        .addFormDataPart("server_key", server_key)
-                                        .addFormDataPart("user_id", user_id)
-                                        .addFormDataPart("access_token", access_token)
-                                        .build();
 
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/block")
-                                        .post(body)
+                                        .post(requestBody)
                                         .build();
 
                                 client.newCall(request).enqueue(new Callback() {
@@ -327,9 +321,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 });
                                 break;
                             case 2:
-                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
+                                ClipData clip = ClipData.newPlainText("ir al perfil","https://diys.co//post/"+user_id);
 
-                                Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ProfileViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
                                 clipboardManager.setPrimaryClip(clip);
                                 break;
                             default:

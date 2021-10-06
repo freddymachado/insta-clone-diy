@@ -73,4 +73,5 @@ public class UploadFragment extends Fragment {
 
         return itemView;
     }
+
 }
