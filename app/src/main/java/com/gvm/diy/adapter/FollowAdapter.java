@@ -49,19 +49,12 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
 
     private String access_token, server_key = "1539874186", user_id;
 
-    public FollowAdapter(Context mContext, List<FollowItem> followItems) {
-        this.mContext = mContext;
-        this.followItems = followItems;
-    }
     public FollowAdapter(Context mContext, List<FollowItem> followItems, String access_token) {
         this.mContext = mContext;
         this.followItems = followItems;
         this.access_token = access_token;
     }
 
-    public FollowAdapter(List<FollowItem> followItems) {
-        this.followItems = followItems;
-    }
 
     public FollowAdapter() {
     }
@@ -161,6 +154,26 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
 
             }
         });
+
+        holder.textViewName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
+                    intentProfileViewer.putExtra("access_token", access_token);
+                    intentProfileViewer.putExtra("user_id", user_id);
+                    intentProfileViewer.putExtra("web", web);
+                    intentProfileViewer.putExtra("username", post.getUsername());
+                    intentProfileViewer.putExtra("avatar", post.getAvatar());
+                    intentProfileViewer.putExtra("name", post.getName());
+                    intentProfileViewer.putExtra("following", post.getFollowing());
+                    intentProfileViewer.putExtra("followers", post.getFollowers());
+                    intentProfileViewer.putExtra("favourites", post.getFavourites());
+                    intentProfileViewer.putExtra("about", post.getAbout());
+                    intentProfileViewer.putExtra("isFollowing", post.getIsFollowing());
+
+                    mContext.startActivity(intentProfileViewer);
+                }
+            });
     }
 
     @Override
