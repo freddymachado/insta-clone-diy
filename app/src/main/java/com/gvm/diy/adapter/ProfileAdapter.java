@@ -16,6 +16,7 @@ import com.gvm.diy.R;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.PostViewerActivity;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.List;
 
@@ -62,7 +63,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
     @Override
     public void onBindViewHolder(@NonNull ProfileViewHolder holder, int position) {
         Post profileItem = profileItems2.get(position);
-        holder.setProfileImageView(profileItems2.get(position));
 
         is_liked = profileItem.getIs_liked();
         is_saved = profileItem.getIs_saved();
@@ -70,6 +70,15 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         user_id = profileItem.getUser_id();
         likes = profileItem.getLikes();
         web = profileItem.getWebsite();
+        //holder.setProfileImageView(profileItems2.get(position));
+
+        try{
+            Glide.with(mContext).load("https://diys.co/"+profileItem.getFile())
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(holder.profileImageView);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         holder.profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,13 +125,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
 
         void setProfileImageView(Post profileItem){
 
-            try{
-                Glide.with(mContext).load("https://diys.co/"+profileItem.getFile())
-                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                        .into(profileImageView);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
         }
     }
 }

@@ -234,7 +234,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
-                        adapterGrid = new ProfileAdapter(getApplicationContext(), profileItems);
+                        adapterGrid = new ProfileAdapter(getApplicationContext(), postList, access_token);
                         recyclerView.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
@@ -253,8 +253,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
-                            //TODO: Verificar comportamiento
                             case 0:
+                                //TODO: Probar cuando pueda debuggear con varios users
 
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/report_user")
@@ -289,6 +289,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 break;
                             case 1:
 
+                                //TODO: Probar cuando pueda debuggear con varios users
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/block")
                                         .post(requestBody)
@@ -323,7 +324,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                             case 2:
                                 ClipData clip = ClipData.newPlainText("ir al perfil","https://diys.co//post/"+user_id);
 
-                                Toast.makeText(ProfileViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ProfileViewerActivity.this, "Texto copiado en el portapapeles"+"https://diys.co//post/"+user_id, Toast.LENGTH_SHORT).show();
                                 clipboardManager.setPrimaryClip(clip);
                                 break;
                             default:

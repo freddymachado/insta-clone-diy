@@ -119,7 +119,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.username.setText(post.getUsername());
         holder.like.setText(post.getLikes()+" likes");
         holder.comment.setText(commentsArray.length()+" comments");
-        holder.time.setText(post.getTime_text());
+        holder.time.setText("Hace "+post.getTime_text().split(" ")[0]+" días");
 
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 
@@ -144,7 +144,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 intentPostViewer.putExtra("access_token", access_token);
                 intentPostViewer.putExtra("is_liked", is_liked);
                 intentPostViewer.putExtra("is_saved", is_saved);
-                intentPostViewer.putExtra("post_id", post_id);
+                intentPostViewer.putExtra("post_id", post.getPost_id());
                 intentPostViewer.putExtra("user_id", user_id);
                 intentPostViewer.putExtra("username", post.getUsername());
                 intentPostViewer.putExtra("avatar", post.getAvatar());
@@ -168,7 +168,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             public void onClick(View v) {
                 Intent intentComments = new Intent(mContext, FollowersActivity.class);
                 intentComments.putExtra("function", "comments");
-                intentComments.putExtra("post_id", post_id);
+                intentComments.putExtra("post_id", post.getPost_id());
                 intentComments.putExtra("access_token", access_token);
                 intentComments.putExtra("user_id", user_id);
                 mContext.startActivity(intentComments);
@@ -202,7 +202,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 RequestBody requestBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key",server_key)
-                        .addFormDataPart("post_id",post_id)
+                        .addFormDataPart("post_id",post.getPost_id())
                         .addFormDataPart("access_token",access_token)
                         .build();
                 okhttp3.Request request = new okhttp3.Request.Builder()
@@ -274,7 +274,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 body = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key", server_key)
-                        .addFormDataPart("post_id", post_id)
+                        .addFormDataPart("post_id", post.getPost_id())
                         .addFormDataPart("access_token", access_token)
                         .build();
 
@@ -328,7 +328,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                 intentPostViewer.putExtra("access_token", access_token);
                                 intentPostViewer.putExtra("is_liked", is_liked);
                                 intentPostViewer.putExtra("is_saved", is_saved);
-                                intentPostViewer.putExtra("post_id", post_id);
+                                intentPostViewer.putExtra("post_id", post.getPost_id());
                                 intentPostViewer.putExtra("user_id", user_id);
                                 intentPostViewer.putExtra("username", post.getUsername());
                                 intentPostViewer.putExtra("avatar", post.getAvatar());
@@ -346,12 +346,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                 mContext.startActivity(intentPostViewer);
                                 break;
                             case 1:
-
+                                //TODO: Probar cuando pueda debuggear con varios users
                                 OkHttpClient client = new OkHttpClient.Builder().build();
                                 body = new MultipartBody.Builder()
                                         .setType(MultipartBody.FORM)
                                         .addFormDataPart("server_key", server_key)
-                                        .addFormDataPart("post_id", post_id)
+                                        .addFormDataPart("post_id", post.getPost_id())
                                         .addFormDataPart("access_token", access_token)
                                         .build();
 
@@ -376,9 +376,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                 });
                                 break;
                             case 2:
-                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
+                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post.getPost_id());
 
-                                Toast.makeText(mContext, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, "Texto copiado en el portapapeles"+"https://diys.co//post/"+post.getPost_id(), Toast.LENGTH_SHORT).show();
                                 clipboardManager.setPrimaryClip(clip);
                                 break;
                             default:

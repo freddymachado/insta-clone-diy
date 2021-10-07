@@ -43,7 +43,7 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View itemView = inflater.inflate(R.layout.fragment_search, container, false);
+        View itemView = inflater.inflate(R.layout.fragment_upload, container, false);
 
         TextView textViewPublish, textViewName, textViewUser, textViewDescription;
         ImageButton imageButtonBack;

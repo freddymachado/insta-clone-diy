@@ -149,6 +149,7 @@ public class PostViewerActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case 0:
+                        //TODO: Probar cuando pueda debuggear con varios users
                         body = new MultipartBody.Builder()
                                 .setType(MultipartBody.FORM)
                                 .addFormDataPart("server_key", server_key)
@@ -179,7 +180,7 @@ public class PostViewerActivity extends AppCompatActivity {
                     case 1:
                         ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post_id);
 
-                        Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PostViewerActivity.this, "Texto copiado en el portapapeles"+"https://diys.co//post/"+post_id, Toast.LENGTH_SHORT).show();
                         clipboardManager.setPrimaryClip(clip);
                         break;
                     default:

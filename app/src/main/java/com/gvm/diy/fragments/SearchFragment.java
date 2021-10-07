@@ -75,6 +75,8 @@ public class SearchFragment extends Fragment {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
+        viewPagerAdapter.addFragment(new SearchHashtagsFragment(),"HASHTAGS","data");
+        viewPagerAdapter.addFragment(new SearchUsersFragment(),"USUARIOS","data");
         viewPager.setAdapter(viewPagerAdapter);
 
         recycler_view.setLayoutManager(

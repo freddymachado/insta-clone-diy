@@ -299,7 +299,6 @@ public class FollowersActivity extends AppCompatActivity {
                 });
                 break;
             case "likes":
-                //TODO: Probar y quitar el botón del item
                 textViewTitle.setText("Me gusta");
                 recycler_view.setLayoutManager(linearLayoutManager);
                 //Iniciamos la solicitud para obtener los datos del usuario
@@ -403,7 +402,6 @@ public class FollowersActivity extends AppCompatActivity {
                     public void onResponse(Call call, Response response) throws IOException {
                         final String mMessage = response.body().string();
                         JSONObject array = null;
-                        //TODO: Verificar respuesta para obtener los datos requeridos
                         Log.e("ApiResponse", mMessage);
                         try {
                             array = new JSONObject(mMessage);

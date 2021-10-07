@@ -115,10 +115,11 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
                 FollowBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key", server_key)
-                        .addFormDataPart("user_id", user_id)
+                        .addFormDataPart("user_id", followItem.getUser_id())
                         .addFormDataPart("access_token", access_token)
                         .build();
 
+                Log.e("useridClicked", followItem.getUser_id());
                 FollowRequest = new Request.Builder()
                         .url("https://diys.co/endpoints/v1/user/follow")
                         .post(FollowBody)

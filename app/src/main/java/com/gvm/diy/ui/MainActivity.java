@@ -1,5 +1,9 @@
 package com.gvm.diy.ui;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -9,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -94,6 +99,18 @@ public class MainActivity extends AppCompatActivity {
 
     Uri uri;
 
+    ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if(result.getResultCode() == Activity.RESULT_OK){
+                        Log.i(TAG, String.valueOf(result));
+                        Intent intent = result.getData();
+                        setFragment(new UploadFragment(intent.getData()));
+                    }
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,10 +163,14 @@ public class MainActivity extends AppCompatActivity {
                 spaceNavigationView.setCentreButtonSelectable(true);
                 menu.setVisibility(View.VISIBLE);
                 //actionMenu.toggle(true);
-                if(menu.isOpened())
+                if(menu.isOpened()){
                     menu.closeMenu();
-                else
+                    menu.setVisibility(View.GONE);
+                }
+                else{
+                    menu.setVisibility(View.VISIBLE);
                     menu.openMenu();
+                }
                 //menu.open(true);
                 //setFragment(new UploadFragment());
                 Dexter.withActivity(MainActivity.this)
@@ -317,7 +338,9 @@ public class MainActivity extends AppCompatActivity {
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("image/*");
         i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
-        startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
+        //startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
+        mGetContent.launch(i);
+
     }
 
     private void savePrefsData(String access_token, String username, String password) {
@@ -337,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.i(TAG, String.valueOf(resultCode));
         if(requestCode == PHOTO_SENT && resultCode == RESULT_OK){
@@ -365,8 +388,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    
-    private void cropImage(Uri uri){
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public void cropImage(Uri uri){
 
         // start cropping activity for pre-acquired image saved on the device
         CropImage.activity(uri)
@@ -483,7 +511,6 @@ public class MainActivity extends AppCompatActivity {
 
         }else{
             final File videoFile = new File(uriToFileName(uri));
-            //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
             Uri uris = Uri.fromFile(videoFile);
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
@@ -548,7 +575,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     })
                     .build();
-            //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
             Request request = new Request.Builder()
                     .url("https://diys.co/endpoints/v1/post/new_post")
                     .post(requestBody)
