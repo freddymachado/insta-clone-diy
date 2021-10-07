@@ -184,17 +184,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 if(is_liked.equals("true")){
                     is_liked = "false";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                    int numLike =- Integer.parseInt(likes);
-                    Log.e("failure Response", String.valueOf(numLike));
-                    likes = String.valueOf(numLike);
+                    int numLike = Integer.parseInt(likes);
+                    Log.e("numLike", String.valueOf(numLike--));
+                    likes = String.valueOf(numLike--);
                     holder.like.setText(likes+" likes");
                 }
                 else{
                     is_liked = "true";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                    int numLike =+ Integer.parseInt(likes);
-                    Log.e("failure Response", String.valueOf(numLike));
-                    likes = String.valueOf(numLike);
+                    int numLike = Integer.parseInt(likes);
+                    Log.e("failure Response", String.valueOf(numLike++));
+                    likes = String.valueOf(numLike++);
                     holder.like.setText(likes+" likes");
                 }
 
@@ -223,15 +223,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                 if(is_liked.equals("true")){
                                     is_liked = "false";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                                    int numLike =- Integer.parseInt(likes);
-                                    likes = String.valueOf(numLike);
+                                    int numLike = Integer.parseInt(likes);
+                                    Log.e("numLike", String.valueOf(numLike--));
+                                    likes = String.valueOf(numLike--);
                                     holder.like.setText(likes+" likes");
                                 }
                                 else{
                                     is_liked = "true";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                                    int numLike =+ Integer.parseInt(likes);
-                                    likes = String.valueOf(numLike);
+                                    int numLike = Integer.parseInt(likes);
+                                    Log.e("failure Response", String.valueOf(numLike++));
+                                    likes = String.valueOf(numLike++);
                                     holder.like.setText(likes+" likes");
                                 }
                                 Toast.makeText(mContext, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
