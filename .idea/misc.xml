@@ -26,7 +26,7 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_following.xml" value="0.35885416666666664" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_login.xml" value="0.33" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_post_viewer.xml" value="0.1" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_post_viewer.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_profile_viewer.xml" value="0.25" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_register.xml" value="0.33" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/chat_list_item.xml" value="0.35885416666666664" />
@@ -40,7 +40,7 @@
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search_hashtags.xml" value="0.35885416666666664" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_search_users.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_upload.xml" value="0.25" />
-        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_comment.xml" value="0.17222222222222222" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_comment.xml" value="0.33" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_message_received.xml" value="0.35885416666666664" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_message_received2.xml" value="0.35885416666666664" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/item_message_sent.xml" value="0.35885416666666664" />

@@ -25,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.CommentsItem;
+import com.gvm.diy.ui.ProfileViewerActivity;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.io.IOException;
@@ -67,6 +68,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         is_liked = commentsItem.getIs_liked();
         comment_id = commentsItem.getId();
 
+        if(is_liked.equals("true"))
+            holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
         //Cargamos la animcion del boton
         final Animation myAnim = AnimationUtils.loadAnimation(mContext,R.anim.bounce);
 
@@ -77,6 +80,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.imageButtonLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                holder.imageButtonLike.startAnimation(myAnim);
+                if(is_liked.equals("true")){
+                    is_liked = "false";
+                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_red));
+                }
+                else{
+                    is_liked = "true";
+                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
+                }
                 OkHttpClient imageUploadClient = new OkHttpClient.Builder().build();
                 RequestBody requestBody = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
@@ -110,15 +122,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         ((Activity)mContext).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                holder.imageButtonLike.startAnimation(myAnim);
-                                if(is_liked.equals("true")){
-                                    is_liked = "false";
-                                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_red));
-                                }
-                                else{
-                                    is_liked = "true";
-                                    holder.imageButtonLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                                }
                             }
                         });
 
@@ -130,13 +133,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Probar diseño MoreDialog (Cuando se obtenga erspuesta en FollowersActivity)
                 builder.show();
             }
         });
 
         try{
-            Glide.with(mContext).load("https://diys.co/"+commentsItem.getAvatar())
+            Glide.with(mContext).load(commentsItem.getAvatar())
                     .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                     .into(holder.imageViewAvatar);
         }catch (Exception e){
@@ -151,9 +153,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
-                                //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
                                 case 0:
                                     ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
+                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
 
                                     clipboardManager.setPrimaryClip(clip);
                                     break;
@@ -201,10 +203,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
-                                //TODO: Probar (Cuando se obtenga erspuesta en FollowersActivity)
                                 case 0:
                                     ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
 
+                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
                                     clipboardManager.setPrimaryClip(clip);
                                     break;
                                 default:
