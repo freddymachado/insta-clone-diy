@@ -56,6 +56,16 @@
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+
+    <com.madapps.liquid.LiquidRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:AniBackColor="@color/colorAccent"
+        app:AniForeColor="@color/colorBackground"
+        app:CircleSmaller="6"
+        android:layout_below="@+id/appBar">
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,5 +75,6 @@
         android:paddingBottom="15dp"
         android:clipToPadding="false"
         android:layout_below="@+id/appBar"/>
+    </com.madapps.liquid.LiquidRefreshLayout>
 
 </RelativeLayout>
