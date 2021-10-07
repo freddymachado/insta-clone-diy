@@ -49,6 +49,8 @@ public class SearchFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
+    LiquidRefreshLayout refreshLayout;
+
     public SearchFragment() {
         // Required empty public constructor
     }
@@ -69,6 +71,7 @@ public class SearchFragment extends Fragment {
         editTextSearch = itemView.findViewById(R.id.editTextSearch);
         tabLayout = itemView.findViewById(R.id.tabLayout);
         viewPager = itemView.findViewById(R.id.viewpager);
+        //TODO: refreshLayout = itemView.findViewById(R.id.refreshLayout); en todas las vistas
 
         tabLayout.setupWithViewPager(viewPager);
 

@@ -78,6 +78,8 @@ public class ProfileFragment extends Fragment {
     PostAdapter adapterLinear;
     ProfileAdapter adapterGrid;
 
+    LiquidRefreshLayout refreshLayout;
+
     ProgressBar progressBar;
 
     public ProfileFragment() {
@@ -103,6 +105,7 @@ public class ProfileFragment extends Fragment {
         textViewFollowing = itemView.findViewById(R.id.textViewFollowing);
         textViewNumberFavorites = itemView.findViewById(R.id.textViewNumberFavorites);
         textViewFavorites = itemView.findViewById(R.id.textViewFavorites);
+        refreshLayout = itemView.findViewById(R.id.refreshLayout);
 
         recycler_view = itemView.findViewById(R.id.recycler_view);
 
@@ -385,6 +388,116 @@ public class ProfileFragment extends Fragment {
                                             "stream_name":"","live_time":0,"agora_resource_id":null,"agora_sid":null,"live_ended":0,
                                             "avatar":"https:\/\/diys.co\/media\/im
          */
+
+        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+            @Override
+            public void completeRefresh() {
+            }
+
+            @Override
+            public void refreshing() {
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONObject data = array.getJSONObject("data");
+                            userData = data.getJSONObject("user_data");
+                            name = userData.getString("name");
+                            following = userData.getString("following");
+                            followers = userData.getString("followers");
+                            favourites = userData.getString("favourites");
+                            avatar = userData.getString("avatar");
+                            fname = userData.getString("fname");
+                            lname = userData.getString("lname");
+                            about = userData.getString("about");
+                            website = userData.getString("website");
+
+                            JSONArray userPosts = data.getJSONArray("user_posts");
+
+                            for (int i = 0; i < userPosts.length(); i++) {
+                                JSONObject post = userPosts.getJSONObject(i);
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
+
+                                Log.e("PrFApiResponse", mMessage);
+                                profileItems.add(new ProfileItem(
+                                        postImageLink+"."+extension
+                                ));
+
+                                        postList.add(new Post(
+                                                post.getString("description"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("avatar"),
+                                                postImageLink+"."+extension,
+                                                post.getString("likes"),
+                                                post.getString("comments"),
+                                                post.getString("is_liked"),
+                                                post.getString("is_saved"),
+                                                post.getString("post_id"),
+                                                post.getString("user_id"),
+                                                name, following, followers,
+                                                favourites, about, website,
+                                                "false"
+                                        ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                if(followers.equals("false")){
+                                    followers = "0";
+                                }
+                                if(following.equals("false")){
+                                    following = "0";
+                                }
+                                if(favourites.equals("false")){
+                                    favourites = "0";
+                                }
+                                textViewFullname.setText(name);
+                                textViewDescription.setText(about);
+                                textViewNumberFollowing.setText(following);
+                                textViewNumberFollowers.setText(followers);
+                                textViewNumberFavorites.setText(favourites);
+                                Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                        .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                        .into(imageViewProfile);
+                                adapterGrid = new ProfileAdapter(getContext(), postList, access_token);
+                                recycler_view.setAdapter(adapterGrid);
+                                adapterLinear = new PostAdapter(getContext(),
+                                                postList,
+                                                getActivity().getIntent().getStringExtra("access_token"),
+                                                getActivity().getIntent().getStringExtra("access_token"));
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
 
         imageButtonList.setOnClickListener(new View.OnClickListener() {
             @Override

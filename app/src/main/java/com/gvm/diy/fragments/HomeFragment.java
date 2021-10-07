@@ -79,7 +79,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         imageButtonChat = itemView.findViewById(R.id.imageButtonChat);
         progressBar = itemView.findViewById(R.id.progressBar);
         refreshLayout = itemView.findViewById(R.id.refreshLayout);
-        refreshLayout = itemView.findViewById(R.id.refreshLayout);
 
         recycler_view.setHasFixedSize(true);
         recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));

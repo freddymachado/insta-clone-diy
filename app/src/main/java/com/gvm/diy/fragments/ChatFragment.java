@@ -23,6 +23,8 @@ public class ChatFragment extends Fragment {
     private TextView textViewTitle;
     private ImageButton imageButtonBack;
 
+    LiquidRefreshLayout refreshLayout;
+
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -49,6 +51,20 @@ public class ChatFragment extends Fragment {
         recycler_view = itemView.findViewById(R.id.recycler_view);
         textViewTitle = itemView.findViewById(R.id.textViewTitle);
         imageButtonBack = itemView.findViewById(R.id.imageButtonBack);
+        refreshLayout = itemView.findViewById(R.id.refreshLayout);
+
+
+        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+            @Override
+            public void completeRefresh() {
+                Toast.makeText(getActivity().getApplicationContext(), "it works2", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void refreshing() {
+
+            }
+        });
 
 
         return itemView;

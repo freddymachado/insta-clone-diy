@@ -82,6 +82,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
 
+    LiquidRefreshLayout refreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +105,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
         imageButtonGrid = findViewById(R.id.imageButtonGrid);
         imageButtonWeb = findViewById(R.id.imageButtonWeb);
         imageButtonList = findViewById(R.id.imageButtonList);
+        refreshLayout = findViewById(R.id.refreshLayout);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -244,6 +247,100 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         textViewNumberFavorites.setText(favourites);
                     }
                 });
+            }
+        });
+
+        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+            @Override
+            public void completeRefresh() {
+                Toast.makeText(getActivity().getApplicationContext(), "", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void refreshing() {
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                Toast.makeText(ProfileViewerActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONObject data = array.getJSONObject("data");
+                            userData = data.getJSONObject("user_data");
+                            following = userData.getString("following");
+                            followers = userData.getString("followers");
+                            favourites = userData.getString("favourites");
+
+                            isFollowingN = data.getString("is_following");
+
+                            JSONArray userPosts = data.getJSONArray("user_posts");
+         
+                            for (int i = 0; i < userPosts.length(); i++) {
+                                JSONObject post = userPosts.getJSONObject(i);
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                //Por alguna razón el jsonArray postMedia tiene la info en string plano.
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
+
+                                Log.e("PVApiResponse", postImageLink+"."+extension);
+
+                                profileItems.add(new ProfileItem(
+                                        postImageLink+"."+extension
+                                ));
+
+                                        postList.add(new Post(
+                                                post.getString("description"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("avatar"),
+                                                postImageLink+"."+extension,
+                                                post.getString("likes"),
+                                                post.getString("comments"),
+                                                post.getString("is_liked"),
+                                                post.getString("is_saved"),
+                                                post.getString("post_id"),
+                                                post.getString("user_id"),
+                                                name, following, followers,
+                                                favourites, about, web,
+                                                isFollowingN
+                                        ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                adapterGrid = new ProfileAdapter(getApplicationContext(), postList, access_token);
+                                recyclerView.setAdapter(adapterGrid);
+                                adapterLinear = new PostAdapter(ProfileViewerActivity.this,
+                                                postList,
+                                                access_token, "PV");
+                                textViewNumberFollowing.setText(following);
+                                textViewNumberFollowers.setText(followers);
+                                textViewNumberFavorites.setText(favourites);
+                            }
+                        });
+                    }
+                });
+
             }
         });
 

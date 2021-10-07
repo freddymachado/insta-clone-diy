@@ -55,6 +55,8 @@ public class FollowersActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
 
+    LiquidRefreshLayout refreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,7 @@ public class FollowersActivity extends AppCompatActivity {
         recycler_view = findViewById(R.id.recycler_view);
         textViewTitle = findViewById(R.id.textViewTitle);
         imageButtonBack = findViewById(R.id.imageButtonBack);
+        refreshLayout = findViewById(R.id.refreshLayout);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -161,6 +164,66 @@ public class FollowersActivity extends AppCompatActivity {
                         });
                     }
                 });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ApiResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
+                                        followItems.add(new FollowItem(
+                                                post.getString("avatar"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("is_following"),
+                                                post.getString("user_id")
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems,access_token);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                });
                 break;
             case "favorites":
                 textViewTitle.setText("Favoritos");
@@ -226,6 +289,67 @@ public class FollowersActivity extends AppCompatActivity {
                                 recycler_view.setAdapter(adapter);
                             }
                         });
+                    }
+                });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ApiResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+
+                                    JSONArray userPosts = array.getJSONArray("data");
+                                    JSONObject file = new JSONObject();
+
+                                    for (int i = 0; i < userPosts.length(); i++) {
+                                        JSONObject post = userPosts.getJSONObject(i);
+                                        JSONArray postMedia = post.getJSONArray("media_set");
+                                        JSONObject media_set = postMedia.getJSONObject(0);
+
+                                        Log.e("FavApiResponse", mMessage);
+                                        profileItems.add(new ProfileItem(
+                                                media_set.getString("file").substring(16)
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        ProfileAdapter adapter = new ProfileAdapter(FollowersActivity.this, profileItems);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
                     }
                 });
                 break;
@@ -297,6 +421,68 @@ public class FollowersActivity extends AppCompatActivity {
                         });
                     }
                 });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ApiResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                        followItems.add(new FollowItem(
+                                                post.getString("avatar"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("is_following"),
+                                                post.getString("user_id")
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        FollowAdapter adapter = new FollowAdapter(FollowersActivity.this,
+                                                followItems,
+                                                access_token);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                });
                 break;
             case "likes":
                 textViewTitle.setText("Me gusta");
@@ -363,6 +549,67 @@ public class FollowersActivity extends AppCompatActivity {
                                 recycler_view.setAdapter(adapter);
                             }
                         });
+                    }
+                });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ApiResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                        followItems.add(new FollowItem(
+                                                post.getString("avatar"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("is_following"),
+                                                "likes"
+
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
                     }
                 });
                 break;
@@ -432,6 +679,68 @@ public class FollowersActivity extends AppCompatActivity {
                                 recycler_view.setAdapter(adapter);
                             }
                         });
+                    }
+                });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ApiResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        Log.e("FAApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                        commentsItems.add(new CommentsItem(
+                                                post.getString("avatar"),
+                                                post.getString("text"),
+                                                post.getString("time_text"),
+                                                post.getString("likes"),
+                                                post.getString("id"),
+                                                post.getString("user_id"),
+                                                post.getString("is_liked")
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
                     }
                 });
                 break;
