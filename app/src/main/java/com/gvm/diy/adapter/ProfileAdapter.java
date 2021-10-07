@@ -41,7 +41,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
     public ProfileAdapter() {
     }
 
-    public ProfileAdapter(Context context, List<Post> profileItems2, String access_token) {
+    public ProfileAdapter(Context mContext, List<Post> profileItems2, String access_token) {
         this.mContext = mContext;
         this.profileItems2 = profileItems2;
         this.access_token = access_token;

@@ -395,7 +395,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
-            holder.imageViewReply.setOnClickListener(new View.OnClickListener() {
+        holder.imageViewReply.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                 Intent share = new Intent(Intent.ACTION_SEND);
@@ -406,7 +406,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                 mContext.startActivity(Intent.createChooser(share,"Compartir vía"));
 
                 }
-            });
+        });
 
         holder.username.setOnClickListener(new View.OnClickListener() {
                 @Override
