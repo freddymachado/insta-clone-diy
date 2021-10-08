@@ -576,5 +576,11 @@ public class ProfileFragment extends Fragment {
         return itemView;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        //OnResume Fragment
+    }
+
 
 }

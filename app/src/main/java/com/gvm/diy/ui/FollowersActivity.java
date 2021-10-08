@@ -285,6 +285,7 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
+                                //TODO: set OnClickListener
                                 ProfileAdapter adapter = new ProfileAdapter(FollowersActivity.this, profileItems);
                                 recycler_view.setAdapter(adapter);
                             }

@@ -55,7 +55,6 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
         this.access_token = access_token;
     }
 
-
     public FollowAdapter() {
     }
 
@@ -143,6 +142,7 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
                         final String mMessage = response.body().string();
                         Log.e("Like Response", mMessage);
                         JSONObject array = null;
+                        saveFollow(followItem.getUser_id(),mMessage);
                         ((Activity)mContext).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
