@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG,"Uri: "+uri.toString());
                 setFragment(new UploadFragment(uri));
                 //uploadImage(); Hay que ver qué se obtiene al cortarla porque hay que colocarla en UploadFragment, for video, we only need to call uploadImage
-                cropImage(uri);
+                //cropImage(uri);
             }else{
                 Log.i(TAG,"CHimbo");
             }

@@ -88,11 +88,11 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
             @Override
             public void completeRefresh() {
-                Toast.makeText(getActivity().getApplicationContext(), "it works2", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void refreshing() {
+                postList.clear();
                 //Iniciamos la solicitud para obtener los datos del usuario
                 OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -153,7 +153,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
                                 Log.e("HFApiResponse", following+followers+favourites);
 
-                                postList.clear();
                                 postList.add(new Post(
                                         post.getString("description"),
                                         post.getString("time_text"),

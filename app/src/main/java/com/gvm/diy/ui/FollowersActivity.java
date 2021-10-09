@@ -24,6 +24,7 @@ import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.CommentsItem;
 import com.gvm.diy.models.FollowItem;
 import com.gvm.diy.models.ProfileItem;
+import com.madapps.liquid.LiquidRefreshLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -147,7 +148,13 @@ public class FollowersActivity extends AppCompatActivity {
                                         post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("is_following"),
-                                        post.getString("user_id")
+                                        post.getString("user_id"),
+                                        post.getString("about"),
+                                        post.getString("website"),
+                                        post.getString("followers"),
+                                        post.getString("following"),
+                                        post.getString("favourites"),
+                                        post.getString("name")
                                 ));
                             }
                         } catch (JSONException e) {
@@ -172,7 +179,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
-
+                        followItems.clear();
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
@@ -204,7 +211,13 @@ public class FollowersActivity extends AppCompatActivity {
                                                 post.getString("time_text"),
                                                 post.getString("username"),
                                                 post.getString("is_following"),
-                                                post.getString("user_id")
+                                                post.getString("user_id"),
+                                                post.getString("about"),
+                                                post.getString("website"),
+                                                post.getString("followers"),
+                                                post.getString("following"),
+                                                post.getString("favourites"),
+                                                post.getString("name")
                                         ));
                                     }
                                 } catch (JSONException e) {
@@ -300,7 +313,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
-
+                        profileItems.clear();
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
@@ -403,7 +416,13 @@ public class FollowersActivity extends AppCompatActivity {
                                         post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("is_following"),
-                                        post.getString("user_id")
+                                        post.getString("user_id"),
+                                        post.getString("about"),
+                                        post.getString("website"),
+                                        post.getString("followers"),
+                                        post.getString("following"),
+                                        post.getString("favorites"),
+                                        post.getString("name")
                                 ));
                             }
                         } catch (JSONException e) {
@@ -430,6 +449,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
+                        followItems.clear();
 
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override
@@ -462,7 +482,13 @@ public class FollowersActivity extends AppCompatActivity {
                                                 post.getString("time_text"),
                                                 post.getString("username"),
                                                 post.getString("is_following"),
-                                                post.getString("user_id")
+                                                post.getString("user_id"),
+                                                post.getString("about"),
+                                                post.getString("website"),
+                                                post.getString("followers"),
+                                                post.getString("following"),
+                                                post.getString("favorites"),
+                                                post.getString("name")
                                         ));
                                     }
                                 } catch (JSONException e) {
@@ -534,7 +560,13 @@ public class FollowersActivity extends AppCompatActivity {
                                         post.getString("time_text"),
                                         post.getString("username"),
                                         post.getString("is_following"),
-                                        "likes"
+                                        "likes",
+                                        post.getString("about"),
+                                        post.getString("website"),
+                                        post.getString("followers"),
+                                        post.getString("following"),
+                                        post.getString("favorites"),
+                                        post.getString("name")
 
                                 ));
                             }
@@ -546,7 +578,7 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems, access_token);
                                 recycler_view.setAdapter(adapter);
                             }
                         });
@@ -560,6 +592,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
+                        followItems.clear();
 
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override
@@ -592,7 +625,13 @@ public class FollowersActivity extends AppCompatActivity {
                                                 post.getString("time_text"),
                                                 post.getString("username"),
                                                 post.getString("is_following"),
-                                                "likes"
+                                                "likes",
+                                                post.getString("about"),
+                                                post.getString("website"),
+                                                post.getString("followers"),
+                                                post.getString("following"),
+                                                post.getString("favorites"),
+                                                post.getString("name")
 
                                         ));
                                     }
@@ -604,7 +643,7 @@ public class FollowersActivity extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         refreshLayout.finishRefreshing();
-                                        FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems);
+                                        FollowAdapter adapter = new FollowAdapter(FollowersActivity.this, followItems, access_token);
                                         recycler_view.setAdapter(adapter);
                                     }
                                 });
@@ -690,6 +729,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
+                        commentsItems.clear();
 
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override

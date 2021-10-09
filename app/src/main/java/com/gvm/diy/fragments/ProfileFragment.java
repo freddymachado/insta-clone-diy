@@ -28,6 +28,7 @@ import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.EditActivity;
 import com.gvm.diy.ui.SettingsActivity;
+import com.madapps.liquid.LiquidRefreshLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.json.JSONArray;
@@ -396,6 +397,8 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void refreshing() {
+                profileItems.clear();
+                postList.clear();
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -580,6 +583,65 @@ public class ProfileFragment extends Fragment {
     public void onResume(){
         super.onResume();
         //OnResume Fragment
+        client.newCall(UserPostsRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                String mMessage = e.getMessage().toString();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
+                Log.e("failure Response", mMessage);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String mMessage = response.body().string();
+                JSONObject array = null;
+                try {
+                    array = new JSONObject(mMessage);
+                    JSONObject data = array.getJSONObject("data");
+                    userData = data.getJSONObject("user_data");
+                    name = userData.getString("name");
+                    following = userData.getString("following");
+                    followers = userData.getString("followers");
+                    favourites = userData.getString("favourites");
+                    avatar = userData.getString("avatar");
+                    fname = userData.getString("fname");
+                    lname = userData.getString("lname");
+                    about = userData.getString("about");
+                    website = userData.getString("website");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshLayout.finishRefreshing();
+                        if(followers.equals("false")){
+                            followers = "0";
+                        }
+                        if(following.equals("false")){
+                            following = "0";
+                        }
+                        if(favourites.equals("false")){
+                            favourites = "0";
+                        }
+                        textViewFullname.setText(name);
+                        textViewDescription.setText(about);
+                        textViewNumberFollowing.setText(following);
+                        textViewNumberFollowers.setText(followers);
+                        textViewNumberFavorites.setText(favourites);
+                        Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                .into(imageViewProfile);
+                    }
+                });
+            }
+        });
     }
 
 

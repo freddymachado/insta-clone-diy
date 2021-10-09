@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class FollowItem implements Serializable {
 
-    private String file;
+    private String file, about, website, followers, following, favourites, name;
     private String avatar;
     private String time_text;
     private String username, user_id, is_following, is_blocked;
@@ -30,6 +30,70 @@ public class FollowItem implements Serializable {
         this.username = username;
         this.user_id = user_id;
 
+    }
+
+    public FollowItem(String avatar, String time_text, String username, String is_following, String user_id,
+                      String about, String website, String followers, String following, String favourites, String name) {
+        this.avatar = avatar;
+        this.time_text = time_text;
+        this.username = username;
+        this.is_following = is_following;
+        this.user_id = user_id;
+        this.about = about;
+        this.website = website;
+        this.followers = followers;
+        this.following = following;
+        this.favourites = favourites;
+        this.name = name;
+
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(String followers) {
+        this.followers = followers;
+    }
+
+    public String getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(String following) {
+        this.following = following;
+    }
+
+    public String getFavourites() {
+        return favourites;
+    }
+
+    public void setFavourites(String favourites) {
+        this.favourites = favourites;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getIs_following() {

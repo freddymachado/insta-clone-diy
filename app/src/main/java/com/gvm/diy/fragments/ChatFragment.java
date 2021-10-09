@@ -10,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gvm.diy.R;
+import com.madapps.liquid.LiquidRefreshLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,7 +59,6 @@ public class ChatFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
             @Override
             public void completeRefresh() {
-                Toast.makeText(getActivity().getApplicationContext(), "it works2", Toast.LENGTH_SHORT).show();
             }
 
             @Override

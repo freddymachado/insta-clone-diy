@@ -2,6 +2,7 @@ package com.gvm.diy.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +22,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.FollowItem;
-import com.gvm.diy.models.Post;
-import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.ProfileViewerActivity;
 
 import org.json.JSONObject;
@@ -142,7 +141,7 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
                         final String mMessage = response.body().string();
                         Log.e("Like Response", mMessage);
                         JSONObject array = null;
-                        saveFollow(followItem.getUser_id(),mMessage);
+                        //saveFollow(followItem.getUser_id(),mMessage);
                         ((Activity)mContext).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -161,20 +160,27 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
                     Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
                     intentProfileViewer.putExtra("access_token", access_token);
                     intentProfileViewer.putExtra("user_id", user_id);
-                    intentProfileViewer.putExtra("web", web);
-                    intentProfileViewer.putExtra("username", post.getUsername());
-                    intentProfileViewer.putExtra("avatar", post.getAvatar());
-                    intentProfileViewer.putExtra("name", post.getName());
-                    intentProfileViewer.putExtra("following", post.getFollowing());
-                    intentProfileViewer.putExtra("followers", post.getFollowers());
-                    intentProfileViewer.putExtra("favourites", post.getFavourites());
-                    intentProfileViewer.putExtra("about", post.getAbout());
-                    intentProfileViewer.putExtra("isFollowing", post.getIsFollowing());
+                    intentProfileViewer.putExtra("web", followItem.getWebsite());
+                    intentProfileViewer.putExtra("username", followItem.getUsername());
+                    intentProfileViewer.putExtra("avatar", followItem.getAvatar());
+                    intentProfileViewer.putExtra("name", followItem.getName());
+                    intentProfileViewer.putExtra("following", followItem.getFollowing());
+                    intentProfileViewer.putExtra("followers", followItem.getFollowers());
+                    intentProfileViewer.putExtra("favourites", followItem.getFavourites());
+                    intentProfileViewer.putExtra("about", followItem.getAbout());
+                    intentProfileViewer.putExtra("isFollowing", followItem.getIs_following());
 
                     mContext.startActivity(intentProfileViewer);
                 }
             });
     }
+/*
+    private void saveFollow(String user_id, String mMessage) {
+        SharedPreferences pref = mContext.getSharedPreferences("myPrefs",MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("following",access_token);
+        editor.apply();
+    }*/
 
     @Override
     public int getItemCount() {

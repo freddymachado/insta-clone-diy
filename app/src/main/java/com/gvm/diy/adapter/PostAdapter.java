@@ -180,23 +180,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             @Override
             public void onClick(View v) {
 
+                int numLike = Integer.parseInt(likes);
+                Log.e("numLike", String.valueOf(numLike--)+is_liked);
                 holder.imageViewLike.startAnimation(myAnim);
                 if(is_liked.equals("true")){
                     is_liked = "false";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                    int numLike = Integer.parseInt(likes);
-                    Log.e("numLike", String.valueOf(numLike--));
                     likes = String.valueOf(numLike--);
-                    holder.like.setText(likes+" likes");
                 }
                 else{
                     is_liked = "true";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                    int numLike = Integer.parseInt(likes);
-                    Log.e("failure Response", String.valueOf(numLike++));
                     likes = String.valueOf(numLike++);
-                    holder.like.setText(likes+" likes");
                 }
+                Log.e("numLike", String.valueOf(numLike--)+is_liked);
+                holder.like.setText(likes+" likes");
 
                 OkHttpClient LikeClient = new OkHttpClient.Builder().build();
                 RequestBody requestBody = new MultipartBody.Builder()
@@ -232,7 +230,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                     is_liked = "true";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
                                     int numLike = Integer.parseInt(likes);
-                                    Log.e("failure Response", String.valueOf(numLike++));
+                                    Log.e("numLike", String.valueOf(numLike++));
                                     likes = String.valueOf(numLike++);
                                     holder.like.setText(likes+" likes");
                                 }
@@ -316,8 +314,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle("Post")
                 .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
@@ -388,7 +384,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                         }
                     }
                 });
-
 
         holder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
             @Override

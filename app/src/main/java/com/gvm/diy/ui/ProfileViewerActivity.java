@@ -31,6 +31,7 @@ import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
+import com.madapps.liquid.LiquidRefreshLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.json.JSONArray;
@@ -237,7 +238,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
-                        adapterGrid = new ProfileAdapter(getApplicationContext(), postList, access_token);
+                        adapterGrid = new ProfileAdapter(ProfileViewerActivity.this, postList, access_token);
                         recyclerView.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
@@ -253,11 +254,12 @@ public class ProfileViewerActivity extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
             @Override
             public void completeRefresh() {
-                Toast.makeText(getActivity().getApplicationContext(), "", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void refreshing() {
+                profileItems.clear();
+                postList.clear();
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -444,6 +446,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
         switch (view.getId()) {
 
             case R.id.imageButtonBack:
+                imageButtonBack.startAnimation(myAnim);
                 finish();
                 break;
 

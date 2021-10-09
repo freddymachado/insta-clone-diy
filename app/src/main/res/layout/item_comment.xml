@@ -83,7 +83,6 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:background="@drawable/text_view_background"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButtonLike"
         app:layout_constraintStart_toEndOf="@+id/textViewTime"
         app:layout_constraintTop_toTopOf="@+id/textViewTime"
         app:srcCompat="@drawable/ic_baseline_more_horiz_24" />

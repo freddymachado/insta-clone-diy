@@ -115,7 +115,7 @@ public class SearchUsersFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems);
+                        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems, access_token);
                         recycler_view.setAdapter(adapter);
                     }
                 });
