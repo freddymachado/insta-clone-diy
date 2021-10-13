@@ -43,6 +43,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -422,10 +423,14 @@ public class UploadFragment extends Fragment {
 
     }
 
-    private String getPath(Uri resultUri) {/*
+    private String getPath(Uri resultUri) {
         String[] projection = {MediaStore.Video.Media.DATA, MediaStore.Video.Media.SIZE, MediaStore.Video.Media.DURATION};
-        Cursor cursor = managedQuery(resultUri,projection,null,null,null);*/
-        return  "true";
+        Cursor cursor = getActivity().getApplicationContext().getContentResolver().query(resultUri,projection,null,null,null);
+        cursor.moveToFirst();
+        String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
+        int fileSize = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
+        long duration = TimeUnit.MILLISECONDS.toSeconds(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)));
+        return  filePath;
     }
 
     private  String uriToFileName(Uri uri){
