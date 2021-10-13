@@ -44,7 +44,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private String access_token, server_key = "1539874186", comment_id, user_id;
     private String is_liked, is_saved;
 
-    AlertDialog.Builder builder;
 
     public CommentsAdapter(Context mContext, List<CommentsItem> commentsItems, String access_token, String user_id) {
         this.mContext = mContext;
@@ -76,7 +75,97 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
         MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2,20);
         myAnim.setInterpolator(interpolator);
+        AlertDialog.Builder builder;
 
+        try{
+            Glide.with(mContext).load(commentsItem.getAvatar())
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(holder.imageViewAvatar);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+
+        if(user_id.equals(commentsItem.getUser_id())){
+            builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Copiar","Borrar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case 0:
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
+                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                case 1:
+                                    //TODO: Probar borrado de comentario (last entrega, debuggear con el envío de comentarios)
+                                    OkHttpClient eraseComment = new OkHttpClient.Builder().build();
+                                    RequestBody requestBody = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key",server_key)
+                                            .addFormDataPart("comment_id",commentsItem.getId())
+                                            .addFormDataPart("access_token",access_token)
+                                            .build();
+                                    okhttp3.Request request = new okhttp3.Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/delete_comment")
+                                            .post(requestBody)
+                                            .build();
+
+
+                                    eraseComment.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            Log.e("failure Response", mMessage);
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    removeItem(holder.getAdapterPosition());
+                                                }
+                                            });
+
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+        }else{
+            builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Copiar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case 0:
+                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
+
+                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+
+        }
         holder.imageButtonLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,86 +225,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                 builder.show();
             }
         });
-
-        try{
-            Glide.with(mContext).load(commentsItem.getAvatar())
-                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                    .into(holder.imageViewAvatar);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-
-        if(user_id.equals(commentsItem.getUser_id())){
-            builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Post")
-                    .setItems(new String[]{"Copiar","Borrar"}, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0:
-                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
-                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
-
-                                    clipboardManager.setPrimaryClip(clip);
-                                    break;
-                                case 1:
-                                    //TODO: Probar borrado de comentario (last entrega, debuggear con el envío de comentarios)
-                                    OkHttpClient eraseComment = new OkHttpClient.Builder().build();
-                                    RequestBody requestBody = new MultipartBody.Builder()
-                                            .setType(MultipartBody.FORM)
-                                            .addFormDataPart("server_key",server_key)
-                                            .addFormDataPart("comment_id",commentsItem.getId())
-                                            .addFormDataPart("access_token",access_token)
-                                            .build();
-                                    okhttp3.Request request = new okhttp3.Request.Builder()
-                                            .url("https://diys.co/endpoints/v1/post/delete_comment")
-                                            .post(requestBody)
-                                            .build();
-
-
-                                    eraseComment.newCall(request).enqueue(new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-                                            String mMessage = e.getMessage().toString();
-                                            Toast.makeText(mContext, "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
-                                            Log.e("failure Response", mMessage);
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                                            final String mMessage = response.body().string();
-                                            Log.e("Like Response", mMessage);
-                                            removeItem(holder.getAdapterPosition());
-
-                                        }
-                                    });
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    });
-        }else{
-            builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Post")
-                    .setItems(new String[]{"Copiar"}, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0:
-                                    ClipData clip = ClipData.newPlainText("comentario",commentsItem.getText());
-
-                                    Toast.makeText(mContext, "Comentario copiado en el portapapeles", Toast.LENGTH_SHORT).show();
-                                    clipboardManager.setPrimaryClip(clip);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    });
-
-        }
 
         holder.textViewLikes.setText("Me gusta("+commentsItem.getLikes()+")");
         holder.textViewComment.setText(commentsItem.getText());

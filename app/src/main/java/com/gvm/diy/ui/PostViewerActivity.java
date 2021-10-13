@@ -236,13 +236,17 @@ public class PostViewerActivity extends AppCompatActivity {
             case R.id.imageViewLike:
                 //TODO: Probar
                 imageViewLike.startAnimation(myAnim);
+                int numLike = Integer.parseInt(likes);
                 if (is_liked.equals("true")) {
                     is_liked = "false";
                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                    likes = String.valueOf(numLike-1);
                 } else {
                     is_liked = "true";
                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                    likes = String.valueOf(numLike+1);
                 }
+                textViewLikes.setText(likes+" likes");
                 body = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
                         .addFormDataPart("server_key", server_key)
@@ -263,13 +267,18 @@ public class PostViewerActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 imageViewLike.startAnimation(myAnim);
+                                int numLike = Integer.parseInt(likes);
                                 if (is_liked.equals("true")) {
                                     is_liked = "false";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_border_24));
+                                    likes = String.valueOf(numLike-1);
                                 } else {
                                     is_liked = "true";
                                     imageViewLike.setImageDrawable(getDrawable(R.drawable.ic_baseline_favorite_red));
+                                    Log.e("numLike", String.valueOf(numLike+1));
+                                    likes = String.valueOf(numLike+1);
                                 }
+                                textViewLikes.setText(likes+" likes");
                                 Toast.makeText(PostViewerActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
 
                             }
@@ -285,9 +294,6 @@ public class PostViewerActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                numLike =+ Integer.parseInt(likes);
-                                likes = String.valueOf(numLike);
-                                textViewLikes.setText(likes+" likes");
 
                             }
                         });

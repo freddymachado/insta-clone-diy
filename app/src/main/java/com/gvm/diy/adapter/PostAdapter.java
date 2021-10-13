@@ -51,7 +51,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
 
     Context mContext;
     private List<Post> mPosts;
-    private String access_token, server_key = "1539874186", post_id, user_id, web, place;
+    private String access_token, server_key = "1539874186", post_id, user_id, web,current_user;
     private String is_liked, is_saved, likes;
     String likess;
     public PostListener postListener;
@@ -64,11 +64,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     int Numberlikes;
 
 
-    public PostAdapter(Context mContext, List<Post> mPosts, String accessToken, String place) {
+    public PostAdapter(Context mContext, List<Post> mPosts, String accessToken, String current_user) {
         this.mContext = mContext;
         this.mPosts = mPosts;
         this.access_token = accessToken;
-        this.place = place;
+        this.current_user = current_user;
     }
 
     @NonNull
@@ -181,19 +181,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             public void onClick(View v) {
 
                 int numLike = Integer.parseInt(likes);
-                Log.e("numLike", String.valueOf(numLike--)+is_liked);
+                Log.e("numLike", String.valueOf(numLike)+is_liked);
                 holder.imageViewLike.startAnimation(myAnim);
                 if(is_liked.equals("true")){
                     is_liked = "false";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                    likes = String.valueOf(numLike--);
+                    likes = String.valueOf(numLike-1);
                 }
                 else{
                     is_liked = "true";
                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                    likes = String.valueOf(numLike++);
+                    likes = String.valueOf(numLike+1);
                 }
-                Log.e("numLike", String.valueOf(numLike--)+is_liked);
                 holder.like.setText(likes+" likes");
 
                 OkHttpClient LikeClient = new OkHttpClient.Builder().build();
@@ -218,22 +217,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                             public void run() {
 
                                 holder.imageViewLike.startAnimation(myAnim);
+                                int numLike = Integer.parseInt(likes);
                                 if(is_liked.equals("true")){
                                     is_liked = "false";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_border_24));
-                                    int numLike = Integer.parseInt(likes);
-                                    Log.e("numLike", String.valueOf(numLike--));
-                                    likes = String.valueOf(numLike--);
-                                    holder.like.setText(likes+" likes");
+                                    Log.e("numLike", String.valueOf(numLike-1));
+                                    likes = String.valueOf(numLike-1);
                                 }
                                 else{
                                     is_liked = "true";
                                     holder.imageViewLike.setImageDrawable(mContext.getDrawable(R.drawable.ic_baseline_favorite_red));
-                                    int numLike = Integer.parseInt(likes);
-                                    Log.e("numLike", String.valueOf(numLike++));
-                                    likes = String.valueOf(numLike++);
-                                    holder.like.setText(likes+" likes");
+                                    Log.e("numLike", String.valueOf(numLike+1));
+                                    likes = String.valueOf(numLike+1);
                                 }
+                                holder.like.setText(likes+" likes");
                                 Toast.makeText(mContext, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -315,76 +312,204 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle("Post")
-                .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case 0:
-                                //postListener.postImageOnClick(v,position);
-                                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                                intentPostViewer.putExtra("access_token", access_token);
-                                intentPostViewer.putExtra("is_liked", is_liked);
-                                intentPostViewer.putExtra("is_saved", is_saved);
-                                intentPostViewer.putExtra("post_id", post.getPost_id());
-                                intentPostViewer.putExtra("user_id", user_id);
-                                intentPostViewer.putExtra("username", post.getUsername());
-                                intentPostViewer.putExtra("avatar", post.getAvatar());
-                                intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
-                                intentPostViewer.putExtra("description", post.getDescription());
-                                intentPostViewer.putExtra("comment", post.getComments());
-                                intentPostViewer.putExtra("likes", likes);
-                                intentPostViewer.putExtra("web", web);
-                                intentPostViewer.putExtra("name", post.getName());
-                                intentPostViewer.putExtra("following", post.getFollowing());
-                                intentPostViewer.putExtra("followers", post.getFollowers());
-                                intentPostViewer.putExtra("favourites", post.getFavourites());
-                                intentPostViewer.putExtra("about", post.getAbout());
-                                intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
-                                mContext.startActivity(intentPostViewer);
-                                break;
-                            case 1:
-                                //TODO: Probar cuando pueda debuggear con varios users
-                                OkHttpClient client = new OkHttpClient.Builder().build();
-                                body = new MultipartBody.Builder()
-                                        .setType(MultipartBody.FORM)
-                                        .addFormDataPart("server_key", server_key)
-                                        .addFormDataPart("post_id", post.getPost_id())
-                                        .addFormDataPart("access_token", access_token)
-                                        .build();
+        if(current_user.equals(post.getUser_id())){
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Borrar Post","Editar Post","Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case 0:
+                                    //TODO: Probar cuando pueda debuggear con varios users
+                                    OkHttpClient client = new OkHttpClient.Builder().build();
+                                    body = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key", server_key)
+                                            .addFormDataPart("post_id", post.getPost_id())
+                                            .addFormDataPart("access_token", access_token)
+                                            .build();
 
-                                request = new Request.Builder()
-                                        .url("https://diys.co/endpoints/v1/post/report_post")
-                                        .post(body)
-                                        .build();
+                                    request = new Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/delete_post")
+                                            .post(body)
+                                            .build();
 
-                                client.newCall(request).enqueue(new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
-                                        String mMessage = e.getMessage().toString();
-                                        Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-                                        Log.e("failure Response", mMessage);
-                                    }
+                                    client.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            Log.e("failure Response", mMessage);
+                                        }
 
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        final String mMessage = response.body().string();
-                                        Log.e("Like Response", mMessage);
-                                    }
-                                });
-                                break;
-                            case 2:
-                                ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post.getPost_id());
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    removeItem(holder.getAdapterPosition());
+                                                }
+                                            });
+                                        }
+                                    });
+                                    break;
+                                case 1:
+                                    //TODO:Diseño pantalla editPost (puede ser la misma FollowActivity)
+                                    break;
+                                case 2:
+                                    //postListener.postImageOnClick(v,position);
+                                    Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                                    intentPostViewer.putExtra("access_token", access_token);
+                                    intentPostViewer.putExtra("is_liked", is_liked);
+                                    intentPostViewer.putExtra("is_saved", is_saved);
+                                    intentPostViewer.putExtra("post_id", post.getPost_id());
+                                    intentPostViewer.putExtra("user_id", user_id);
+                                    intentPostViewer.putExtra("username", post.getUsername());
+                                    intentPostViewer.putExtra("avatar", post.getAvatar());
+                                    intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                                    intentPostViewer.putExtra("description", post.getDescription());
+                                    intentPostViewer.putExtra("comment", post.getComments());
+                                    intentPostViewer.putExtra("likes", likes);
+                                    intentPostViewer.putExtra("web", web);
+                                    intentPostViewer.putExtra("name", post.getName());
+                                    intentPostViewer.putExtra("following", post.getFollowing());
+                                    intentPostViewer.putExtra("followers", post.getFollowers());
+                                    intentPostViewer.putExtra("favourites", post.getFavourites());
+                                    intentPostViewer.putExtra("about", post.getAbout());
+                                    intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
+                                    mContext.startActivity(intentPostViewer);
+                                    break;
+                                case 3:
+                                    //TODO: Probar cuando pueda debuggear con varios users
+                                    client = new OkHttpClient.Builder().build();
+                                    body = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key", server_key)
+                                            .addFormDataPart("post_id", post.getPost_id())
+                                            .addFormDataPart("access_token", access_token)
+                                            .build();
 
-                                Toast.makeText(mContext, "Texto copiado en el portapapeles"+"https://diys.co//post/"+post.getPost_id(), Toast.LENGTH_SHORT).show();
-                                clipboardManager.setPrimaryClip(clip);
-                                break;
-                            default:
-                                break;
+                                    request = new Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/report_post")
+                                            .post(body)
+                                            .build();
+
+                                    client.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            Log.e("failure Response", mMessage);
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                        }
+                                    });
+                                    break;
+                                case 4:
+                                    ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post.getPost_id());
+
+                                    Toast.makeText(mContext, "Texto copiado en el portapapeles"+"https://diys.co//post/"+post.getPost_id(), Toast.LENGTH_SHORT).show();
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
-                    }
-                });
+                    });
 
+        }else{
+            builder.setTitle("Post")
+                    .setItems(new String[]{"Ir al Post","Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case 0:
+                                    //postListener.postImageOnClick(v,position);
+                                    Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                                    intentPostViewer.putExtra("access_token", access_token);
+                                    intentPostViewer.putExtra("is_liked", is_liked);
+                                    intentPostViewer.putExtra("is_saved", is_saved);
+                                    intentPostViewer.putExtra("post_id", post.getPost_id());
+                                    intentPostViewer.putExtra("user_id", user_id);
+                                    intentPostViewer.putExtra("username", post.getUsername());
+                                    intentPostViewer.putExtra("avatar", post.getAvatar());
+                                    intentPostViewer.putExtra("post_image", "https://diys.co/"+post.getFile());
+                                    intentPostViewer.putExtra("description", post.getDescription());
+                                    intentPostViewer.putExtra("comment", post.getComments());
+                                    intentPostViewer.putExtra("likes", likes);
+                                    intentPostViewer.putExtra("web", web);
+                                    intentPostViewer.putExtra("name", post.getName());
+                                    intentPostViewer.putExtra("following", post.getFollowing());
+                                    intentPostViewer.putExtra("followers", post.getFollowers());
+                                    intentPostViewer.putExtra("favourites", post.getFavourites());
+                                    intentPostViewer.putExtra("about", post.getAbout());
+                                    intentPostViewer.putExtra("isFollowing", post.getIsFollowing());
+                                    mContext.startActivity(intentPostViewer);
+                                    break;
+                                case 1:
+                                    //TODO: Probar cuando pueda debuggear con varios users
+                                    OkHttpClient client = new OkHttpClient.Builder().build();
+                                    body = new MultipartBody.Builder()
+                                            .setType(MultipartBody.FORM)
+                                            .addFormDataPart("server_key", server_key)
+                                            .addFormDataPart("post_id", post.getPost_id())
+                                            .addFormDataPart("access_token", access_token)
+                                            .build();
+
+                                    request = new Request.Builder()
+                                            .url("https://diys.co/endpoints/v1/post/report_post")
+                                            .post(body)
+                                            .build();
+
+                                    client.newCall(request).enqueue(new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            String mMessage = e.getMessage().toString();
+                                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            Log.e("failure Response", mMessage);
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            final String mMessage = response.body().string();
+                                            Log.e("Like Response", mMessage);
+                                        }
+                                    });
+                                    break;
+                                case 2:
+                                    ClipData clip = ClipData.newPlainText("ir al post","https://diys.co//post/"+post.getPost_id());
+
+                                    Toast.makeText(mContext, "Texto copiado en el portapapeles"+"https://diys.co//post/"+post.getPost_id(), Toast.LENGTH_SHORT).show();
+                                    clipboardManager.setPrimaryClip(clip);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+
+
+        }
         holder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -495,6 +620,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             });
 
         }
+    }
+
+    public void removeItem(int position){
+        mPosts.remove(position);
+        notifyItemRemoved(position);
     }
 
     public interface PostListener{
