@@ -68,7 +68,7 @@
         android:layout_below="@+id/appBar">
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/recycler_view"
         android:paddingEnd="15dp"
         android:paddingStart="0dp"
