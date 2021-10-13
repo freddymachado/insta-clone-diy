@@ -242,7 +242,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         recyclerView.setAdapter(adapterGrid);
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
-                                        access_token, "PV");
+                                        access_token, user_id);
                         textViewNumberFollowing.setText(following);
                         textViewNumberFollowers.setText(followers);
                         textViewNumberFavorites.setText(favourites);
@@ -334,7 +334,7 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 recyclerView.setAdapter(adapterGrid);
                                 adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                                 postList,
-                                                access_token, "PV");
+                                                access_token, user_id);
                                 textViewNumberFollowing.setText(following);
                                 textViewNumberFollowers.setText(followers);
                                 textViewNumberFavorites.setText(favourites);

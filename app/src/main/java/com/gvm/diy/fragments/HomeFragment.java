@@ -1,6 +1,7 @@
 package com.gvm.diy.fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -41,6 +42,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     //TODO: Keep user logged in (last entrega)
@@ -180,7 +183,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                                 refreshLayout.finishRefreshing();
                                 PostAdapter adapter = new PostAdapter(getContext(),
                                         postList,
-                                        getActivity().getIntent().getStringExtra("access_token"), "home");
+                                        getActivity().getIntent().getStringExtra("access_token"), user_id);
                                 recycler_view.setAdapter(adapter);
                             }
                         });
@@ -191,7 +194,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         });
 
 
-            imageButtonChat.setOnClickListener(new View.OnClickListener() {
+        imageButtonChat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //TODO: Función de mensajería
@@ -350,7 +353,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                         progressBar.setVisibility(View.GONE);
                         PostAdapter adapter = new PostAdapter(getContext(),
                                 postList,
-                                getActivity().getIntent().getStringExtra("access_token"), "home");
+                                getActivity().getIntent().getStringExtra("access_token"), user_id);
                         recycler_view.setAdapter(adapter);
                     }
                 });

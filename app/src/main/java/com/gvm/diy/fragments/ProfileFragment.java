@@ -236,7 +236,7 @@ public class ProfileFragment extends Fragment {
                         adapterLinear = new PostAdapter(getContext(),
                                         postList,
                                         getActivity().getIntent().getStringExtra("access_token"),
-                                        getActivity().getIntent().getStringExtra("access_token"));
+                                user_id);
                     }
                 });
             }
@@ -493,7 +493,7 @@ public class ProfileFragment extends Fragment {
                                 adapterLinear = new PostAdapter(getContext(),
                                                 postList,
                                                 getActivity().getIntent().getStringExtra("access_token"),
-                                                getActivity().getIntent().getStringExtra("access_token"));
+                                        user_id);
                             }
                         });
                     }
