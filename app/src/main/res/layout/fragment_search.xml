@@ -81,6 +81,7 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_below="@+id/appBar">
 
         <com.google.android.material.tabs.TabItem
@@ -98,6 +99,7 @@
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_below="@+id/tabLayout"/>
 
     <ProgressBar

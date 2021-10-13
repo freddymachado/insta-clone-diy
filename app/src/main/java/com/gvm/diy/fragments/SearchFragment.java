@@ -256,10 +256,10 @@ public class SearchFragment extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        viewPagerAdapter.setData(mMessage,viewPager.getCurrentItem());
+                                        viewPagerAdapter.setData(mMessage,viewPager.getCurrentItem());/*
                                         if(viewPager.getCurrentItem()==0)
                                             viewPagerAdapter.destroyItem(viewPager,1,);
-                                        viewPagerAdapter.notifyDataSetChanged();
+                                        viewPagerAdapter.notifyDataSetChanged();*/
                                         progressBar.setVisibility(View.GONE);
                                     }
                                 });
@@ -411,8 +411,7 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        //Volley.newRequestQueue(getContext()).add(stringRequest); 
-/*
+        Volley.newRequestQueue(getContext()).add(stringRequest);
         editTextSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -421,7 +420,7 @@ public class SearchFragment extends Fragment {
                 tabLayout.setVisibility(View.VISIBLE);
                 viewPager.setVisibility(View.VISIBLE);
             }
-        });*/
+        });
         return itemView;
     }
     public String getData(){
