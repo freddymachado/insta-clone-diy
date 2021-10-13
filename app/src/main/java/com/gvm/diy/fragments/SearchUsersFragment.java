@@ -33,7 +33,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class SearchUsersFragment extends Fragment {
+public class SearchUsersFragment extends Fragment implements Updateable {
 
     private RecyclerView recycler_view;
     private List<FollowItem> followItems;
@@ -67,7 +67,7 @@ public class SearchUsersFragment extends Fragment {
 
         //Iniciamos la solicitud para obtener los datos del usuario
         client = new OkHttpClient().newBuilder().build();
-
+/*
         word = ((SearchFragment)getParentFragment()).getData();
         Log.e("editTextWord",word);
         requestBody = new MultipartBody.Builder()
@@ -120,7 +120,38 @@ public class SearchUsersFragment extends Fragment {
                     }
                 });
             }
-        });
+        });*/
         return itemView;
+    }
+
+    @Override
+    public void update(String mMessage) {
+        try {
+            JSONObject array = new JSONObject(mMessage);
+            JSONArray data = array.getJSONArray("data");
+
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject post = data.getJSONObject(i);
+                Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
+                followItems.add(new FollowItem(
+                        post.getString("avatar"),
+                        post.getString("time_text"),
+                        post.getString("username"),
+                        post.getString("is_following"),
+                        post.getString("user_id"),
+                        post.getString("about"),
+                        post.getString("website"),
+                        post.getString("followers"),
+                        post.getString("following"),
+                        post.getString("favourites"),
+                        post.getString("name")
+                ));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems,access_token);
+        recycler_view.setAdapter(adapter);
+
     }
 }

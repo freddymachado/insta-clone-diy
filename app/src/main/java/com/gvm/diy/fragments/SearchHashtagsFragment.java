@@ -17,6 +17,7 @@ import com.gvm.diy.R;
 import com.gvm.diy.adapter.FollowAdapter;
 import com.gvm.diy.adapter.ViewPagerAdapter;
 import com.gvm.diy.models.FollowItem;
+import com.gvm.diy.ui.FollowersActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +35,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class SearchHashtagsFragment extends Fragment {
+
+public class SearchHashtagsFragment extends Fragment implements Updateable {
 
 
     private RecyclerView recycler_view;
@@ -70,7 +72,7 @@ public class SearchHashtagsFragment extends Fragment {
         access_token = intent.getStringExtra("access_token");
 
         //Iniciamos la solicitud para obtener los datos del usuario
-        client = new OkHttpClient().newBuilder().build();
+        client = new OkHttpClient().newBuilder().build();/*
 
         hash = ((SearchFragment)getParentFragment()).getData();
         Log.e("editTextHash",hash);
@@ -126,7 +128,38 @@ public class SearchHashtagsFragment extends Fragment {
                     }
                 });
             }
-        });
+        });*/
         return itemView;
+    }
+
+    @Override
+    public void update(String mMessage) {
+        try {
+            JSONObject array = new JSONObject(mMessage);
+            JSONArray data = array.getJSONArray("data");
+
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject post = data.getJSONObject(i);
+                Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
+                followItems.add(new FollowItem(
+                        post.getString("avatar"),
+                        post.getString("time_text"),
+                        post.getString("username"),
+                        post.getString("is_following"),
+                        post.getString("user_id"),
+                        post.getString("about"),
+                        post.getString("website"),
+                        post.getString("followers"),
+                        post.getString("following"),
+                        post.getString("favourites"),
+                        post.getString("name")
+                ));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems,access_token);
+        recycler_view.setAdapter(adapter);
+
     }
 }
