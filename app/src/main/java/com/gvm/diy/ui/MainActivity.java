@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageViewPhoto, imageViewVideo;
 
+    Boolean image=false;
+
     RecyclerView recyclerView;
 
     ProgressBar progressBar;
@@ -98,15 +100,25 @@ public class MainActivity extends AppCompatActivity {
     private static final int PHOTO_SENT = 24;
 
     Uri uri;
-
-    ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+    ActivityResultLauncher<Intent> mGetImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Log.i(TAG, String.valueOf(result));
                         Intent intent = result.getData();
-                        setFragment(new UploadFragment(intent.getData()));
+                        cropImage(intent.getData());
+                    }
+                }
+            });
+    ActivityResultLauncher<Intent> mGetVideo = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if(result.getResultCode() == Activity.RESULT_OK){
+                        Log.i(TAG, String.valueOf(result));
+                        Intent intent = result.getData();
+                        setFragment(new UploadFragment(intent.getData(),"video"));
                     }
                 }
             });
@@ -115,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
@@ -148,8 +159,13 @@ public class MainActivity extends AppCompatActivity {
                 .setOnMenuSelectedListener(new OnMenuSelectedListener() {
                     @Override
                     public void onMenuSelected(int index) {
-                        Toast.makeText(MainActivity.this, "ok", Toast.LENGTH_SHORT).show();
-                        performFileSearch();
+                        if(index==0){
+                            performFileSearch("image");
+                            image=true;
+                        }else{
+                            performFileSearch("video");
+
+                        }
                         menu.closeMenu();
                         menu.setVisibility(View.GONE);
 
@@ -333,13 +349,16 @@ public class MainActivity extends AppCompatActivity {
         */
     }
 
-    private void performFileSearch() {
+    private void performFileSearch(String type) {
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType("image/*");
+        i.setType(type+"/*");
         i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
         //startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
-        mGetContent.launch(i);
+        if(type.equals("image"))
+            mGetImage.launch(i);
+        else
+            mGetVideo.launch(i);
 
     }
 
@@ -368,9 +387,12 @@ public class MainActivity extends AppCompatActivity {
             if (data != null){
                 uri = data.getData();
                 Log.i(TAG,"Uri: "+uri.toString());
-                setFragment(new UploadFragment(uri));
-                //uploadImage(); Hay que ver qué se obtiene al cortarla porque hay que colocarla en UploadFragment, for video, we only need to call uploadImage
-                //cropImage(uri);
+                //setFragment(new UploadFragment(uri));
+                if(image){
+                    cropImage(uri);
+                }else{
+                    setFragment(new UploadFragment(uri,"video"));
+                }
             }else{
                 Log.i(TAG,"CHimbo");
             }
@@ -380,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if(resultCode== RESULT_OK){
                 Uri resultUri = result.getUri();
-                setFragment(new UploadFragment(resultUri));
+                setFragment(new UploadFragment(resultUri,"image"));
 
             }else if(resultCode  == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
                 Exception error = result.getError();

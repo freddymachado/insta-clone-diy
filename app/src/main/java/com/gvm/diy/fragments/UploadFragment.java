@@ -19,16 +19,27 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.PostAdapter;
+import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.models.CountingRequestBody;
+import com.gvm.diy.models.Post;
+import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.MainActivity;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,21 +60,29 @@ public class UploadFragment extends Fragment {
 
     TextView textViewPublish, textViewName, textViewUser;
     ImageButton imageButtonBack;
+    ImageView imageViewCrop;
     RoundedImageView roundedImageViewAvatar;
 
     ProgressBar progressBar;
 
     EditText editTextDescription;
 
-    String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites,
+    OkHttpClient client;
+    RequestBody requestBody;
+    Request UserPostsRequest;
+
+    Boolean cropped=false;
+
+    String access_token,username, user_id, avatar, server_key = "1539874186", name, type,
             following, followers, fname, lname, about, website, isFollowing;
 
 
     public UploadFragment() {
         // Required empty public constructor
     }
-    public UploadFragment(Uri resultUri) {
+    public UploadFragment(Uri resultUri, String type) {
         this.resultUri = resultUri;
+        this.type = type;
     }
 /*
     public static UploadFragment newInstance(String param1, String param2) {
@@ -86,10 +105,13 @@ public class UploadFragment extends Fragment {
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_upload, container, false);
 
-
         textViewPublish = itemView.findViewById(R.id.textViewPublish);
         textViewName = itemView.findViewById(R.id.textViewName);
         textViewUser = itemView.findViewById(R.id.textViewUser);
+
+        editTextDescription = itemView.findViewById(R.id.editTextDescription);
+
+        imageViewCrop = itemView.findViewById(R.id.cropImageView);
 
         progressBar = itemView.findViewById(R.id.progressBar);
 
@@ -99,9 +121,19 @@ public class UploadFragment extends Fragment {
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();
         access_token = intent.getStringExtra("access_token");
+        username = intent.getStringExtra("username");
+        user_id = intent.getStringExtra("user_id");
 
-        roundedImageViewAvatar.setImageURI(resultUri);
-        cropImage(resultUri);
+        textViewUser.setText("@"+username);
+
+        if(type.equals("image")) {
+            imageViewCrop.setImageURI(resultUri);
+        }else {
+            Glide.with(getActivity().getApplicationContext())
+                    .asBitmap()
+                    .load(resultUri)
+                    .into(imageViewCrop);
+        }
         imageButtonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,8 +145,67 @@ public class UploadFragment extends Fragment {
         textViewPublish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadImage("image");
+                progressBar.setVisibility(View.VISIBLE);
+                uploadImage(type);
 
+            }
+        });
+
+
+        //Iniciamos la solicitud para obtener los datos del usuario
+        client = new OkHttpClient().newBuilder().build();
+
+        requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("server_key",server_key)
+                .addFormDataPart("user_id",user_id)
+                .addFormDataPart("access_token",access_token)
+                .build();
+
+        UserPostsRequest = new Request.Builder()
+                .url("https://diys.co/endpoints/v1/post/fetch_user_posts")
+                .post(requestBody)
+                .build();
+
+        client.newCall(UserPostsRequest).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                String mMessage = e.getMessage().toString();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
+                Log.e("failure Response", mMessage);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String mMessage = response.body().string();
+                JSONObject array = null;
+                try {
+
+                    JSONObject userData;
+                    array = new JSONObject(mMessage);
+                    JSONObject data = array.getJSONObject("data");
+                    userData = data.getJSONObject("user_data");
+                    name = userData.getString("name");
+                    avatar = userData.getString("avatar");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textViewName.setText(name);
+                        Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                .into(roundedImageViewAvatar);
+                    }
+                });
             }
         });
 
@@ -123,12 +214,11 @@ public class UploadFragment extends Fragment {
 
     private void uploadImage(String type) {
         if (resultUri == null){
-            Log.i(TAG,uriToFileName(resultUri));
+            Log.i("nullUri",uriToFileName(resultUri));
             return;
         }
         if(type.equals("image")){
             final File imageFile = new File(uriToFileName(resultUri));
-            //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
             Uri uris = Uri.fromFile(imageFile);
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
@@ -138,7 +228,7 @@ public class UploadFragment extends Fragment {
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("server_key",server_key)
-                    .addFormDataPart("caption","prueba2")
+                    .addFormDataPart("caption", String.valueOf(editTextDescription.getText()))
                     .addFormDataPart("access_token",access_token)
                     .addFormDataPart("images[]",imageName,
                             RequestBody.create(imageFile, MediaType.parse(mime)))
@@ -193,7 +283,6 @@ public class UploadFragment extends Fragment {
                         }
                     })
                     .build();
-            //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
             Request request = new Request.Builder()
                     .url("https://diys.co/endpoints/v1/post/new_post")
                     .post(requestBody)
@@ -204,7 +293,14 @@ public class UploadFragment extends Fragment {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String mMessage = e.getMessage().toString();
-                    //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
                     Log.e("failure Response", mMessage);
                 }
 
@@ -223,7 +319,7 @@ public class UploadFragment extends Fragment {
             });
 
         }else{
-            final File videoFile = new File(uriToFileName(resultUri));
+            final File videoFile = new File(getPath(resultUri));
             Uri uris = Uri.fromFile(videoFile);
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
@@ -233,7 +329,7 @@ public class UploadFragment extends Fragment {
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("server_key",server_key)
-                    .addFormDataPart("caption","prueba1")
+                    .addFormDataPart("caption",String.valueOf(editTextDescription.getText()))
                     .addFormDataPart("access_token",access_token)
                     .addFormDataPart("video",videoName,
                             RequestBody.create(videoFile,MediaType.parse(mime)))
@@ -298,7 +394,13 @@ public class UploadFragment extends Fragment {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String mMessage = e.getMessage().toString();
-                    //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
                     Log.e("failure Response", mMessage);
                 }
 
@@ -309,7 +411,7 @@ public class UploadFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.e("UploadResponse", mMessage);
+                            Toast.makeText(getActivity().getApplicationContext(), "Realizado", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     });
@@ -318,6 +420,12 @@ public class UploadFragment extends Fragment {
 
         }
 
+    }
+
+    private String getPath(Uri resultUri) {/*
+        String[] projection = {MediaStore.Video.Media.DATA, MediaStore.Video.Media.SIZE, MediaStore.Video.Media.DURATION};
+        Cursor cursor = managedQuery(resultUri,projection,null,null,null);*/
+        return  "true";
     }
 
     private  String uriToFileName(Uri uri){
