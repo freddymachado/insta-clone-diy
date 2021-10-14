@@ -785,6 +785,135 @@ public class FollowersActivity extends AppCompatActivity {
                     }
                 });
                 break;
+            case "chat":
+                textViewTitle.setText("Mensajes");
+                recycler_view.setLayoutManager(linearLayoutManager);
+                //Iniciamos la solicitud para obtener los datos del usuario
+                client = new OkHttpClient().newBuilder().build();
+
+                requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("access_token",access_token)
+                        .build();
+
+                UserPostsRequest = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/messages/get_chats")
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        JSONObject array = null;
+                        Log.e("ChatResponse", mMessage);
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONArray data = array.getJSONArray("data");
+
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject post = data.getJSONObject(i);
+                                commentsItems.add(new CommentsItem(
+                                        post.getString("avatar"),
+                                        post.getString("text"),
+                                        post.getString("time_text"),
+                                        post.getString("likes"),
+                                        post.getString("id"),
+                                        post.getString("user_id"),
+                                        post.getString("is_liked")
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
+                                recycler_view.setAdapter(adapter);
+                            }
+                        });
+                    }
+                });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+                        commentsItems.clear();
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ChatResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        commentsItems.add(new CommentsItem(
+                                                post.getString("avatar"),
+                                                post.getString("text"),
+                                                post.getString("time_text"),
+                                                post.getString("likes"),
+                                                post.getString("id"),
+                                                post.getString("user_id"),
+                                                post.getString("is_liked")
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                });
+                break;
             default:
                 break;
 /*E/ApiResponse: {"code":"200","status":"OK","data":[{"user_id":1539,"username":"DayaminSilva","email":"dayamincoromoto@gmail.com",

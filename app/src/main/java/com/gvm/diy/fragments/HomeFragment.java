@@ -193,11 +193,14 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
             }
         });
 
-
         imageButtonChat.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Función de mensajería
+                    //TODO: Probar de mensajería
+                    Intent intentComments = new Intent(getActivity().getApplicationContext(), FollowersActivity.class);
+                    intentComments.putExtra("function", "chat");
+                    intentComments.putExtra("access_token", access_token);
+                    getActivity().getApplicationContext().startActivity(intentComments);
                 }
             });
 
