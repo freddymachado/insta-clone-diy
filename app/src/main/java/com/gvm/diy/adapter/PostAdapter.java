@@ -175,7 +175,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
 
-        //TODO: Guardar número de likes para ver si de esa manera se guarda la variable
         holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -256,8 +255,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         holder.imageViewFav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Probar
-
                 holder.imageViewFav.startAnimation(myAnim);
                 if (is_saved.equals("true")) {
                     is_saved = "false";
@@ -319,7 +316,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case 0:
-                                    //TODO: Probar cuando pueda debuggear con varios users
                                     OkHttpClient client = new OkHttpClient.Builder().build();
                                     body = new MultipartBody.Builder()
                                             .setType(MultipartBody.FORM)
@@ -598,7 +594,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: Probar
                     Intent intentLikes = new Intent(mContext, FollowersActivity.class);
                     intentLikes.putExtra("access_token", access_token);
                     intentLikes.putExtra("function", "likes");

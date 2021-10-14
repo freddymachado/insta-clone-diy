@@ -51,8 +51,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ProfileViewerActivity extends AppCompatActivity {
-    //TODO: Probar ProfileViewer
-
     ImageButton imageButtonBack, imageButtonMore, imageButtonGrid, imageButtonWeb, imageButtonList;
     RoundedImageView roundedImageViewAvatar;
     TextView textViewName, textViewUser, textViewNumberFollowers, textViewFollowers, textViewNumberFollowing,
@@ -354,7 +352,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
                         switch (which){
                             case 0:
                                 //TODO: Probar cuando pueda debuggear con varios users
-
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/report_user")
                                         .post(requestBody)
@@ -473,7 +470,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
 
             case R.id.textViewFollowers:
-                //TODO: Probar
                 Intent intentFollowers = new Intent(getApplicationContext(), FollowersActivity.class);
                 intentFollowers.putExtra("function", "followers");
                 intentFollowers.putExtra("user_id", user_id);
@@ -482,7 +478,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.textViewFollowing:
-                //TODO: Probar
                 Intent intentFollowing = new Intent(getApplicationContext(), FollowersActivity.class);
                 intentFollowing.putExtra("function", "following");
                 intentFollowing.putExtra("user_id", user_id);
@@ -492,7 +487,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
 
             case R.id.textViewFavorites:
-                //TODO: Probar
                 Intent intentFavorites = new Intent(getApplicationContext(), FollowersActivity.class);
                 intentFavorites.putExtra("function", "favorites");
                 intentFavorites.putExtra("user_id", user_id);

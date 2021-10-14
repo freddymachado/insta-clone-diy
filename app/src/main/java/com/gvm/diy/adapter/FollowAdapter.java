@@ -95,7 +95,6 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
         holder.buttonFollowing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Probar funcionamiento
                 holder.buttonFollowing.startAnimation(myAnim);
                 if (holder.buttonFollowing.getText().equals("following")) {
                     holder.buttonFollowing.setText("follow");

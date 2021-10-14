@@ -234,7 +234,6 @@ public class PostViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageViewLike:
-                //TODO: Probar
                 imageViewLike.startAnimation(myAnim);
                 int numLike = Integer.parseInt(likes);
                 if (is_liked.equals("true")) {
@@ -320,7 +319,6 @@ public class PostViewerActivity extends AppCompatActivity {
 
 
             case R.id.imageViewReply:
-                //TODO: Solucionar bug (last entrega)
                 //don't forget the https://
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
@@ -333,7 +331,6 @@ public class PostViewerActivity extends AppCompatActivity {
 
 
             case R.id.imageViewFav:
-                //TODO: Probar
                 imageViewFav.startAnimation(myAnim);
                 if (is_saved.equals("true")) {
                     is_saved = "false";

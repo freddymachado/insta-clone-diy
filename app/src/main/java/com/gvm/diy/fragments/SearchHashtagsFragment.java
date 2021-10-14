@@ -38,7 +38,6 @@ import okhttp3.Response;
 
 public class SearchHashtagsFragment extends Fragment implements Updateable {
 
-
     private RecyclerView recycler_view;
     private List<FollowItem> followItems;
 
@@ -48,11 +47,9 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
 
     String access_token,hash, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
 
-
     public SearchHashtagsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,8 +69,8 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
         access_token = intent.getStringExtra("access_token");
 
         //Iniciamos la solicitud para obtener los datos del usuario
-        client = new OkHttpClient().newBuilder().build();/*
-
+        client = new OkHttpClient().newBuilder().build();
+        /*
         hash = ((SearchFragment)getParentFragment()).getData();
         Log.e("editTextHash",hash);
 
@@ -160,6 +157,6 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
         }
         FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems,access_token);
         recycler_view.setAdapter(adapter);
-
     }
+
 }

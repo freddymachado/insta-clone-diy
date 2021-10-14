@@ -1,5 +1,7 @@
 package com.gvm.diy.adapter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -41,6 +43,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getItemPosition(@NonNull Object object) {
+        Log.e("fragment",object.getClass().toString());
+        /*
         if(currentItem==0){
             SearchHashtagsFragment fragment = (SearchHashtagsFragment) object;
             if(fragment!=null){
@@ -52,7 +56,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 fragment.update(mMessage);
             }
 
-        }
+        }*/
         return super.getItemPosition(object);
     }
 

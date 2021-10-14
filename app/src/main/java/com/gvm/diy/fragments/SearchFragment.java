@@ -104,7 +104,6 @@ public class SearchFragment extends Fragment {
         viewPagerAdapter.addFragment(new SearchHashtagsFragment(),"HASHTAGS","data");
         viewPagerAdapter.addFragment(new SearchUsersFragment(),"USUARIOS","data");
         viewPager.setAdapter(viewPagerAdapter);
-
         recycler_view.setLayoutManager(
                 new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         );
@@ -114,6 +113,9 @@ public class SearchFragment extends Fragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId== EditorInfo.IME_ACTION_SEARCH){
                     progressBar.setVisibility(View.VISIBLE);
+                    recycler_view.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.VISIBLE);
+                    viewPager.setVisibility(View.VISIBLE);
                     if (viewPagerAdapter.getPageTitle(viewPager.getCurrentItem()).equals("USUARIOS")){
 
                         //Iniciamos la solicitud para obtener los datos del usuario
@@ -139,7 +141,8 @@ public class SearchFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         progressBar.setVisibility(View.GONE);
-                                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getActivity().getApplicationContext(),
+                                                "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                                     }
                                 });
                                 //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
@@ -153,7 +156,10 @@ public class SearchFragment extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        SearchUsersFragment searchUsersFragment = (SearchUsersFragment) viewPagerAdapter
+                                                .instantiateItem(viewPager,1);
                                         progressBar.setVisibility(View.GONE);
+                                        searchUsersFragment.update(mMessage);
                                     }
                                 });
                                 /*
@@ -218,7 +224,8 @@ public class SearchFragment extends Fragment {
                             }
                         });
                         Log.e("USUARIOS",editTextSearch.getText().toString());
-                    }else{
+                    }
+                    else{
                         //Iniciamos la solicitud para obtener los datos del usuario
                         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -256,10 +263,10 @@ public class SearchFragment extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        viewPagerAdapter.setData(mMessage,viewPager.getCurrentItem());/*
-                                        if(viewPager.getCurrentItem()==0)
-                                            viewPagerAdapter.destroyItem(viewPager,1,);
-                                        viewPagerAdapter.notifyDataSetChanged();*/
+
+                                        SearchHashtagsFragment searchHashtagsFragment = (SearchHashtagsFragment) viewPagerAdapter
+                                                .instantiateItem(viewPager,0);
+                                        searchHashtagsFragment.update(mMessage);
                                         progressBar.setVisibility(View.GONE);
                                     }
                                 });
@@ -332,9 +339,9 @@ public class SearchFragment extends Fragment {
             }
         });
 
-
         List<ExploreItem> exploreItems = new ArrayList<>();
 /*
+E/SearchResponse: {"code":"200","status":"OK","data":{"users":[{"user_id":31,"username":"webswlst","email":"webswlst@gmail.com","ip_address":"","fname":"ideas","lname":"diy","gender":"female","language":"english","avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/04\/Kwi48qKYSAwbV11WhS2pyRXiAsFCcbImwuNXV1mvm5PyNOpRSu_14_39c1e8dcaf019297b1405c1c009e8997_image.jpg","cover":"https:\/\/diys.co\/media\/img\/d-cover.jpg","country_id":140,"about":null,"google":"","facebook":"","twitter":"","website":"","active":1,"admin":0,"verified":0,"last_seen":"1618275878","registered":"0000\/0","is_pro":0,"posts":0,"p_privacy":"2","c_privacy":"1","n_on_like":"1","n_on_mention":"1","n_on_comment":"1","n_on_follow":"1","n_on_comment_like":"1","n_on_comment_reply":"1","startup_avatar":1,"startup_info":1,"startup_follow":1,"src":"Google","search_engines":"1","mode":"day","device_id":"","balance":"0","wallet":"0.00","conversation_id":"","referrer":0,"profile":1,"business_account":0,"paypal_email":"","b_name":"","b_email":"","b_phone":"","b_site":"","b_site_action":"","uploads":0,"address":"","city":"","state":"","zip":0,"phone_number":"","name":"ideas diy","uname":"webswlst","url":"https:\/\/diys.co\/webswlst","followers":4,"following":0,"favourites":4,"posts_count":1,"time_text":"6 meses hace","is_following":false}],"hash":[{"id":15,"hash":"417ccdc4ad6ad84cf301dbfa2c4984c3","tag":"diy","last_trend_time":"1633115902","use_num":33},{"id":47,"hash":"b57366efbc4714c3b7ca6d86c63456f8","tag":"diys","last_trend_time":"1621487145","use_num":1},{"id":42,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0},{"id":43,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0}]}}
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         MediaType mediaType = MediaType.parse("text/plain");
@@ -396,6 +403,7 @@ public class SearchFragment extends Fragment {
                                         post.getString("file")
                                 ));
                             }
+                            progressBar.setVisibility(View.GONE);
                             ExploreAdapter adapter = new ExploreAdapter(getContext(), exploreItems);
                             recycler_view.setAdapter(adapter);
                         } catch (JSONException e) {
@@ -407,6 +415,9 @@ public class SearchFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("ApiResponse", String.valueOf(error));
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "Revisa tu conexión e inténtalo de nuevo: "+error, Toast.LENGTH_LONG).show();
 
             }
         });
@@ -416,9 +427,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //TODO: Probar comportamiento de la búsqueda y diseño del itemSearch
-                recycler_view.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.VISIBLE);
-                viewPager.setVisibility(View.VISIBLE);
             }
         });
         return itemView;
@@ -426,6 +434,7 @@ public class SearchFragment extends Fragment {
     public String getData(){
         return editTextSearch.getText().toString();
     }
+
 /*
 D/SearchFragment: {"code":"200","status":"OK","data":[{
                                                   "post_id":1413,
