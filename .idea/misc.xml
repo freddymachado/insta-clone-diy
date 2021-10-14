@@ -6,6 +6,11 @@
         <entry key="..\:/Users/Chucho/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_login.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Chucho/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/activity_register.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Chucho/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/layout/fragment_home.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.2203125" />
+        <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/layout/activity_login.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/layout/fragment_chat.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/layout/fragment_search.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/layout/settings_activity.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round.xml" value="0.375" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round_black.xml" value="0.375" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round_blue.xml" value="0.375" />
@@ -53,7 +58,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8 (2)" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

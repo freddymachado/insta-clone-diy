@@ -1,11 +1,14 @@
 package com.gvm.diy.adapter;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +44,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     private Context mContext;
     private List<CommentsItem> commentsItems;
-    private String access_token, server_key = "1539874186", comment_id, user_id;
+    private String access_token, server_key = "1539874186", comment_id, user_id,current_user;
     private String is_liked, is_saved;
 
 
@@ -86,7 +89,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 
-        if(user_id.equals(commentsItem.getUser_id())){
+        if(current_user.equals(commentsItem.getUser_id())){
             builder = new AlertDialog.Builder(mContext);
             builder.setTitle("Post")
                     .setItems(new String[]{"Copiar","Borrar"}, new DialogInterface.OnClickListener() {
@@ -249,6 +252,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             textViewTime = itemView.findViewById(R.id.textViewTime);
             imageButtonLike = itemView.findViewById(R.id.imageButtonLike);
             imageButtonMore = itemView.findViewById(R.id.imageButtonMore);
+
+
+            SharedPreferences pref = mContext.getSharedPreferences("myPrefs",MODE_PRIVATE);
+            pref.getString("current_user",current_user);
         }
     }
 
