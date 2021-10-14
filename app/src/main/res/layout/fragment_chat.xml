@@ -7,7 +7,6 @@
     android:background="@color/colorBackground"
     tools:context=".fragments.ChatFragment">
 
-
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,9 +42,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:clickable="true"
-                    android:text=""
+                    android:text="Notificaciones"
                     android:textColor="@color/white"
-                    android:textColorHint="#817D7D"
                     android:textSize="20dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/imageButtonBack"
@@ -57,7 +55,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
     <com.madapps.liquid.LiquidRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
@@ -66,15 +63,22 @@
         app:AniForeColor="@color/colorBackground"
         app:CircleSmaller="6"
         android:layout_below="@+id/appBar">
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_view"
-        android:paddingEnd="15dp"
-        android:paddingStart="0dp"
-        android:paddingBottom="15dp"
-        android:clipToPadding="false"
-        android:layout_below="@+id/appBar"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycler_view"
+                android:paddingEnd="15dp"
+                android:paddingStart="0dp"
+                android:paddingBottom="15dp"
+                android:clipToPadding="false"
+                android:layout_below="@+id/appBar"/>
     </com.madapps.liquid.LiquidRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
 
 </RelativeLayout>

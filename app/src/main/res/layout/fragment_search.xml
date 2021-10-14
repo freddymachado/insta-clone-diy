@@ -58,7 +58,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-                <com.madapps.liquid.LiquidRefreshLayout
+    <com.madapps.liquid.LiquidRefreshLayout
                     android:id="@+id/refreshLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -107,7 +107,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:visibility="gone"
         android:layout_centerVertical="true" />
 
 </RelativeLayout>

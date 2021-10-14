@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         username = intent.getStringExtra("username");
         password = intent.getStringExtra("password");
 
-        savePrefsData(access_token, username, password);
+        savePrefsData(access_token, username, password, user_id);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -362,12 +362,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void savePrefsData(String access_token, String username, String password) {
+    private void savePrefsData(String access_token, String username, String password, String user_id) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("access_token",access_token);
         editor.putString("username",username);
         editor.putString("password",password);
+        editor.putString("current_user",user_id);
         editor.apply();
         Log.d("prefsSaved",access_token+username+password);
     }
@@ -437,7 +438,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if(type.equals("image")){
             final File imageFile = new File(uriToFileName(uri));
-            //TODO:La base de datos admite subida de archivos? E/UploadResponse: {"code":"400","status":"Bad Request","errors":{"error_id":"21","error_text":"An unknown error occurred. Please try again later!"}}
             Uri uris = Uri.fromFile(imageFile);
             String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uris.toString());
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
@@ -502,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     })
                     .build();
-            //TODO: Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
+            //TODO: Probar Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
             Request request = new Request.Builder()
                     .url("https://diys.co/endpoints/v1/post/new_post")
                     .post(requestBody)

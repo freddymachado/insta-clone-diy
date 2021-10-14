@@ -11,4 +11,5 @@
     <color name="colorBackground">#454859</color>
     <color name="fullTransparent">#00000000</color>
     <color name="colorAccent">#E04AE0</color>
+    <color name="red">#C51C10</color>
 </resources>

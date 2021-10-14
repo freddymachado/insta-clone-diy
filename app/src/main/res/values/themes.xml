@@ -3,16 +3,16 @@
     <style name="Theme.DIY" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">#393340</item>
+        <item name="colorPrimaryVariant">@color/white</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#E04AE0</item>
+        <item name="colorSecondary">#C51C10</item>
         <item name="colorSecondaryVariant">#FFBB86FC</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
-    <color name="teal_200">#E04AE0</color>
+    <color name="teal_200">#C51C10</color>
 
 </resources>
