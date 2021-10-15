@@ -40,6 +40,7 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
 
     private RecyclerView recycler_view;
     private List<FollowItem> followItems;
+    private List<HashItem> hashItems;
 
     OkHttpClient client;
     RequestBody requestBody;
@@ -133,29 +134,23 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
     public void update(String mMessage) {
         try {
             JSONObject array = new JSONObject(mMessage);
-            JSONArray data = array.getJSONArray("data");
+            JSONObject data = array.getJSONObject("data");
 
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject post = data.getJSONObject(i);
-                Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
-                followItems.add(new FollowItem(
-                        post.getString("avatar"),
-                        post.getString("time_text"),
-                        post.getString("username"),
-                        post.getString("is_following"),
-                        post.getString("user_id"),
-                        post.getString("about"),
-                        post.getString("website"),
-                        post.getString("followers"),
-                        post.getString("following"),
-                        post.getString("favourites"),
-                        post.getString("name")
+            JSONArray hashArray = array.getJSONArray(1);
+            JSONObject hashs = hashArray.getJSONObject(0);
+
+            for (int i = 0; i < hashs.length(); i++) {
+                JSONObject hash = hashs.getJSONObject(i);
+                Log.e("HashResponse", hash.getString("username"));
+                hashItems.add(new HashItem(
+                        hash.getString("tag"),
+                        hash.getString("last_trend_time")
                 ));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems,access_token);
+        HashAdapter adapter = new HashAdapter(getActivity().getApplicationContext(), hashItems, access_token);
         recycler_view.setAdapter(adapter);
     }
 

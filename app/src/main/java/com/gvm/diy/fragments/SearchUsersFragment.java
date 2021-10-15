@@ -130,21 +130,24 @@ public class SearchUsersFragment extends Fragment implements Updateable {
             JSONObject array = new JSONObject(mMessage);
             JSONArray data = array.getJSONArray("data");
 
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject post = data.getJSONObject(i);
-                Log.e("ApiResponse", post.getString("user_id")+post.getString("time_text")+post.getString("username"));
+            JSONArray usersArray = data.getJSONArray(0);
+            JSONObject users = usersArray.getJSONObject(0);
+
+            for (int i = 0; i < users.length(); i++) {
+                JSONObject user = users.getJSONObject(i);
+                Log.e("UserResponse", user.getString("user_id")+user.getString("time_text")+user.getString("username"));
                 followItems.add(new FollowItem(
-                        post.getString("avatar"),
-                        post.getString("time_text"),
-                        post.getString("username"),
-                        post.getString("is_following"),
-                        post.getString("user_id"),
-                        post.getString("about"),
-                        post.getString("website"),
-                        post.getString("followers"),
-                        post.getString("following"),
-                        post.getString("favourites"),
-                        post.getString("name")
+                        user.getString("avatar"),
+                        user.getString("time_text"),
+                        user.getString("username"),
+                        user.getString("is_following"),
+                        user.getString("user_id"),
+                        user.getString("about"),
+                        user.getString("website"),
+                        user.getString("followers"),
+                        user.getString("following"),
+                        user.getString("favourites"),
+                        user.getString("name")
                 ));
             }
         } catch (JSONException e) {
@@ -152,6 +155,5 @@ public class SearchUsersFragment extends Fragment implements Updateable {
         }
         FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems,access_token);
         recycler_view.setAdapter(adapter);
-
     }
 }
