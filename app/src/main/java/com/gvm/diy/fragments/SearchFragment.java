@@ -116,52 +116,51 @@ public class SearchFragment extends Fragment {
                     recycler_view.setVisibility(View.GONE);
                     tabLayout.setVisibility(View.VISIBLE);
                     viewPager.setVisibility(View.VISIBLE);
-                    if (viewPagerAdapter.getPageTitle(viewPager.getCurrentItem()).equals("USUARIOS")){
 
-                        //Iniciamos la solicitud para obtener los datos del usuario
-                        OkHttpClient client = new OkHttpClient().newBuilder().build();
+                    //Iniciamos la solicitud para obtener los datos del usuario
+                    OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-                        RequestBody requestBody = new MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("server_key",server_key)
-                                .addFormDataPart("access_token",access_token)
-                                .addFormDataPart("word",editTextSearch.getText().toString())
-                                .build();
+                    RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("server_key",server_key)
+                            .addFormDataPart("access_token",access_token)
+                            .addFormDataPart("word",editTextSearch.getText().toString())
+                            .build();
 
-                        okhttp3.Request UserPostsRequest = new okhttp3.Request.Builder()
-                                .url("https://diys.co/endpoints/v1/user/search")
-                                .post(requestBody)
-                                .build();
+                    okhttp3.Request UserPostsRequest = new okhttp3.Request.Builder()
+                            .url("https://diys.co/endpoints/v1/user/search")
+                            .post(requestBody)
+                            .build();
 
-                        client.newCall(UserPostsRequest).enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                String mMessage = e.getMessage().toString();
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                        Toast.makeText(getActivity().getApplicationContext(),
-                                                "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
-                                Log.e("failure Response", mMessage);
-                            }
+                    client.newCall(UserPostsRequest).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            String mMessage = e.getMessage().toString();
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(getActivity().getApplicationContext(),
+                                            "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                            Log.e("failure Response", mMessage);
+                        }
 
-                            @Override
-                            public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                                final String mMessage = response.body().string();
-                                Log.e("SearchResponse", mMessage);
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        SearchUsersFragment searchUsersFragment = (SearchUsersFragment) viewPagerAdapter
-                                                .instantiateItem(viewPager,1);
-                                        progressBar.setVisibility(View.GONE);
-                                        searchUsersFragment.update(mMessage);
-                                    }
-                                });
+                        @Override
+                        public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                            final String mMessage = response.body().string();
+                            Log.e("SearchResponse", mMessage);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    SearchUsersFragment searchUsersFragment = (SearchUsersFragment) viewPagerAdapter
+                                            .instantiateItem(viewPager,1);
+                                    progressBar.setVisibility(View.GONE);
+                                    searchUsersFragment.update(mMessage);
+                                }
+                            });
                                 /*
                                 JSONObject array = null;
                                 try {
@@ -221,116 +220,12 @@ public class SearchFragment extends Fragment {
                                         recycler_view.setAdapter(adapter);
                                     }
                                 });*/
-                            }
-                        });
-                        Log.e("USUARIOS",editTextSearch.getText().toString());
+                        }
+                    });
+                    Log.e("USUARIOS",editTextSearch.getText().toString());
+                    if (viewPagerAdapter.getPageTitle(viewPager.getCurrentItem()).equals("USUARIOS")){
                     }
                     else{
-                        //Iniciamos la solicitud para obtener los datos del usuario
-                        OkHttpClient client = new OkHttpClient().newBuilder().build();
-
-                        RequestBody requestBody = new MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("server_key",server_key)
-                                .addFormDataPart("access_token",access_token)
-                                .addFormDataPart("hash",editTextSearch.getText().toString())
-                                .build();
-
-                        okhttp3.Request UserPostsRequest = new okhttp3.Request.Builder()
-                                .url("https://diys.co/endpoints/v1/post/fetch_hash_posts")
-                                .post(requestBody)
-                                .build();
-
-                        client.newCall(UserPostsRequest).enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                String mMessage = e.getMessage().toString();
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
-                                Log.e("failure Response", mMessage);
-                            }
-
-                            @Override
-                            public void onResponse(Call call, okhttp3.Response response) throws IOException {
-                                final String mMessage = response.body().string();
-                                Log.e("SearchResponse", mMessage);
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        SearchHashtagsFragment searchHashtagsFragment = (SearchHashtagsFragment) viewPagerAdapter
-                                                .instantiateItem(viewPager,0);
-                                        searchHashtagsFragment.update(mMessage);
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                });
-                                /*
-                                JSONObject array = null;
-                                try {
-                                    array = new JSONObject(mMessage);
-                                    JSONArray data = array.getJSONArray("data");
-
-                                    for (int i = 0; i < data.length(); i++) {
-                                        JSONObject post = data.getJSONObject(i);
-                                        JSONObject userData = post.getJSONObject("user_data");
-
-                                        name = userData.getString("name");
-                                        following = userData.getString("following");
-                                        followers = userData.getString("followers");
-                                        favourites = userData.getString("favourites");
-                                        fname = userData.getString("fname");
-                                        lname = userData.getString("lname");
-                                        about = userData.getString("about");
-                                        website = userData.getString("website");
-                                        isFollowing = userData.getString("following");
-
-                                        JSONArray postMedia = post.getJSONArray("media_set");
-                                        String postImageLink = postMedia.getString(0).split("diy")[1]
-                                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
-                                        String extension = postMedia.getString(0).split("diys")[1]
-                                                .substring(3).split("\\.")[1].substring(0,3);
-
-                                        Log.e("HFApiResponse", following+followers+favourites);
-
-                                        postList.add(new Post(
-                                                post.getString("description"),
-                                                post.getString("time_text"),
-                                                post.getString("username"),
-                                                post.getString("avatar"),
-                                                postImageLink+"."+extension,
-                                                post.getString("likes"),
-                                                post.getString("comments"),
-                                                post.getString("is_liked"),
-                                                post.getString("is_saved"),
-                                                post.getString("post_id"),
-                                                post.getString("user_id"),
-                                                name, following, followers,
-                                                favourites, about, website,
-                                                isFollowing
-                                        ));
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                        PostAdapter adapter = new PostAdapter(getContext(),
-                                                postList,
-                                                getActivity().getIntent().getStringExtra("access_token"), "home");
-                                        recycler_view.setAdapter(adapter);
-                                    }
-                                });*/
-                            }
-                        });
                         Log.e("HASHTAGS",editTextSearch.getText().toString());
 
                     }
@@ -341,7 +236,13 @@ public class SearchFragment extends Fragment {
 
         List<ExploreItem> exploreItems = new ArrayList<>();
 /*
-E/SearchResponse: {"code":"200","status":"OK","data":{"users":[{"user_id":31,"username":"webswlst","email":"webswlst@gmail.com","ip_address":"","fname":"ideas","lname":"diy","gender":"female","language":"english","avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/04\/Kwi48qKYSAwbV11WhS2pyRXiAsFCcbImwuNXV1mvm5PyNOpRSu_14_39c1e8dcaf019297b1405c1c009e8997_image.jpg","cover":"https:\/\/diys.co\/media\/img\/d-cover.jpg","country_id":140,"about":null,"google":"","facebook":"","twitter":"","website":"","active":1,"admin":0,"verified":0,"last_seen":"1618275878","registered":"0000\/0","is_pro":0,"posts":0,"p_privacy":"2","c_privacy":"1","n_on_like":"1","n_on_mention":"1","n_on_comment":"1","n_on_follow":"1","n_on_comment_like":"1","n_on_comment_reply":"1","startup_avatar":1,"startup_info":1,"startup_follow":1,"src":"Google","search_engines":"1","mode":"day","device_id":"","balance":"0","wallet":"0.00","conversation_id":"","referrer":0,"profile":1,"business_account":0,"paypal_email":"","b_name":"","b_email":"","b_phone":"","b_site":"","b_site_action":"","uploads":0,"address":"","city":"","state":"","zip":0,"phone_number":"","name":"ideas diy","uname":"webswlst","url":"https:\/\/diys.co\/webswlst","followers":4,"following":0,"favourites":4,"posts_count":1,"time_text":"6 meses hace","is_following":false}],"hash":[{"id":15,"hash":"417ccdc4ad6ad84cf301dbfa2c4984c3","tag":"diy","last_trend_time":"1633115902","use_num":33},{"id":47,"hash":"b57366efbc4714c3b7ca6d86c63456f8","tag":"diys","last_trend_time":"1621487145","use_num":1},{"id":42,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0},{"id":43,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0}]}}
+E/SearchResponse: {"code":"200","status":"OK","data":{
+                                                    "users":[{"user_id":31,"username":"webswlst","email":"webswlst@gmail.com","ip_address":"","fname":"ideas","lname":"diy","gender":"female","language":"english","avatar":"https:\/\/diys.co\/media\/upload\/photos\/2021\/04\/Kwi48qKYSAwbV11WhS2pyRXiAsFCcbImwuNXV1mvm5PyNOpRSu_14_39c1e8dcaf019297b1405c1c009e8997_image.jpg","cover":"https:\/\/diys.co\/media\/img\/d-cover.jpg","country_id":140,"about":null,"google":"","facebook":"","twitter":"","website":"","active":1,"admin":0,"verified":0,"last_seen":"1618275878","registered":"0000\/0","is_pro":0,"posts":0,"p_privacy":"2","c_privacy":"1","n_on_like":"1","n_on_mention":"1","n_on_comment":"1","n_on_follow":"1","n_on_comment_like":"1","n_on_comment_reply":"1","startup_avatar":1,"startup_info":1,"startup_follow":1,"src":"Google","search_engines":"1","mode":"day","device_id":"","balance":"0","wallet":"0.00","conversation_id":"","referrer":0,"profile":1,"business_account":0,"paypal_email":"","b_name":"","b_email":"","b_phone":"","b_site":"","b_site_action":"","uploads":0,"address":"","city":"","state":"","zip":0,"phone_number":"","name":"ideas diy","uname":"webswlst","url":"https:\/\/diys.co\/webswlst","followers":4,"following":0,"favourites":4,"posts_count":1,"time_text":"6 meses hace","is_following":false}],
+                                                    "hash":[{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             "id":15,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "hash":"417ccdc4ad6ad84cf301dbfa2c4984c3",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             "tag":"diy",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             "last_trend_time":"1633115902",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             "use_num":33},{"id":47,"hash":"b57366efbc4714c3b7ca6d86c63456f8","tag":"diys","last_trend_time":"1621487145","use_num":1},{"id":42,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0},{"id":43,"hash":"9e4b6936d9c0195c25230da084b9cef8","tag":"diyvideo\n","last_trend_time":"1618198643","use_num":0}]}}
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         MediaType mediaType = MediaType.parse("text/plain");
@@ -423,12 +324,6 @@ E/SearchResponse: {"code":"200","status":"OK","data":{"users":[{"user_id":31,"us
         });
 
         Volley.newRequestQueue(getContext()).add(stringRequest);
-        editTextSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: Probar comportamiento de la búsqueda y diseño del itemSearch
-            }
-        });
         return itemView;
     }
     public String getData(){

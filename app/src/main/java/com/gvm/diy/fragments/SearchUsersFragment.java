@@ -127,14 +127,13 @@ public class SearchUsersFragment extends Fragment implements Updateable {
     @Override
     public void update(String mMessage) {
         try {
-            JSONObject array = new JSONObject(mMessage);
-            JSONArray data = array.getJSONArray("data");
+            JSONObject object = new JSONObject(mMessage);
+            JSONObject data = object.getJSONObject("data");
 
-            JSONArray usersArray = data.getJSONArray(0);
-            JSONObject users = usersArray.getJSONObject(0);
+            JSONArray usersArray = data.getJSONArray("users");
 
-            for (int i = 0; i < users.length(); i++) {
-                JSONObject user = users.getJSONObject(i);
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject user = usersArray.getJSONObject(i);
                 Log.e("UserResponse", user.getString("user_id")+user.getString("time_text")+user.getString("username"));
                 followItems.add(new FollowItem(
                         user.getString("avatar"),

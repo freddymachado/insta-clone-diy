@@ -40,7 +40,6 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
 
     private RecyclerView recycler_view;
     private List<FollowItem> followItems;
-    private List<HashItem> hashItems;
 
     OkHttpClient client;
     RequestBody requestBody;
@@ -133,24 +132,25 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
     @Override
     public void update(String mMessage) {
         try {
-            JSONObject array = new JSONObject(mMessage);
-            JSONObject data = array.getJSONObject("data");
+            JSONObject object = new JSONObject(mMessage);
+            JSONObject data = object.getJSONObject("data");
 
-            JSONArray hashArray = array.getJSONArray(1);
-            JSONObject hashs = hashArray.getJSONObject(0);
+            JSONArray hashArray = data.getJSONArray("hash");
 
-            for (int i = 0; i < hashs.length(); i++) {
-                JSONObject hash = hashs.getJSONObject(i);
-                Log.e("HashResponse", hash.getString("username"));
-                hashItems.add(new HashItem(
+            for (int i = 0; i < hashArray.length(); i++) {
+                JSONObject hash = hashArray.getJSONObject(i);
+                Log.e("HashResponse", hash.getString("tag"));
+                followItems.add(new FollowItem(
                         hash.getString("tag"),
-                        hash.getString("last_trend_time")
+                        hash.getString("last_trend_time"),
+                        hash.getString("use_num"),
+                        "hashs"
                 ));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        HashAdapter adapter = new HashAdapter(getActivity().getApplicationContext(), hashItems, access_token);
+        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems, access_token);
         recycler_view.setAdapter(adapter);
     }
 
