@@ -5,9 +5,11 @@ import java.io.Serializable;
 public class FollowItem implements Serializable {
 
     private String file, about, website, followers, following, favourites, name;
-    private String avatar;
+    private String avatar, tag, last_trend_time, use_num;
     private String time_text;
     private String username, user_id, is_following, is_blocked;
+
+
 
     public FollowItem(String avatar, String time_text, String username) {
         this.avatar = avatar;
@@ -24,10 +26,10 @@ public class FollowItem implements Serializable {
 
     }
 
-    public FollowItem(String avatar, String time_text, String username, String user_id) {
-        this.avatar = avatar;
-        this.time_text = time_text;
-        this.username = username;
+    public FollowItem(String tag, String last_trend_time, String use_num, String user_id) {
+        this.tag = tag;
+        this.last_trend_time = last_trend_time;
+        this.use_num = use_num;
         this.user_id = user_id;
 
     }
@@ -46,6 +48,30 @@ public class FollowItem implements Serializable {
         this.favourites = favourites;
         this.name = name;
 
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getLast_trend_time() {
+        return last_trend_time;
+    }
+
+    public void setLast_trend_time(String last_trend_time) {
+        this.last_trend_time = last_trend_time;
+    }
+
+    public String getUse_num() {
+        return use_num;
+    }
+
+    public void setUse_num(String use_num) {
+        this.use_num = use_num;
     }
 
     public String getAbout() {

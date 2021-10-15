@@ -77,7 +77,6 @@ public class UploadFragment extends Fragment {
     String access_token,username, user_id, avatar, server_key = "1539874186", name, type,
             following, followers, fname, lname, about, website, isFollowing;
 
-
     public UploadFragment() {
         // Required empty public constructor
     }

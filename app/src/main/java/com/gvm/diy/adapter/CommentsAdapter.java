@@ -255,7 +255,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
 
             SharedPreferences pref = mContext.getSharedPreferences("myPrefs",MODE_PRIVATE);
-            pref.getString("current_user",current_user);
+            current_user = pref.getString("current_user",current_user);
         }
     }
 

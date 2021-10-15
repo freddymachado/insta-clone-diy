@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,9 +21,12 @@ import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.CommentsAdapter;
 import com.gvm.diy.adapter.FollowAdapter;
+import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
+import com.gvm.diy.fragments.SearchHashtagsFragment;
 import com.gvm.diy.models.CommentsItem;
 import com.gvm.diy.models.FollowItem;
+import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
 import com.madapps.liquid.LiquidRefreshLayout;
 
@@ -52,12 +56,14 @@ public class FollowersActivity extends AppCompatActivity {
     private List<ProfileItem> profileItems;
 
     LinearLayoutManager linearLayoutManager;
-    String access_token,username, user_id, function, server_key = "1539874186", post_id, favourites, following, followers;
+    String access_token,username, user_id, function, server_key = "1539874186", post_id, favourites,
+            following, followers, tag, name, fname, lname, about, website, isFollowing, current_user;
 
     ProgressBar progressBar;
 
     LiquidRefreshLayout refreshLayout;
 
+    private List<Post> postList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +81,7 @@ public class FollowersActivity extends AppCompatActivity {
         recycler_view.setHasFixedSize(true);
 
         followItems = new ArrayList<>();
+        postList = new ArrayList<>();
         commentsItems = new ArrayList<>();
 
         profileItems = new ArrayList<>();
@@ -86,6 +93,7 @@ public class FollowersActivity extends AppCompatActivity {
         username = intent.getStringExtra("username");
         function = intent.getStringExtra("function");
         post_id = intent.getStringExtra("post_id");
+        tag = intent.getStringExtra("tag");
 
         OkHttpClient client;
 
@@ -914,6 +922,224 @@ public class FollowersActivity extends AppCompatActivity {
                     }
                 });
                 break;
+            case "hashs":
+                textViewTitle.setText("#"+tag);
+                //Iniciamos la solicitud para obtener los datos del usuario
+                client = new OkHttpClient().newBuilder().build();
+
+                requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("access_token",access_token)
+                        .addFormDataPart("hash",tag)
+                        .build();
+
+                UserPostsRequest = new okhttp3.Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/fetch_hash_posts")
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("SearchResponse", mMessage);
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONArray data = array.getJSONArray("data");
+
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject post = data.getJSONObject(i);
+                                JSONObject userData = post.getJSONObject("user_data");
+
+                                name = userData.getString("name");
+                                following = userData.getString("following");
+                                followers = userData.getString("followers");
+                                favourites = userData.getString("favourites");
+                                fname = userData.getString("fname");
+                                lname = userData.getString("lname");
+                                about = userData.getString("about");
+                                website = userData.getString("website");
+                                isFollowing = userData.getString("following");
+
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
+
+                                Log.e("HFApiResponse", following+followers+favourites);
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postImageLink+"."+extension,
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
+                                        post.getString("post_id"),
+                                        post.getString("user_id"),
+                                        name, following, followers,
+                                        favourites, about, website,
+                                        isFollowing
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                PostAdapter adapter = new PostAdapter(FollowersActivity.this,
+                                        postList,
+                                        access_token, getCurrentUser());
+                                recycler_view.setAdapter(adapter);
+                            }
+                        });
+                                /*
+                                JSONObject array = null;
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        JSONObject userData = post.getJSONObject("user_data");
+
+                                        name = userData.getString("name");
+                                        following = userData.getString("following");
+                                        followers = userData.getString("followers");
+                                        favourites = userData.getString("favourites");
+                                        fname = userData.getString("fname");
+                                        lname = userData.getString("lname");
+                                        about = userData.getString("about");
+                                        website = userData.getString("website");
+                                        isFollowing = userData.getString("following");
+
+                                        JSONArray postMedia = post.getJSONArray("media_set");
+                                        String postImageLink = postMedia.getString(0).split("diy")[1]
+                                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                        String extension = postMedia.getString(0).split("diys")[1]
+                                                .substring(3).split("\\.")[1].substring(0,3);
+
+                                        Log.e("HFApiResponse", following+followers+favourites);
+
+                                        postList.add(new Post(
+                                                post.getString("description"),
+                                                post.getString("time_text"),
+                                                post.getString("username"),
+                                                post.getString("avatar"),
+                                                postImageLink+"."+extension,
+                                                post.getString("likes"),
+                                                post.getString("comments"),
+                                                post.getString("is_liked"),
+                                                post.getString("is_saved"),
+                                                post.getString("post_id"),
+                                                post.getString("user_id"),
+                                                name, following, followers,
+                                                favourites, about, website,
+                                                isFollowing
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                        PostAdapter adapter = new PostAdapter(getContext(),
+                                                postList,
+                                                getActivity().getIntent().getStringExtra("access_token"), "home");
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });*/
+                    }
+                });
+
+                refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void completeRefresh() {
+                    }
+
+                    @Override
+                    public void refreshing() {
+                        commentsItems.clear();
+
+                        client.newCall(UserPostsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                String mMessage = e.getMessage().toString();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                Log.e("failure Response", mMessage);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String mMessage = response.body().string();
+                                JSONObject array = null;
+                                Log.e("ChatResponse", mMessage);
+                                try {
+                                    array = new JSONObject(mMessage);
+                                    JSONArray data = array.getJSONArray("data");
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject post = data.getJSONObject(i);
+                                        commentsItems.add(new CommentsItem(
+                                                post.getString("avatar"),
+                                                post.getString("text"),
+                                                post.getString("time_text"),
+                                                post.getString("likes"),
+                                                post.getString("id"),
+                                                post.getString("user_id"),
+                                                post.getString("is_liked")
+                                        ));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.finishRefreshing();
+                                        CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
+                                        recycler_view.setAdapter(adapter);
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+                });
+                break;
             default:
                 break;
 /*E/ApiResponse: {"code":"200","status":"OK","data":[{"user_id":1539,"username":"DayaminSilva","email":"dayamincoromoto@gmail.com",
@@ -958,5 +1184,11 @@ public class FollowersActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private String getCurrentUser() {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("myPrefs",MODE_PRIVATE);
+        current_user = pref.getString("current_user",current_user);
+        return current_user;
     }
 }

@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.FollowItem;
+import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.ProfileViewerActivity;
 
 import org.json.JSONObject;
@@ -71,89 +73,106 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
 
     @Override
     public void onBindViewHolder(@NonNull FollowViewHolder holder, int position) {
-        holder.setProfileImageView(followItems.get(position));
         FollowItem followItem = followItems.get(position);
-        holder.textViewName.setText(followItem.getUsername());
-        holder.textViewLastSeen.setText("Última visita hace "+followItem.getTime_text().split(" ")[0]+" días");
-
-
         user_id = followItem.getUser_id();
-        Log.e("userid", followItem.getUser_id());
-        if(followItem.getIs_following().equals("false")){
-            holder.buttonFollowing.setText("Follow");
-        }
-        if (user_id.equals("likes"))
+        if(user_id.equals("hashs")){
+            holder.textViewLastSeen.setText(followItem.getUse_num()+" Posts");
+            holder.textViewName.setText(followItem.getTag());
             holder.buttonFollowing.setVisibility(View.GONE);
 
-        //Cargamos la animcion del boton
-        final Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
-
-        //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
-        MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
-        myAnim.setInterpolator(interpolator);
-
-        holder.buttonFollowing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.buttonFollowing.startAnimation(myAnim);
-                if (holder.buttonFollowing.getText().equals("following")) {
-                    holder.buttonFollowing.setText("follow");
-                } else {
-                    holder.buttonFollowing.setText("following");
+            holder.linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intentComments = new Intent(mContext, FollowersActivity.class);
+                    intentComments.putExtra("function", "hashs");
+                    intentComments.putExtra("access_token", access_token);
+                    intentComments.putExtra("user_id", user_id);
+                    intentComments.putExtra("tag", followItem.getTag());
+                    mContext.startActivity(intentComments);
                 }
-                client = new OkHttpClient.Builder().build();
-                FollowBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key", server_key)
-                        .addFormDataPart("user_id", followItem.getUser_id())
-                        .addFormDataPart("access_token", access_token)
-                        .build();
+            });
+        }else{
+            holder.setProfileImageView(followItems.get(position));
+            holder.textViewName.setText(followItem.getUsername());
+            holder.textViewLastSeen.setText("Última visita hace "+followItem.getTime_text().split(" ")[0]+" días");
 
-                Log.e("useridClicked", followItem.getUser_id());
-                FollowRequest = new Request.Builder()
-                        .url("https://diys.co/endpoints/v1/user/follow")
-                        .post(FollowBody)
-                        .build();
 
-                client.newCall(FollowRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        String mMessage = e.getMessage().toString();
-                        ((Activity)mContext).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                holder.buttonFollowing.startAnimation(myAnim);
-                                if (holder.buttonFollowing.getText().equals("following")) {
-                                    holder.buttonFollowing.setText("follow");
-                                } else {
-                                    holder.buttonFollowing.setText("following");
-                                }
-                                Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
-
-                            }
-                        });
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("Like Response", mMessage);
-                        JSONObject array = null;
-                        //saveFollow(followItem.getUser_id(),mMessage);
-                        ((Activity)mContext).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                            }
-                        });
-                    }
-                });
-
+            Log.e("userid", followItem.getUser_id());
+            if(followItem.getIs_following().equals("false")){
+                holder.buttonFollowing.setText("Follow");
             }
-        });
+            if (user_id.equals("likes"))
+                holder.buttonFollowing.setVisibility(View.GONE);
 
-        holder.textViewName.setOnClickListener(new View.OnClickListener() {
+            //Cargamos la animcion del boton
+            final Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+
+            //Usamos el BounceInterpolator con una amplitud de 0.2 y frecuencia de 20
+            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+            myAnim.setInterpolator(interpolator);
+
+            holder.buttonFollowing.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.buttonFollowing.startAnimation(myAnim);
+                    if (holder.buttonFollowing.getText().equals("following")) {
+                        holder.buttonFollowing.setText("follow");
+                    } else {
+                        holder.buttonFollowing.setText("following");
+                    }
+                    client = new OkHttpClient.Builder().build();
+                    FollowBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("server_key", server_key)
+                            .addFormDataPart("user_id", followItem.getUser_id())
+                            .addFormDataPart("access_token", access_token)
+                            .build();
+
+                    Log.e("useridClicked", followItem.getUser_id());
+                    FollowRequest = new Request.Builder()
+                            .url("https://diys.co/endpoints/v1/user/follow")
+                            .post(FollowBody)
+                            .build();
+
+                    client.newCall(FollowRequest).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            String mMessage = e.getMessage().toString();
+                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.buttonFollowing.startAnimation(myAnim);
+                                    if (holder.buttonFollowing.getText().equals("following")) {
+                                        holder.buttonFollowing.setText("follow");
+                                    } else {
+                                        holder.buttonFollowing.setText("following");
+                                    }
+                                    Toast.makeText(mContext, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                            Log.e("failure Response", mMessage);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            final String mMessage = response.body().string();
+                            Log.e("Like Response", mMessage);
+                            JSONObject array = null;
+                            //saveFollow(followItem.getUser_id(),mMessage);
+                            ((Activity)mContext).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                }
+                            });
+                        }
+                    });
+
+                }
+            });
+
+            holder.textViewName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intentProfileViewer = new Intent(mContext, ProfileViewerActivity.class);
@@ -172,6 +191,7 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
                     mContext.startActivity(intentProfileViewer);
                 }
             });
+        }
     }
 /*
     private void saveFollow(String user_id, String mMessage) {
@@ -191,14 +211,15 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
         ImageView imageViewavatar;
         TextView textViewName, textViewLastSeen;
         Button buttonFollowing;
+        LinearLayout linearLayout;
 
         FollowViewHolder(@NonNull View itemView) {
             super(itemView);
-
             imageViewavatar = itemView.findViewById(R.id.imageViewAvatar);
             textViewName = itemView.findViewById(R.id.textViewName);
             textViewLastSeen = itemView.findViewById(R.id.textViewLastSeen);
             buttonFollowing = itemView.findViewById(R.id.buttonFollowing);
+            linearLayout = itemView.findViewById(R.id.linear);
         }
 
         void setProfileImageView(FollowItem followItem){
