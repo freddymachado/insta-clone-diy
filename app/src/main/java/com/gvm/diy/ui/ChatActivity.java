@@ -86,58 +86,158 @@ public class ChatActivity extends AppCompatActivity{
         //Inicio del setLayout8
 
         Intent intent = getIntent();
-        setLayout8();
+        access_token = intent.getStringExtra("access_token");
+        user_id = intent.getStringExtra("user_id");
 
-        adapter = new AdaptadorChat(this,mData);
-        LinearLayoutManager l = new LinearLayoutManager(this);
-        recyclerChat.setLayoutManager(l);
-        recyclerChat.setAdapter(adapter);
+        //Iniciamos la solicitud para obtener los datos del usuario
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        //Chequeamos si se ingresa desde un perfil de usuario o admin
-        if(intent.getExtras() != null){
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("server_key",server_key)
+                .addFormDataPart("access_token",access_token)
+                .addFormDataPart("user_id",user_id)
+                .build();
 
-            //Si los extras no son nulos, guardamos el id del chat seleccionado
-            ChatList chatList = (ChatList) intent.getSerializableExtra("userId");
-            id = chatList.getId();
-            userName = chatList.getTipo();
-            Log.d("idarrived",chatList.getId());
+        okhttp3.Request UserPostsRequest = new Request.Builder()
+                .url("https://diys.co/endpoints/v1/messages/get_user_messages")
+                .post(requestBody)
+                .build();
 
-            whoIsSendingMessages = ADMIN;
-
-            imageButtonId.setVisibility(View.GONE);
-
-        }else {
-            //En caso contrario, preguntamos si no se habia iniciado el chat previamente
-            chatExists(id);
-
-            whoIsSendingMessages = USER;
-            buttonActivar.setVisibility(View.GONE);
-        }
-        reference = db.getReference("Usuarios/"+id+"/chat"); //Sala de chat del usuario
-        historial = db1.getReference("Usuarios/"+id+"/historial"); //Historial del usuario
-        notificaciones = db2.getReference("Notificaciones"); //Historial del usuario
-
-
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+        client.newCall(UserPostsRequest).enqueue(new Callback() {
             @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (!task.isSuccessful()) {
-                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                    return;
+            public void onFailure(Call call, IOException e) {
+                String mMessage = e.getMessage().toString();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                    }
+                });
+                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                Log.e("failure Response", mMessage);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String mMessage = response.body().string();
+                Log.e("ApiResponse", mMessage);
+                JSONObject array = null;
+                try {
+                    array = new JSONObject(mMessage);
+                    JSONArray data = array.getJSONArray("data");
+
+                    //TODO: Dependiendo de si el mensaje es recibido o enviado, se coloca MensajeRecibido
+                    //o TextItem al TimelineItem respectivamente.
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject post = data.getJSONObject(i);
+                        Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                        mData.add(new TimelineItem(new MensajeRecibido(
+                                post.getString("message"),
+                                post.getString("user_id"),
+                                post.getString("avatar"),
+                                post.getString("time_text")
+                                ),
+                        ));
+                    }
+/*
+                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
+                //Si el mensaje es enviado por el admin
+                if(m.getTipo().equals("3")){
+
+                    TextItem textItem = snapshot.getValue(TextItem.class);
+                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
+                    mData.add(textTimelineItem2);
+                    lastMessage = m.getMensaje();
+                    Log.d("lastmessage", lastMessage);
+
+                }else{
+                    TimelineItem textTimelineItem2 = new TimelineItem(m);
+                    mData.add(textTimelineItem2);
+                    //metodo que chequea si el mensaje contiene un nombre de usuario
                 }
-
-                // Get new FCM registration token
-                token = task.getResult();
-
-                // Log
-                Log.d(TAG, token);
-
-                sendRegistrationToServer(token);
+*/
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                        adapter.notifyItemInserted(adapter.getItemCount());
+                        recyclerChat.smoothScrollToPosition(adapter.getItemCount());
+                    }
+                });
             }
         });
 
-        storage = FirebaseStorage.getInstance();
-        //Fin del setLayout8
+        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+            @Override
+            public void completeRefresh() {
+            }
+
+            @Override
+            public void refreshing() {
+                followItems.clear();
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("ApiResponse", mMessage);
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONArray data = array.getJSONArray("data");
+
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject post = data.getJSONObject(i);
+                                Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                                followItems.add(new FollowItem(
+                                        post.getString("avatar"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("is_following"),
+                                        post.getString("user_id"),
+                                        post.getString("about"),
+                                        post.getString("website"),
+                                        post.getString("followers"),
+                                        post.getString("following"),
+                                        post.getString("favorites"),
+                                        post.getString("name")
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(),
+                                        followItems,access_token);
+                                recycler_view.setAdapter(adapter);
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
 
         buttonChat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,51 +290,6 @@ public class ChatActivity extends AppCompatActivity{
                 i.setType("image/jpeg");
                 i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
                 startActivityForResult(Intent.createChooser(i,"Selecciona una foto"),PHOTO_SENT);
-            }
-        });
-        reference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
-                //Si el mensaje es enviado por el admin
-                if(m.getTipo().equals("3")){
-
-                    TextItem textItem = snapshot.getValue(TextItem.class);
-                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
-                    mData.add(textTimelineItem2);
-                    lastMessage = m.getMensaje();
-                    Log.d("lastmessage", lastMessage);
-
-                }else{
-                    TimelineItem textTimelineItem2 = new TimelineItem(m);
-                    mData.add(textTimelineItem2);
-                    //metodo que chequea si el mensaje contiene un nombre de usuario
-                }
-                adapter.notifyItemInserted(adapter.getItemCount());
-                recyclerChat.smoothScrollToPosition(adapter.getItemCount());
-                //adapter.addMensaje(m);
-                //TextItem itemText1 = new TextItem("Hello! I am Andry. I practice the technique of palm reading.");
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 

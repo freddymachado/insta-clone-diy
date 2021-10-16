@@ -228,7 +228,6 @@ public class ChatFragment extends Fragment {
             }
         });
 
-
         return itemView;
     }
 }
