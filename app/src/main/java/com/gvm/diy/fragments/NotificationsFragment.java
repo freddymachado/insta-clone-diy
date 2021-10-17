@@ -17,10 +17,7 @@ import android.widget.Toast;
 
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.FollowAdapter;
-import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.models.FollowItem;
-import com.gvm.diy.models.Post;
-import com.gvm.diy.ui.FollowersActivity;
 import com.madapps.liquid.LiquidRefreshLayout;
 
 import org.json.JSONArray;
@@ -40,10 +37,10 @@ import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
+ * Use the {@link NotificationsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChatFragment extends Fragment {
+public class NotificationsFragment extends Fragment {
     private RecyclerView recycler_view;
     private TextView textViewTitle;
     private ImageButton imageButtonBack;
@@ -57,12 +54,12 @@ public class ChatFragment extends Fragment {
 
     private List<FollowItem> followItems;
 
-    public ChatFragment() {
+    public NotificationsFragment() {
         // Required empty public constructor
     }
 
-    public static ChatFragment newInstance(String param1, String param2) {
-        ChatFragment fragment = new ChatFragment();
+    public static NotificationsFragment newInstance(String param1, String param2) {
+        NotificationsFragment fragment = new NotificationsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;

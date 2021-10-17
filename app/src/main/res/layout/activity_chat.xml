@@ -1,90 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity">
+    android:gravity="center_vertical|center_horizontal"
+    tools:context=".ui.ChatActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout9"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@android:color/white"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:id="@+id/appBar"
+        android:background="@color/primary_color">
 
-        <ImageView
-            android:id="@+id/imageViewLogo"
-            android:layout_width="25dp"
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/toolBar"
+            android:background="@android:color/transparent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent">
+
+                <ImageButton
+                    android:id="@+id/imageButtonBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_arrow_back_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textViewTitle"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:clickable="true"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textColorHint="#817D7D"
+                    android:textSize="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageButtonBack"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/imageButtonMore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_more_vert_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.madapps.liquid.LiquidRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:AniBackColor="@color/colorAccent"
+        app:AniForeColor="@color/colorBackground"
+        app:CircleSmaller="6"
+        android:layout_above="@+id/linearBelow"
+        android:layout_below="@+id/appBar">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerChat"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            app:srcCompat="@mipmap/logonetpeli" />
+            android:layout_weight="1"/>
 
-        <TextView
-            android:id="@+id/textViewSoporte"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center|center_horizontal"
-            android:text="Soporte"
-            android:textColor="#000000"
-            android:textSize="24sp" />
-
-        <Button
-            android:id="@+id/buttonCerrar"
-            android:layout_width="10dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/text_view_background"
-            android:text="Cerrar ticket"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/buttonSalir"
-            android:layout_width="10dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/text_view_background"
-            android:text="Salir"
-            android:textColor="@color/common_google_signin_btn_text_dark_default"
-            android:textSize="12sp" />
-
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerChat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+    </com.madapps.liquid.LiquidRefreshLayout>
 
     <LinearLayout
+        android:id="@+id/linearBelow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/buttonActivar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:hint="Activar" />
-
-        <ImageButton
-            android:id="@+id/imageButtonId"
+            android:id="@+id/buttonChat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@android:drawable/ic_menu_gallery"
-            android:layout_gravity="center"/>
+            android:hint="Enviar" />
 
         <EditText
             android:id="@+id/editTextChat"
@@ -94,14 +110,24 @@
             android:hint="Escribe un mensaje"
             android:textColor="@color/cardview_dark_background"
             android:textColorHint="@color/browser_actions_title_color" />
-        <Button
-            android:id="@+id/buttonChat"
+
+        <ImageButton
+            android:id="@+id/imageButtonId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_weight="1"
-            android:hint="Enviar"/>
+            android:background="@drawable/bg_round_blue"
+            android:src="@android:drawable/ic_menu_gallery" />
 
 
     </LinearLayout>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+</RelativeLayout>

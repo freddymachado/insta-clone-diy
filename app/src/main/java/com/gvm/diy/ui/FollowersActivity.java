@@ -1,6 +1,7 @@
 package com.gvm.diy.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,11 +20,13 @@ import android.widget.Toast;
 
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.ChatListAdapter;
 import com.gvm.diy.adapter.CommentsAdapter;
 import com.gvm.diy.adapter.FollowAdapter;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
 import com.gvm.diy.fragments.SearchHashtagsFragment;
+import com.gvm.diy.models.ChatList;
 import com.gvm.diy.models.CommentsItem;
 import com.gvm.diy.models.FollowItem;
 import com.gvm.diy.models.Post;
@@ -35,7 +38,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.Call;
@@ -46,7 +51,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class FollowersActivity extends AppCompatActivity {
+public class FollowersActivity extends AppCompatActivity implements ChatListAdapter.SelectedChat {
     private RecyclerView recycler_view;
     private TextView textViewTitle;
     private ImageButton imageButtonBack;
@@ -57,13 +62,18 @@ public class FollowersActivity extends AppCompatActivity {
 
     LinearLayoutManager linearLayoutManager;
     String access_token,username, user_id, function, server_key = "1539874186", post_id, favourites,
-            following, followers, tag, name, fname, lname, about, website, isFollowing, current_user;
+            following, followers, tag, name, fname, lname, about, website, isFollowing, current_user,
+            id;
 
     ProgressBar progressBar;
 
     LiquidRefreshLayout refreshLayout;
 
     private List<Post> postList;
+
+    List<ChatList> chatList = new ArrayList();
+
+    ChatListAdapter chatAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -796,6 +806,12 @@ public class FollowersActivity extends AppCompatActivity {
             case "chat":
                 textViewTitle.setText("Mensajes");
                 recycler_view.setLayoutManager(linearLayoutManager);
+                recycler_view.addItemDecoration(new DividerItemDecoration(this,
+                        DividerItemDecoration.VERTICAL));
+
+                chatAdapter = new ChatListAdapter(chatList,this);
+                recycler_view.setAdapter(chatAdapter);
+
                 //Iniciamos la solicitud para obtener los datos del usuario
                 client = new OkHttpClient().newBuilder().build();
 
@@ -818,43 +834,70 @@ public class FollowersActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
                         Log.e("failure Response", mMessage);
                     }
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         final String mMessage = response.body().string();
+                        Log.e("ApiResponse", mMessage);
                         JSONObject array = null;
-                        Log.e("ChatResponse", mMessage);
                         try {
                             array = new JSONObject(mMessage);
                             JSONArray data = array.getJSONArray("data");
+                            int numeroItems = 0;
 
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
-                                commentsItems.add(new CommentsItem(
-                                        post.getString("avatar"),
-                                        post.getString("text"),
-                                        post.getString("time_text"),
-                                        post.getString("likes"),
-                                        post.getString("id"),
+                                Log.e("ApiChatsResponse", post.getString("last_message")+post.getString("username"));
+                                Long codigoHora = Long.valueOf(post.getString("time"));
+                                Date time = new Date(codigoHora);
+                                SimpleDateFormat sFormat = new SimpleDateFormat("hh:mm a");//a = pm o am
+                                ChatList chat = new ChatList(
+                                        post.getString("username"),
+                                        sFormat.format(time),
+                                        post.getString("last_message"),
                                         post.getString("user_id"),
-                                        post.getString("is_liked")
-                                ));
+                                        post.getString("avatar"),
+                                        post.getString("new_message"));
+
+
+                                chatList.add(chat);
+
+                                numeroItems++;
                             }
+/*
+                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
+                //Si el mensaje es enviado por el admin
+                if(m.getTipo().equals("3")){
+
+                    TextItem textItem = snapshot.getValue(TextItem.class);
+                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
+                    mData.add(textTimelineItem2);
+                    lastMessage = m.getMensaje();
+                    Log.d("lastmessage", lastMessage);
+
+                }else{
+                    TimelineItem textTimelineItem2 = new TimelineItem(m);
+                    mData.add(textTimelineItem2);
+                    //metodo que chequea si el mensaje contiene un nombre de usuario
+                }
+*/
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
-                                CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
-                                recycler_view.setAdapter(adapter);
+                                recycler_view.setAdapter(chatAdapter);
+                                recycler_view.smoothScrollToPosition(chatAdapter.getItemCount());
+                                chatAdapter.notifyItemInserted(chatAdapter.getItemCount());
+                                recycler_view.smoothScrollToPosition(chatAdapter.getItemCount());
                             }
                         });
                     }
@@ -867,8 +910,7 @@ public class FollowersActivity extends AppCompatActivity {
 
                     @Override
                     public void refreshing() {
-                        commentsItems.clear();
-
+                        chatList.clear();
                         client.newCall(UserPostsRequest).enqueue(new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
@@ -877,49 +919,74 @@ public class FollowersActivity extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         refreshLayout.finishRefreshing();
-                                        Toast.makeText(FollowersActivity.this, "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                                     }
                                 });
+                                //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
                                 Log.e("failure Response", mMessage);
                             }
 
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
                                 final String mMessage = response.body().string();
+                                Log.e("ApiResponse", mMessage);
                                 JSONObject array = null;
-                                Log.e("ChatResponse", mMessage);
                                 try {
                                     array = new JSONObject(mMessage);
                                     JSONArray data = array.getJSONArray("data");
+                                    int numeroItems = 0;
 
                                     for (int i = 0; i < data.length(); i++) {
                                         JSONObject post = data.getJSONObject(i);
-                                        commentsItems.add(new CommentsItem(
-                                                post.getString("avatar"),
-                                                post.getString("text"),
-                                                post.getString("time_text"),
-                                                post.getString("likes"),
-                                                post.getString("id"),
+                                        Log.e("ApiChatsResponse", post.getString("last_message")+post.getString("username"));
+                                        Long codigoHora = Long.valueOf(post.getString("time"));
+                                        Date time = new Date(codigoHora);
+                                        SimpleDateFormat sFormat = new SimpleDateFormat("hh:mm a");//a = pm o am
+                                        ChatList chat = new ChatList(
+                                                post.getString("username"),
+                                                sFormat.format(time),
+                                                post.getString("last_message"),
                                                 post.getString("user_id"),
-                                                post.getString("is_liked")
-                                        ));
+                                                post.getString("avatar"),
+                                                post.getString("new_message"));
+
+
+                                        chatList.add(chat);
+
+                                        numeroItems++;
                                     }
+/*
+                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
+                //Si el mensaje es enviado por el admin
+                if(m.getTipo().equals("3")){
+
+                    TextItem textItem = snapshot.getValue(TextItem.class);
+                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
+                    mData.add(textTimelineItem2);
+                    lastMessage = m.getMensaje();
+                    Log.d("lastmessage", lastMessage);
+
+                }else{
+                    TimelineItem textTimelineItem2 = new TimelineItem(m);
+                    mData.add(textTimelineItem2);
+                    //metodo que chequea si el mensaje contiene un nombre de usuario
+                }
+*/
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         refreshLayout.finishRefreshing();
-                                        CommentsAdapter adapter = new CommentsAdapter(FollowersActivity.this, commentsItems,access_token, user_id);
-                                        recycler_view.setAdapter(adapter);
+                                        recycler_view.setAdapter(chatAdapter);
+                                        recycler_view.smoothScrollToPosition(chatAdapter.getItemCount());
+                                        chatAdapter.notifyItemInserted(chatAdapter.getItemCount());
+                                        recycler_view.smoothScrollToPosition(chatAdapter.getItemCount());
                                     }
                                 });
                             }
-                        });
-
-                    }
+                        });                    }
                 });
                 break;
             case "hashs":
@@ -1183,6 +1250,14 @@ public class FollowersActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @Override
+    public void selectedChat(ChatList chatList, String id) {
+        Log.d("idenviado",id);
+        startActivity(new Intent(FollowersActivity.this,ChatActivity.class).putExtra("user_id",id).putExtra("access_token",access_token));
+        finish();
 
     }
 

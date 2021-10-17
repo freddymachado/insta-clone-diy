@@ -11,15 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/image_message_profile"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginLeft="8dp"
-            android:background="@drawable/text_view_background"
             android:padding="5dp"
+            app:riv_corner_radius="30dip"
+            android:scaleType="fitCenter"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/text_message_name"
@@ -28,7 +29,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginTop="4dp"
             android:text="Soporte"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintLeft_toRightOf="@+id/image_message_profile"
             app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="11:40"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/white"
             android:textSize="10sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -63,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="@drawable/bg_round"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

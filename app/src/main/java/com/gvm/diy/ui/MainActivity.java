@@ -4,7 +4,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,8 +25,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -36,7 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gvm.diy.R;
-import com.gvm.diy.fragments.ChatFragment;
+import com.gvm.diy.fragments.NotificationsFragment;
 import com.gvm.diy.fragments.HomeFragment;
 import com.gvm.diy.fragments.ProfileFragment;
 import com.gvm.diy.fragments.SearchFragment;
@@ -54,9 +50,6 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.luseen.spacenavigation.SpaceItem;
 import com.luseen.spacenavigation.SpaceNavigationView;
 import com.luseen.spacenavigation.SpaceOnClickListener;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.ramotion.circlemenu.CircleMenuView;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -64,7 +57,6 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -237,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                         setFragment(new SearchFragment());
                         break;
                     case 2:
-                        setFragment(new ChatFragment());
+                        setFragment(new NotificationsFragment());
                         break;
                     case 3:
                         setFragment(new ProfileFragment());

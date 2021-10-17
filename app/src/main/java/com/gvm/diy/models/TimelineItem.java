@@ -9,6 +9,10 @@ public class TimelineItem implements Serializable {
     private int viewType;
     private MensajeRecibido mensajeRecibidoItem;
 
+    public TimelineItem(MensajeEnviar mensajeEnviar) {
+
+    }
+
     public MensajeRecibido getMensajeRecibidoItem() {
         return mensajeRecibidoItem;
     }

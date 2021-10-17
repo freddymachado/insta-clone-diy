@@ -384,7 +384,6 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                 });
                                 break;
                             case 1:
-
                                 //TODO: Probar cuando pueda debuggear con varios users
                                 request = new Request.Builder()
                                         .url("https://diys.co/endpoints/v1/user/block")

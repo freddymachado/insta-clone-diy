@@ -33,13 +33,13 @@
                     android:textColor="@color/white"/>
 
                 <ImageButton
+                    android:id="@+id/imageButtonChat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:background="@android:color/transparent"
                     android:padding="5dp"
-                    android:src="@drawable/ic_baseline_more_vert_24"
-                    android:id="@+id/imageButtonChat" />
+                    android:src="@drawable/ic_baseline_chat_24" />
 
 
             </RelativeLayout>

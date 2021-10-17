@@ -25,6 +25,7 @@ import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.R;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.ui.FollowersActivity;
+import com.gvm.diy.ui.SalaChatActivity;
 import com.madapps.liquid.LiquidRefreshLayout;
 
 import org.json.JSONArray;
@@ -87,122 +88,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
 
         postList = new ArrayList<>();
-
-        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
-            @Override
-            public void completeRefresh() {
-            }
-
-            @Override
-            public void refreshing() {
-                postList.clear();
-                //Iniciamos la solicitud para obtener los datos del usuario
-                OkHttpClient client = new OkHttpClient().newBuilder().build();
-
-                RequestBody requestBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key",server_key)
-                        .addFormDataPart("access_token",access_token)
-                        .build();
-
-                okhttp3.Request UserPostsRequest = new Request.Builder()
-                        .url("https://diys.co/endpoints/v1/post/fetch_home_posts")
-                        .post(requestBody)
-                        .build();
-
-                client.newCall(UserPostsRequest).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        String mMessage = e.getMessage().toString();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshLayout.finishRefreshing();
-                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
-                        Log.e("failure Response", mMessage);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        final String mMessage = response.body().string();
-                        Log.e("ApiResponse", mMessage);
-                        JSONObject array = null;
-                        try {
-                            array = new JSONObject(mMessage);
-                            JSONArray data = array.getJSONArray("data");
-
-                            for (int i = 0; i < data.length(); i++) {
-                                JSONObject post = data.getJSONObject(i);
-                                JSONObject userData = post.getJSONObject("user_data");
-
-                                name = userData.getString("name");
-                                following = userData.getString("following");
-                                followers = userData.getString("followers");
-                                favourites = userData.getString("favourites");
-                                fname = userData.getString("fname");
-                                lname = userData.getString("lname");
-                                about = userData.getString("about");
-                                website = userData.getString("website");
-                                isFollowing = userData.getString("following");
-
-                                JSONArray postMedia = post.getJSONArray("media_set");
-                                String postImageLink = postMedia.getString(0).split("diy")[1]
-                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
-                                String extension = postMedia.getString(0).split("diys")[1]
-                                        .substring(3).split("\\.")[1].substring(0,3);
-
-                                Log.e("HFApiResponse", following+followers+favourites);
-
-                                postList.add(new Post(
-                                        post.getString("description"),
-                                        post.getString("time_text"),
-                                        post.getString("username"),
-                                        post.getString("avatar"),
-                                        postImageLink+"."+extension,
-                                        post.getString("likes"),
-                                        post.getString("comments"),
-                                        post.getString("is_liked"),
-                                        post.getString("is_saved"),
-                                        post.getString("post_id"),
-                                        post.getString("user_id"),
-                                        name, following, followers,
-                                        favourites, about, website,
-                                        isFollowing
-                                ));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                refreshLayout.finishRefreshing();
-                                PostAdapter adapter = new PostAdapter(getContext(),
-                                        postList,
-                                        getActivity().getIntent().getStringExtra("access_token"), user_id);
-                                recycler_view.setAdapter(adapter);
-                            }
-                        });
-                    }
-                });
-
-            }
-        });
-
-        imageButtonChat.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO: Probar de mensajería
-                    Intent intentComments = new Intent(getActivity().getApplicationContext(), FollowersActivity.class);
-                    intentComments.putExtra("function", "chat");
-                    intentComments.putExtra("access_token", access_token);
-                    getActivity().getApplicationContext().startActivity(intentComments);
-                }
-            });
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getActivity().getIntent();
@@ -360,6 +245,122 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                         recycler_view.setAdapter(adapter);
                     }
                 });
+            }
+        });
+
+        refreshLayout.setOnRefreshListener(new LiquidRefreshLayout.OnRefreshListener() {
+            @Override
+            public void completeRefresh() {
+            }
+
+            @Override
+            public void refreshing() {
+                postList.clear();
+                //Iniciamos la solicitud para obtener los datos del usuario
+                OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("access_token",access_token)
+                        .build();
+
+                okhttp3.Request UserPostsRequest = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/post/fetch_home_posts")
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("ApiResponse", mMessage);
+                        JSONObject array = null;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONArray data = array.getJSONArray("data");
+
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject post = data.getJSONObject(i);
+                                JSONObject userData = post.getJSONObject("user_data");
+
+                                name = userData.getString("name");
+                                following = userData.getString("following");
+                                followers = userData.getString("followers");
+                                favourites = userData.getString("favourites");
+                                fname = userData.getString("fname");
+                                lname = userData.getString("lname");
+                                about = userData.getString("about");
+                                website = userData.getString("website");
+                                isFollowing = userData.getString("following");
+
+                                JSONArray postMedia = post.getJSONArray("media_set");
+                                String postImageLink = postMedia.getString(0).split("diy")[1]
+                                        .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                                String extension = postMedia.getString(0).split("diys")[1]
+                                        .substring(3).split("\\.")[1].substring(0,3);
+
+                                Log.e("HFApiResponse", following+followers+favourites);
+
+                                postList.add(new Post(
+                                        post.getString("description"),
+                                        post.getString("time_text"),
+                                        post.getString("username"),
+                                        post.getString("avatar"),
+                                        postImageLink+"."+extension,
+                                        post.getString("likes"),
+                                        post.getString("comments"),
+                                        post.getString("is_liked"),
+                                        post.getString("is_saved"),
+                                        post.getString("post_id"),
+                                        post.getString("user_id"),
+                                        name, following, followers,
+                                        favourites, about, website,
+                                        isFollowing
+                                ));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.finishRefreshing();
+                                PostAdapter adapter = new PostAdapter(getContext(),
+                                        postList,
+                                        getActivity().getIntent().getStringExtra("access_token"), user_id);
+                                recycler_view.setAdapter(adapter);
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
+
+        imageButtonChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentComments = new Intent(getActivity().getApplicationContext(), FollowersActivity.class);
+                intentComments.putExtra("function", "chat");
+                intentComments.putExtra("access_token", access_token);
+                intentComments.putExtra("user_id", user_id);
+                startActivity(intentComments);
             }
         });
 

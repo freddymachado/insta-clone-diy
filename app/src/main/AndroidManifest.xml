@@ -23,6 +23,12 @@
             android:name=".ui.EditActivity"
             android:exported="true" />
         <activity
+            android:name=".ui.ChatActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.SalaChatActivity"
+            android:exported="true" />
+        <activity
             android:name=".ui.SettingsActivity"
             android:exported="true"
             android:label="@string/title_activity_settings" />

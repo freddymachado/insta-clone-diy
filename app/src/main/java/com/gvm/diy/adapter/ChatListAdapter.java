@@ -9,8 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.R;
 import com.gvm.diy.models.ChatList;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,14 +43,23 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
 
         ChatList chat = chatList.get(position);
 
-        String userName = chat.getTipo();
-        String mensaje = chat.getMensaje();
-        String hora = chat.getHora();
-        id = chat.getId();
+        String userName = chat.getUsername();
+        String mensaje = chat.getLast_message();
+        String hora = chat.getTime();
+        id = chat.getUser_id();
+
+        try{
+            Glide.with(context).load(chat.getAvatar())
+                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                    .into(holder.roundedImageViewProfile);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         holder.textViewUserName.setText(userName);
         holder.textViewHora.setText(hora);
         holder.textViewMensaje.setText(mensaje);
+        holder.textViewNumber.setText(chat.getNew_message());
     }
 
     //Devuelve el numero de items
@@ -64,18 +76,21 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
 
         TextView textViewUserName;
         TextView textViewHora;
-        TextView textViewMensaje;
+        TextView textViewMensaje, textViewNumber;
+        RoundedImageView roundedImageViewProfile;
         public ChatListViewHolder(@NonNull View itemView) {
             super(itemView);
 
             textViewUserName = itemView.findViewById(R.id.text_message_name);
             textViewHora = itemView.findViewById(R.id.text_message_time);
             textViewMensaje = itemView.findViewById(R.id.text_message_body);
+            roundedImageViewProfile = itemView.findViewById(R.id.image_message_profile);
+            textViewNumber = itemView.findViewById(R.id.textViewNumber);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    selectedChat.selectedChat(chatList.get(getAdapterPosition()), id);
+                    selectedChat.selectedChat(chatList.get(getAdapterPosition()), chatList.get(getAdapterPosition()).getUser_id());
                 }
             });
         }

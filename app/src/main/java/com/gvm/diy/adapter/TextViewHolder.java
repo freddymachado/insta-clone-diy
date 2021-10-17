@@ -5,6 +5,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.gvm.diy.R;
+import com.gvm.diy.models.TextItem;
+import com.gvm.diy.models.TimelineItem;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

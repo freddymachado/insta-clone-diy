@@ -6,25 +6,26 @@ public class MensajeEnviar extends Mensaje {
     private String id;
     private String emisor;
     private String receptor;
-    private Map hora;
+    private Long hora;
 
     public MensajeEnviar() {
     }
 
-    public MensajeEnviar(Map hora) {
+    public MensajeEnviar(Long hora) {
         this.hora = hora;
     }
 
-    public MensajeEnviar(String mensaje, String tipo, String urlFoto, Map hora) {
+    public MensajeEnviar(String mensaje, String tipo, String urlFoto, Long hora) {
         super(mensaje, tipo, urlFoto);
         this.hora = hora;
     }
 
-    public Map getHora() {
+
+    public Long getHora() {
         return hora;
     }
 
-    public MensajeEnviar(String mensaje, String tipo, String id, String emisor, String receptor, Map hora) {
+    public MensajeEnviar(String mensaje, String tipo, String id, String emisor, String receptor, Long hora) {
         super(mensaje, tipo);
         this.id = id;
         this.emisor = emisor;
@@ -56,11 +57,11 @@ public class MensajeEnviar extends Mensaje {
         this.receptor = receptor;
     }
 
-    public void setHora(Map hora) {
+    public void setHora(Long hora) {
         this.hora = hora;
     }
 
-    public MensajeEnviar(String mensaje, String tipo, Map hora) {
+    public MensajeEnviar(String mensaje, String tipo, Long hora) {
         super(mensaje, tipo);
         this.hora = hora;
     }

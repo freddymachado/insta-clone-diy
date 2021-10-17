@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,38 +18,45 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
-
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.AdaptadorChat;
+import com.gvm.diy.fragments.UploadFragment;
 import com.gvm.diy.models.ChatList;
+import com.gvm.diy.models.MensajeEnviar;
+import com.gvm.diy.models.MensajeRecibido;
 import com.gvm.diy.models.TimelineItem;
+import com.madapps.liquid.LiquidRefreshLayout;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class ChatActivity extends AppCompatActivity{
 
-    TextView textViewSoporte;
+    TextView textViewTitle;
 
     String lastMessage, userName = "cargando..", TAG = "fcm";
 
@@ -58,17 +66,17 @@ public class ChatActivity extends AppCompatActivity{
 
     EditText editTextChat;
 
-    String id, token;
+    String id, token, username;
 
     RecyclerView recyclerChat;
 
     int ADMIN = 1, USER = 2;
 
-    private AdaptadorChat adapter;
-
-    private ImageButton imageButtonId;
+    private ImageButton imageButtonId, imageButtonBack, imageButtonMore;
 
     private static final int PHOTO_SENT = 1;
+
+    private AdaptadorChat adapter;
 
     private Boolean chatIniciado = false;
 
@@ -79,15 +87,140 @@ public class ChatActivity extends AppCompatActivity{
 
     String adminid = "aminid";
 
+    ProgressBar progressBar;
+
+    LiquidRefreshLayout refreshLayout;
+
+    String access_token,hash, user_id, avatar, server_key = "1539874186", name, favourites, following, followers;
+
+    OkHttpClient client;
+    RequestBody requestBody, FollowBody;
+    Request UserPostsRequest, FollowRequest, request;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         //Inicio del setLayout8
 
+        editTextChat = findViewById(R.id.editTextChat);
+
+        recyclerChat = findViewById(R.id.recyclerChat);
+
+        textViewTitle = findViewById(R.id.textViewTitle);
+
+        buttonChat = findViewById(R.id.buttonChat);
+
+        imageButtonId = findViewById(R.id.imageButtonId);
+        imageButtonBack = findViewById(R.id.imageButtonBack);
+        imageButtonMore = findViewById(R.id.imageButtonMore);
+
+        progressBar = findViewById(R.id.progressBar);
+        refreshLayout = findViewById(R.id.refreshLayout);
+        recyclerChat = findViewById(R.id.recyclerChat);
+
         Intent intent = getIntent();
         access_token = intent.getStringExtra("access_token");
         user_id = intent.getStringExtra("user_id");
+
+        adapter = new AdaptadorChat(this,mData);
+        LinearLayoutManager l = new LinearLayoutManager(this);
+        recyclerChat.setLayoutManager(l);
+        recyclerChat.setAdapter(adapter);
+
+        client = new OkHttpClient().newBuilder().build();
+        requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("server_key",server_key)
+                .addFormDataPart("user_id",user_id)
+                .addFormDataPart("access_token",access_token)
+                .build();
+
+        android.app.AlertDialog.Builder builder;
+        builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Post")
+                .setItems(new String[]{"Bloquear","Limpiar Chat"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                progressBar.setVisibility(View.VISIBLE);
+                                //TODO: Probar cuando pueda debuggear con varios users
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/user/block")
+                                        .post(requestBody)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressBar.setVisibility(View.GONE);
+                                                Toast.makeText(ChatActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressBar.setVisibility(View.GONE);
+                                                Toast.makeText(ChatActivity.this, "usuario bloqueado", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
+                                break;
+                            case 1:
+                                progressBar.setVisibility(View.VISIBLE);
+                                //TODO: Probar
+                                request = new Request.Builder()
+                                        .url("https://diys.co/endpoints/v1/messages/clear_messages")
+                                        .post(requestBody)
+                                        .build();
+
+                                client.newCall(request).enqueue(new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        String mMessage = e.getMessage().toString();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressBar.setVisibility(View.GONE);
+                                                Toast.makeText(ChatActivity.this, "Error de red: " + mMessage, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                        Log.e("failure Response", mMessage);
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String mMessage = response.body().string();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mData.clear();
+                                                progressBar.setVisibility(View.GONE);
+                                                adapter.notifyItemInserted(adapter.getItemCount());
+                                                recyclerChat.smoothScrollToPosition(adapter.getItemCount());
+                                            }
+                                        });
+                                        Log.e("Like Response", mMessage);
+                                    }
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
 
         //Iniciamos la solicitud para obtener los datos del usuario
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -108,7 +241,7 @@ public class ChatActivity extends AppCompatActivity{
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                getActivity().runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
@@ -126,19 +259,26 @@ public class ChatActivity extends AppCompatActivity{
                 JSONObject array = null;
                 try {
                     array = new JSONObject(mMessage);
-                    JSONArray data = array.getJSONArray("data");
+                    JSONObject data = array.getJSONObject("data");
+                    JSONObject user_data = array.getJSONObject("user_data");
+                    JSONArray messages = array.getJSONArray("messages");
+
+                    avatar = user_data.getString("avatar");
+                    username = user_data.getString("username");
 
                     //TODO: Dependiendo de si el mensaje es recibido o enviado, se coloca MensajeRecibido
                     //o TextItem al TimelineItem respectivamente.
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject post = data.getJSONObject(i);
-                        Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
+                    for (int i = 0; i < messages.length(); i++) {
+                        JSONObject message = messages.getJSONObject(i);
+                        Log.e("ApiResponse", user_data.getString("avatar")+user_data.getString("username"));
                         mData.add(new TimelineItem(new MensajeRecibido(
-                                post.getString("message"),
-                                post.getString("user_id"),
-                                post.getString("avatar"),
-                                post.getString("time_text")
-                                ),
+                                message.getString("text"),
+                                user_id,
+                                avatar,
+                                message.getLong("time"),
+                                message.getInt("to_id"),
+                                message.getInt("from_id")
+                                )
                         ));
                     }
 /*
@@ -160,11 +300,13 @@ public class ChatActivity extends AppCompatActivity{
 */
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    Log.e("causaException",e.getCause().toString());
                 }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
+                        textViewTitle.setText(username);
                         adapter.notifyItemInserted(adapter.getItemCount());
                         recyclerChat.smoothScrollToPosition(adapter.getItemCount());
                     }
@@ -179,16 +321,16 @@ public class ChatActivity extends AppCompatActivity{
 
             @Override
             public void refreshing() {
-                followItems.clear();
+                mData.clear();
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         String mMessage = e.getMessage().toString();
-                        getActivity().runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 refreshLayout.finishRefreshing();
-                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
                             }
                         });
                         //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
@@ -204,33 +346,32 @@ public class ChatActivity extends AppCompatActivity{
                             array = new JSONObject(mMessage);
                             JSONArray data = array.getJSONArray("data");
 
+                            //TODO: Dependiendo de si el mensaje es recibido o enviado, se coloca MensajeRecibido
+                            //o TextItem al TimelineItem respectivamente.
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
                                 Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
-                                followItems.add(new FollowItem(
-                                        post.getString("avatar"),
-                                        post.getString("time_text"),
-                                        post.getString("username"),
-                                        post.getString("is_following"),
+                                mData.add(new TimelineItem(new MensajeRecibido(
+                                        post.getString("message"),
                                         post.getString("user_id"),
-                                        post.getString("about"),
-                                        post.getString("website"),
-                                        post.getString("followers"),
-                                        post.getString("following"),
-                                        post.getString("favorites"),
-                                        post.getString("name")
+                                        post.getString("avatar"),
+                                        post.getLong("time")
+                                )
                                 ));
+                                username = post.getString("username");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        getActivity().runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 refreshLayout.finishRefreshing();
-                                FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(),
-                                        followItems,access_token);
-                                recycler_view.setAdapter(adapter);
+
+                                textViewTitle.setText(username);
+                                progressBar.setVisibility(View.GONE);
+                                adapter.notifyItemInserted(adapter.getItemCount());
+                                recyclerChat.smoothScrollToPosition(adapter.getItemCount());
                             }
                         });
                     }
@@ -243,41 +384,83 @@ public class ChatActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
 
-                //Si el mensaje es enviado desde un perfil de usuario..
-                if(whoIsSendingMessages==USER){
-                    reference.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"1", ServerValue.TIMESTAMP));
-                    historial.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"1", ServerValue.TIMESTAMP));
-                    notificaciones.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"1",
-                            "jfhk8ygQOXbE7DDt8ql5fUNxPH43", userName, "admin", ServerValue.TIMESTAMP));
+                //Iniciamos la solicitud para obtener los datos del usuario
+                OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("server_key",server_key)
+                        .addFormDataPart("access_token",access_token)
+                        .addFormDataPart("user_id",user_id)
+                        .addFormDataPart("text",editTextChat.getText().toString())
+                        .build();
+
+                okhttp3.Request UserPostsRequest = new Request.Builder()
+                        .url("https://diys.co/endpoints/v1/messages/send_message")
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(UserPostsRequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        String mMessage = e.getMessage().toString();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
+                        Log.e("failure Response", mMessage);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        final String mMessage = response.body().string();
+                        Log.e("ChatResponse", mMessage);
+                        JSONObject array = null;
+                        Long ts = System.currentTimeMillis()/1000;
+                        try {
+                            array = new JSONObject(mMessage);
+                            JSONArray data = array.getJSONArray("data");
+
+                            mData.add(new TimelineItem(new MensajeRecibido(
+                                    editTextChat.getText().toString(),
+                                    user_id,
+                                    "",
+                                    ts
+                            )
+                            ));
 /*
-                    //Creamos un Intent para iniciar la clase que contiene el servicio de notificaciones
-                    Intent serviceIntent = new Intent(ChatActivity.this, NotificacionesServicio.class);
+                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
+                //Si el mensaje es enviado por el admin
+                if(m.getTipo().equals("3")){
 
-                    //Enviamos el id del chat
-                    serviceIntent.putExtra("id",id);
-                    serviceIntent.putExtra("lastMessage", (Serializable) mData);
-                    serviceIntent.putExtra("currentUser", "user");
-                    Log.d("lastMessage", lastMessage);
-                    //NotificacionesServicio.enqueueWork(ChatActivity.this,serviceIntent);
-                    */
+                    TextItem textItem = snapshot.getValue(TextItem.class);
+                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
+                    mData.add(textTimelineItem2);
+                    lastMessage = m.getMensaje();
+                    Log.d("lastmessage", lastMessage);
 
                 }else{
-                    reference.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"3", ServerValue.TIMESTAMP));
-                    historial.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"3", ServerValue.TIMESTAMP));
-                    notificaciones.push().setValue(new MensajeEnviar(editTextChat.getText().toString(),"3",
-                            id, "admin", userName, ServerValue.TIMESTAMP));
-/*
-                    //Creamos un Intent para iniciar la clase que contiene el servicio de notificaciones
-                    Intent serviceIntent = new Intent(ChatActivity.this, NotificacionesServicio.class);
-
-                    //Enviamos el id del chat
-                    serviceIntent.putExtra("id",id);
-                    serviceIntent.putExtra("lastMessage", (Serializable) mData);
-                    serviceIntent.putExtra("currentUser", "admin");
-                    Log.d("lastMessage", lastMessage);
-                    //NotificacionesServicio.enqueueWork(ChatActivity.this,serviceIntent);*/
+                    TimelineItem textTimelineItem2 = new TimelineItem(m);
+                    mData.add(textTimelineItem2);
+                    //metodo que chequea si el mensaje contiene un nombre de usuario
                 }
+*/
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.notifyItemInserted(adapter.getItemCount());
+                                recyclerChat.smoothScrollToPosition(adapter.getItemCount());
+                            }
+                        });
+                    }
+                });
                 recyclerChat.smoothScrollToPosition(adapter.getItemCount());
                 editTextChat.setText("");
             }
@@ -293,7 +476,7 @@ public class ChatActivity extends AppCompatActivity{
             }
         });
 
-        buttonSalir.setOnClickListener(new View.OnClickListener() {
+        imageButtonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //startActivity(new Intent(ChatActivity.this,SalaChatActivity.class));
@@ -307,203 +490,6 @@ public class ChatActivity extends AppCompatActivity{
             }
         });    private void */
 
-        //Al cerrar el ticket guardamos la bd en el nodo historial del usuario y finalizamos la actividad
-       buttonCerrar.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-
-               reference.setValue(null);
-
-               //Si el usuario actual es admin..
-               if (whoIsSendingMessages == ADMIN) {
-                   //Regresamos la Sala de chats
-                   startActivity(new Intent(ChatActivity.this,SalaChatActivity.class));
-               }
-               finish();
-           }
-       });
-
-        buttonActivar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //Si el usuario actual es admin..
-                if (whoIsSendingMessages == ADMIN) {
-                    //Nos dirijimos al panel admin con el id del user
-                    startActivity(new Intent(ChatActivity.this,ProfileAdminActivity.class).putExtra("userId",id));
-                }
-                finish();
-            }
-        });
-    }
-
-    private void setLayout8() {
-        textViewSoporte = findViewById(R.id.textViewSoporte);
-
-        imageViewLogo = findViewById(R.id.imageViewLogo);
-
-        editTextChat = findViewById(R.id.editTextChat);
-
-        recyclerChat = findViewById(R.id.recyclerChat);
-
-        buttonSalir = findViewById(R.id.buttonSalir);
-        buttonChat = findViewById(R.id.buttonChat);
-        buttonCerrar = findViewById(R.id.buttonCerrar);
-        buttonActivar = findViewById(R.id.buttonActivar);
-
-        imageButtonId = findViewById(R.id.imageButtonId);
-    }
-
-    private String findReceptorToken(String id) {
-
-        //Creo la conexión con la base de datos Usuarios
-        database.child("Usuarios").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                String aux = dataSnapshot.child("fcm").getValue().toString();
-
-                token=aux;
-                Log.d("Receptor Token", "onDataChange: "+token);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        return token;
-
 
     }
-
-    private void sendRegistrationToServer(String token) {
-
-            //Declaro el HashMap tokenMap
-            final Map<String, Object> tokenMap = new HashMap<>();
-            tokenMap.put("fcm",token);
-
-            //Actualizo la base de datos
-            database.child("Usuarios").child(auth.getCurrentUser().getUid()).updateChildren(tokenMap);
-
-
-    }
-
-    private void showAlert(){
-        //Instanciamos el AlertDialog Builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
-
-        //Agregamos los items de las categorias
-        final CharSequence[] categorias = {
-                "Activar Plan 1 Pantalla",
-                "Activar Plan 2 Pantallas",
-                "Activar Plan 4 Pantallas",
-                "Informar Pago",
-                "Consulta General",
-                "Reportar un problema"};
-
-        //Configuramos las propiedades
-        builder.setTitle("Indíque una categoría:").setItems(categorias, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch (categorias[i].toString()){
-                    case "Activar Plan 1 Pantalla":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan1,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan1,"3", ServerValue.TIMESTAMP));
-                        break;
-                    case "Activar Plan 2 Pantallas":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan2,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan2,"3", ServerValue.TIMESTAMP));
-                        break;
-                    case "Activar Plan 4 Pantallas":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan4,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoPlan4,"3", ServerValue.TIMESTAMP));
-                        break;
-                    case "Informar Pago":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoPago,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoPago,"3", ServerValue.TIMESTAMP));
-                        break;
-                    case "Consulta General":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoGeneral,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoGeneral,"3", ServerValue.TIMESTAMP));
-                        break;
-                    case "Reportar un problema":
-                        reference.push().setValue(new MensajeEnviar(mensajeAutomaticoProblema,"3", ServerValue.TIMESTAMP));
-                        historial.push().setValue(new MensajeEnviar(mensajeAutomaticoProblema,"3", ServerValue.TIMESTAMP));
-                        break;
-
-
-                    default:
-                        break;
-                }
-            }
-        });
-        //Creamos el dialog
-        alertDialog = builder.create();
-        alertDialog.show();
-        Log.d("chatExists","chatdoesnotexisst");
-    }
-
-    private boolean chatExists(String id) {
-
-        //Establezco una conexión con la base de datos del usuario para determinar si ha iniciado un chat o no.
-        database.child("Usuarios").child(id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot2) {
-
-                //Rescatamos el nombre de usuario
-                String user = dataSnapshot2.child("name").getValue().toString();
-
-                userName = user;
-                //Si no se ha abierto un ticket...
-                if(!dataSnapshot2.child("chat").exists()){
-                    //... mostramos el chooser
-                    showAlert();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        return  true;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PHOTO_SENT && resultCode == RESULT_OK){
-            Uri u = data.getData();
-            storageReference = storage.getReference("imagenesChat");
-            assert u != null;
-            final StorageReference fotoReferencia = storageReference.child(u.getLastPathSegment());
-            fotoReferencia.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Task<Uri> u = taskSnapshot.getStorage().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Uri> task) {
-                            String downloadUri = task.getResult().toString();
-                            Log.d("Uri",downloadUri);
-
-                            if(whoIsSendingMessages==USER){
-                                MensajeEnviar m = new MensajeEnviar(userName+" te ha enviado una foto","2",downloadUri,ServerValue.TIMESTAMP);
-                                reference.push().setValue(m);
-                                historial.push().setValue(m);
-                                notificaciones.push().setValue(new MensajeEnviar(userName+" te ha enviado una foto","2", "jfhk8ygQOXbE7DDt8ql5fUNxPH43", userName, "admin", ServerValue.TIMESTAMP));
-
-                            }else{
-                                MensajeEnviar m = new MensajeEnviar("Te han enviado una foto","3",downloadUri,ServerValue.TIMESTAMP);
-                                reference.push().setValue(m);
-                                historial.push().setValue(m);
-
-                            }
-                        }
-                    });
-                }
-            });
-        }
-    }
-
 }
