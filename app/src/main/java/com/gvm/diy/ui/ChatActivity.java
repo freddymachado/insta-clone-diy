@@ -271,15 +271,28 @@ public class ChatActivity extends AppCompatActivity{
                     for (int i = 0; i < messages.length(); i++) {
                         JSONObject message = messages.getJSONObject(i);
                         Log.e("ApiResponse", user_data.getString("avatar")+user_data.getString("username"));
-                        mData.add(new TimelineItem(new MensajeRecibido(
-                                message.getString("text"),
-                                user_id,
-                                avatar,
-                                message.getLong("time"),
-                                message.getInt("to_id"),
-                                message.getInt("from_id")
-                                )
-                        ));
+                        if(message.getInt("from_id")==Integer.parseInt(user_id)){
+                            mData.add(new TimelineItem(new TextItem(
+                                    message.getString("text"),
+                                    user_id,
+                                    avatar,
+                                    message.getLong("time"),
+                                    message.getInt("to_id"),
+                                    message.getInt("from_id")
+                                    )
+                            ));
+
+                        }else{
+                            mData.add(new TimelineItem(new MensajeRecibido(
+                                    message.getString("text"),
+                                    user_id,
+                                    avatar,
+                                    message.getLong("time"),
+                                    message.getInt("to_id"),
+                                    message.getInt("from_id")
+                                    )
+                            ));
+                        }
                     }
 /*
                 MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
@@ -350,16 +363,29 @@ public class ChatActivity extends AppCompatActivity{
                             //o TextItem al TimelineItem respectivamente.
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
-                                Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
-                                mData.add(new TimelineItem(new MensajeRecibido(
-                                        post.getString("message"),
-                                        post.getString("user_id"),
-                                        post.getString("avatar"),
-                                        post.getLong("time")
-                                )
-                                ));
-                                username = post.getString("username");
-                            }
+                                Log.e("ApiResponse", user_data.getString("avatar")+user_data.getString("username"));
+                                if(message.getInt("from_id")==Integer.parseInt(user_id)){
+                                    mData.add(new TimelineItem(new TextItem(
+                                            message.getString("text"),
+                                            user_id,
+                                            avatar,
+                                            message.getLong("time"),
+                                            message.getInt("to_id"),
+                                            message.getInt("from_id")
+                                            )
+                                    ));
+
+                                }else{
+                                    mData.add(new TimelineItem(new MensajeRecibido(
+                                            message.getString("text"),
+                                            user_id,
+                                            avatar,
+                                            message.getLong("time"),
+                                            message.getInt("to_id"),
+                                            message.getInt("from_id")
+                                            )
+                                    ));
+                                }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
