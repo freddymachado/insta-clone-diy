@@ -21,8 +21,8 @@ public class TextViewHolder extends BaseViewHolder {
     public void setData(TimelineItem item) {
 
         TextItem textItem = item.getTextItem();
-        mensaje.setText(textItem.getMensaje());
-        Long codigoHora = textItem.getHora();
+        mensaje.setText(textItem.getText());
+        Long codigoHora = textItem.getTime();
         Date d = new Date(codigoHora);
         SimpleDateFormat today = new SimpleDateFormat("hh:mm a");//a = pm o am
         hora.setText(today.format(d));

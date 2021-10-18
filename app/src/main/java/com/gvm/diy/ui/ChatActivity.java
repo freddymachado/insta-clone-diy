@@ -31,6 +31,7 @@ import com.gvm.diy.fragments.UploadFragment;
 import com.gvm.diy.models.ChatList;
 import com.gvm.diy.models.MensajeEnviar;
 import com.gvm.diy.models.MensajeRecibido;
+import com.gvm.diy.models.TextItem;
 import com.gvm.diy.models.TimelineItem;
 import com.madapps.liquid.LiquidRefreshLayout;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -260,8 +261,8 @@ public class ChatActivity extends AppCompatActivity{
                 try {
                     array = new JSONObject(mMessage);
                     JSONObject data = array.getJSONObject("data");
-                    JSONObject user_data = array.getJSONObject("user_data");
-                    JSONArray messages = array.getJSONArray("messages");
+                    JSONObject user_data = data.getJSONObject("user_data");
+                    JSONArray messages = data.getJSONArray("messages");
 
                     avatar = user_data.getString("avatar");
                     username = user_data.getString("username");
@@ -313,7 +314,6 @@ public class ChatActivity extends AppCompatActivity{
 */
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e("causaException",e.getCause().toString());
                 }
                 runOnUiThread(new Runnable() {
                     @Override
@@ -357,12 +357,17 @@ public class ChatActivity extends AppCompatActivity{
                         JSONObject array = null;
                         try {
                             array = new JSONObject(mMessage);
-                            JSONArray data = array.getJSONArray("data");
+                            JSONObject data = array.getJSONObject("data");
+                            JSONObject user_data = data.getJSONObject("user_data");
+                            JSONArray messages = data.getJSONArray("messages");
 
-                            //TODO: Dependiendo de si el mensaje es recibido o enviado, se coloca MensajeRecibido
+                            avatar = user_data.getString("avatar");
+                            username = user_data.getString("username");
+
+                            //TODO: Probar de si el mensaje es recibido o enviado, se coloca MensajeRecibido
                             //o TextItem al TimelineItem respectivamente.
-                            for (int i = 0; i < data.length(); i++) {
-                                JSONObject post = data.getJSONObject(i);
+                            for (int i = 0; i < messages.length(); i++) {
+                                JSONObject message = messages.getJSONObject(i);
                                 Log.e("ApiResponse", user_data.getString("avatar")+user_data.getString("username"));
                                 if(message.getInt("from_id")==Integer.parseInt(user_id)){
                                     mData.add(new TimelineItem(new TextItem(
@@ -372,7 +377,7 @@ public class ChatActivity extends AppCompatActivity{
                                             message.getLong("time"),
                                             message.getInt("to_id"),
                                             message.getInt("from_id")
-                                            )
+                                    )
                                     ));
 
                                 }else{
@@ -383,9 +388,27 @@ public class ChatActivity extends AppCompatActivity{
                                             message.getLong("time"),
                                             message.getInt("to_id"),
                                             message.getInt("from_id")
-                                            )
+                                    )
                                     ));
                                 }
+                            }
+/*
+                MensajeRecibido m = snapshot.getValue(MensajeRecibido.class);
+                //Si el mensaje es enviado por el admin
+                if(m.getTipo().equals("3")){
+
+                    TextItem textItem = snapshot.getValue(TextItem.class);
+                    TimelineItem textTimelineItem2 = new TimelineItem(textItem);
+                    mData.add(textTimelineItem2);
+                    lastMessage = m.getMensaje();
+                    Log.d("lastmessage", lastMessage);
+
+                }else{
+                    TimelineItem textTimelineItem2 = new TimelineItem(m);
+                    mData.add(textTimelineItem2);
+                    //metodo que chequea si el mensaje contiene un nombre de usuario
+                }
+*/
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

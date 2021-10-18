@@ -3,7 +3,12 @@ package com.gvm.diy.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadata;
+import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -41,7 +46,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -146,7 +153,11 @@ public class UploadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-                uploadImage(type);
+                try {
+                    uploadImage(type);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }
         });
@@ -212,7 +223,7 @@ public class UploadFragment extends Fragment {
         return itemView;
     }
 
-    private void uploadImage(String type) {
+    private void uploadImage(String type) throws IOException {
         if (resultUri == null){
             Log.i("nullUri",uriToFileName(resultUri));
             return;
@@ -313,6 +324,9 @@ public class UploadFragment extends Fragment {
                         public void run() {
                             Log.e("UploadResponse", mMessage);
                             progressBar.setVisibility(View.GONE);
+                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                            fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
+                            fragmentTransaction.commit();
                         }
                     });
                 }
@@ -325,12 +339,35 @@ public class UploadFragment extends Fragment {
             String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
             String videoName = videoFile.getName();
 
-            Log.i(TAG,videoFile.getName()+" "+mime+" "+uriToFileName(resultUri));
+            MediaMetadataRetriever mM = new MediaMetadataRetriever();
+            mM.setDataSource(getActivity().getApplicationContext(),resultUri);
+            Bitmap bitmap = mM.getFrameAtTime();
+
+            File bitmapFile = new File(getActivity().getApplicationContext().getCacheDir(),bitmap.toString());
+            bitmapFile.createNewFile();
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG,0,bos);
+            byte[] bitmapdata = bos.toByteArray();
+
+            FileOutputStream fos = new FileOutputStream(bitmapFile);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+
+            Uri thumbUri = Uri.fromFile(bitmapFile);
+            String thumbExtension = MimeTypeMap.getFileExtensionFromUrl(thumbUri.toString());
+            String thumbMime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(thumbExtension.toLowerCase());
+            String thumbName = bitmapFile.getName();
+
+            Log.i(TAG,thumbUri+" "+thumbMime+" "+thumbName+" "+thumbExtension);
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("server_key",server_key)
                     .addFormDataPart("caption",String.valueOf(editTextDescription.getText()))
                     .addFormDataPart("access_token",access_token)
+                    .addFormDataPart("thumb",thumbName,
+                            RequestBody.create(bitmapFile, MediaType.parse(thumbMime)))
                     .addFormDataPart("video",videoName,
                             RequestBody.create(videoFile,MediaType.parse(mime)))
                     .build();
@@ -407,12 +444,15 @@ public class UploadFragment extends Fragment {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     final String mMessage = response.body().string();
-
+                    Log.e("Upload Response", mMessage);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getActivity().getApplicationContext(), "Realizado", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
+                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                            fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
+                            fragmentTransaction.commit();
                         }
                     });
                 }
@@ -423,13 +463,47 @@ public class UploadFragment extends Fragment {
     }
 
     private String getPath(Uri resultUri) {
-        String[] projection = {MediaStore.Video.Media.DATA, MediaStore.Video.Media.SIZE, MediaStore.Video.Media.DURATION};
+        String filePath = null;
+        final boolean isKitkat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        if(isKitkat){
+            filePath = generateFromKitkat(resultUri,getActivity().getApplicationContext());
+        }
+        if(filePath!=null){
+            Log.e("filepath",filePath);
+            return filePath;
+        }
+        String[] projection = {MediaStore.MediaColumns.DATA};
         Cursor cursor = getActivity().getApplicationContext().getContentResolver().query(resultUri,projection,null,null,null);
         cursor.moveToFirst();
-        String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-        int fileSize = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
-        long duration = TimeUnit.MILLISECONDS.toSeconds(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)));
+        filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+        cursor.close();
+        Log.e("videoPath",filePath);
         return  filePath;
+    }
+
+    private String generateFromKitkat(Uri resultUri, Context applicationContext) {
+        String filePath = null;
+        if (DocumentsContract.isDocumentUri(applicationContext, resultUri)){
+            String wholeID = DocumentsContract.getDocumentId(resultUri);
+            Log.e("wholeID", wholeID);
+            // Split at colon, use second item in the array
+            String[] splits = wholeID.split(":");
+            if (splits.length == 2) {
+                String id = splits[1];
+
+                String[] column = {MediaStore.Video.Media.DATA};
+                // where id is equal to
+                String sel = MediaStore.Video.Media._ID + "=?";
+                Cursor cursor = applicationContext.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                        column, sel, new String[]{id}, null);
+                int columnIndex = cursor.getColumnIndex(column[0]);
+                if (cursor.moveToFirst()) {
+                    filePath = cursor.getString(columnIndex);
+                }
+                cursor.close();
+            }
+        }
+        return filePath;
     }
 
     private  String uriToFileName(Uri uri){
@@ -457,7 +531,7 @@ public class UploadFragment extends Fragment {
         String filePath = "";
         if (DocumentsContract.isDocumentUri(context, uri)) {
             String wholeID = DocumentsContract.getDocumentId(uri);
-            //Log.e("wholeID", wholeID);
+            Log.e("wholeID", wholeID);
             // Split at colon, use second item in the array
             String[] splits = wholeID.split(":");
             if (splits.length == 2) {
