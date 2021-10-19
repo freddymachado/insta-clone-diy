@@ -50,6 +50,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -293,6 +294,7 @@ public class UploadFragment extends Fragment {
 
                         }
                     })
+                    .readTimeout(2000, TimeUnit.MILLISECONDS)
                     .build();
             Request request = new Request.Builder()
                     .url("https://diys.co/endpoints/v1/post/new_post")
@@ -342,7 +344,7 @@ public class UploadFragment extends Fragment {
             MediaMetadataRetriever mM = new MediaMetadataRetriever();
             mM.setDataSource(getActivity().getApplicationContext(),resultUri);
             Bitmap bitmap = mM.getFrameAtTime();
-
+/**         Manera decodificando bitmap a byteArray y luego creando un archivo a partir de ello
             File bitmapFile = new File(getActivity().getApplicationContext().getCacheDir(),bitmap.toString());
             bitmapFile.createNewFile();
 
@@ -353,21 +355,21 @@ public class UploadFragment extends Fragment {
             FileOutputStream fos = new FileOutputStream(bitmapFile);
             fos.write(bitmapdata);
             fos.flush();
-            fos.close();
+            fos.close();*/
 
-            Uri thumbUri = Uri.fromFile(bitmapFile);
-            String thumbExtension = MimeTypeMap.getFileExtensionFromUrl(thumbUri.toString());
-            String thumbMime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(thumbExtension.toLowerCase());
-            String thumbName = bitmapFile.getName();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,stream);
+            byte[] byteArray = stream.toByteArray();
+            bitmap.recycle();
 
-            Log.i(TAG,thumbUri+" "+thumbMime+" "+thumbName+" "+thumbExtension);
+            Log.i(TAG," videoName:"+videoName+" byte:"+ Arrays.toString(byteArray) +" videoFile:"+videoFile);
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("server_key",server_key)
                     .addFormDataPart("caption",String.valueOf(editTextDescription.getText()))
                     .addFormDataPart("access_token",access_token)
-                    .addFormDataPart("thumb",thumbName,
-                            RequestBody.create(bitmapFile, MediaType.parse(thumbMime)))
+                    .addFormDataPart("thumb",videoName,
+                            RequestBody.create(byteArray, MediaType.parse("image/*png")))
                     .addFormDataPart("video",videoName,
                             RequestBody.create(videoFile,MediaType.parse(mime)))
                     .build();
