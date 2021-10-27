@@ -71,6 +71,12 @@ dependencies {
 
     implementation 'com.borjabravo:readmoretextview:2.1.0'
 
+    implementation 'com.github.eddydn:videoplayer:1.10'
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.8.4'
+
 
     implementation 'com.ramotion.circlemenu:circle-menu:0.3.2'
     implementation 'com.github.mukeshsolanki:liquidrefreshlayout:1.0.2'

@@ -56,13 +56,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
     String likess;
     public PostListener postListener;
 
-
     OkHttpClient client;
     RequestBody body;
     Request request;
 
     int Numberlikes;
-
 
     public PostAdapter(Context mContext, List<Post> mPosts, String accessToken, String current_user) {
         this.mContext = mContext;
