@@ -13,8 +13,10 @@
         <entry key="..\:/Users/Chucho/AndroidStudioProjects/diy/diy/app/src/main/res/layout/settings_activity.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/drawable/ic_volume_off_gray_24dp.xml" value="0.2203125" />
         <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/drawable/ic_volumen_on_gray_24dp.xml" value="0.2203125" />
-        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/layout_video_list_item.xml" value="0.1" />
-        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/post_item.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/activity_main.xml" value="0.20729166666666668" />
+        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/fragment_chat.xml" value="0.20729166666666668" />
+        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/layout_video_list_item.xml" value="0.18" />
+        <entry key="..\:/Users/Chucho/Documents/GitHub/diy/app/src/main/res/layout/post_item.xml" value="0.1" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round.xml" value="0.375" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round_black.xml" value="0.375" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DIYdev/DIY/app/src/main/res/drawable/bg_round_blue.xml" value="0.375" />

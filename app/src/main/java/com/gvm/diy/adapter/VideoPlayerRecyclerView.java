@@ -2,6 +2,7 @@ package com.gvm.diy.adapter;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Handler;
@@ -49,6 +50,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.gvm.diy.R;
 import com.gvm.diy.models.MediaObject;
+import com.gvm.diy.ui.FollowersActivity;
 
 
 import java.util.ArrayList;
@@ -83,7 +85,7 @@ public class VideoPlayerRecyclerView extends RecyclerView {
         super(context);
         init(context);
     }
-
+    //Constructor to invoke on layout
     public VideoPlayerRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
@@ -299,6 +301,7 @@ public class VideoPlayerRecyclerView extends RecyclerView {
             playPosition = -1;
             return;
         }
+        //
         thumbnail = holder.thumbnail;
         progressBar = holder.progressBar;
         volumeControl = holder.volumeControl;
@@ -312,12 +315,15 @@ public class VideoPlayerRecyclerView extends RecyclerView {
 
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
                 context, Util.getUserAgent(context, "RecyclerView VideoPlayer"));
-        String mediaUrl = mediaObjects.get(targetPosition).getMedia_url();
-        if (mediaUrl != null) {
+        String mediaUrl = mediaObjects.get(targetPosition).getFile();
+        //looks like we have to make this desition before calling init
+        if (mediaUrl != null && mediaUrl.split("\\.")[1].equals("mp4")) {
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(Uri.parse(mediaUrl));
+                    .createMediaSource(Uri.parse("https://diys.co/"+mediaUrl));
             videoPlayer.prepare(videoSource);
             videoPlayer.setPlayWhenReady(true);
+        }else{
+            return;
         }
     }
 
@@ -352,7 +358,6 @@ public class VideoPlayerRecyclerView extends RecyclerView {
             return screenDefaultHeight - location[1];
         }
     }
-
 
     // Remove the old player
     private void removeVideoView(PlayerView videoView) {

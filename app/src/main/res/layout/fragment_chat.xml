@@ -63,15 +63,19 @@
         app:AniForeColor="@color/colorBackground"
         app:CircleSmaller="6"
         android:layout_below="@+id/appBar">
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/recycler_view"
-                android:paddingEnd="15dp"
-                android:paddingStart="0dp"
-                android:paddingBottom="15dp"
-                android:clipToPadding="false"
-                android:layout_below="@+id/appBar"/>
+
+        <com.gvm.diy.adapter.VideoPlayerRecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view"
+            android:orientation="vertical"
+            android:paddingEnd="15dp"
+            android:paddingStart="0dp"
+            android:paddingBottom="15dp"
+            android:clipToPadding="false">
+
+        </com.gvm.diy.adapter.VideoPlayerRecyclerView>
+
     </com.madapps.liquid.LiquidRefreshLayout>
 
     <ProgressBar
