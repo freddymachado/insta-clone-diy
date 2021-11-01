@@ -69,9 +69,6 @@
             android:layout_height="match_parent"
             android:id="@+id/recycler_view"
             android:orientation="vertical"
-            android:paddingEnd="15dp"
-            android:paddingStart="0dp"
-            android:paddingBottom="15dp"
             android:clipToPadding="false">
 
         </com.gvm.diy.adapter.VideoPlayerRecyclerView>

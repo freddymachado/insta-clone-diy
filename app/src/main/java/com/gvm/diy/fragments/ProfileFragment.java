@@ -38,6 +38,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -616,30 +617,32 @@ public class ProfileFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                if(isAdded()){
+                    requireActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshLayout.finishRefreshing();
+                            if(followers.equals("false")){
+                                followers = "0";
+                            }
+                            if(following.equals("false")){
+                                following = "0";
+                            }
+                            if(favourites.equals("false")){
+                                favourites = "0";
+                            }
+                            textViewFullname.setText(name);
+                            textViewDescription.setText(about);
+                            textViewNumberFollowing.setText(following);
+                            textViewNumberFollowers.setText(followers);
+                            textViewNumberFavorites.setText(favourites);
+                            Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                    .into(imageViewProfile);
+                        }
+                    });
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshLayout.finishRefreshing();
-                        if(followers.equals("false")){
-                            followers = "0";
-                        }
-                        if(following.equals("false")){
-                            following = "0";
-                        }
-                        if(favourites.equals("false")){
-                            favourites = "0";
-                        }
-                        textViewFullname.setText(name);
-                        textViewDescription.setText(about);
-                        textViewNumberFollowing.setText(following);
-                        textViewNumberFollowers.setText(followers);
-                        textViewNumberFavorites.setText(favourites);
-                        Glide.with(getActivity().getApplicationContext()).load(avatar)
-                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                                .into(imageViewProfile);
-                    }
-                });
+                }
             }
         });
     }

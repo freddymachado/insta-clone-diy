@@ -48,7 +48,6 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:scaleType="center"
             android:id="@+id/media_container">
 
@@ -62,7 +61,6 @@
                     android:layout_height="0dp"
                     android:adjustViewBounds="true"
                     app:layout_constrainedHeight="true"
-                    android:scaleType="centerInside"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -77,8 +75,8 @@
                 android:id="@+id/volume_control"
                 android:alpha="0"
                 android:animateLayoutChanges="true"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="15dp"/>
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"/>
 
             <ProgressBar
                 android:layout_width="wrap_content"

@@ -342,7 +342,7 @@ public class NotificationsFragment extends Fragment {
 
                         mRecyclerView.setMediaObjects(mediaObjects);
                         VideoPlayerRecyclerAdapter adapter = new VideoPlayerRecyclerAdapter(mediaObjects,
-                                initGlide(),getActivity().getApplicationContext(), access_token);
+                                initGlide(),getContext(), access_token,user_id);
                         mRecyclerView.setAdapter(adapter);
                     }
                 });

@@ -572,20 +572,20 @@ public class FollowersActivity extends AppCompatActivity implements ChatListAdap
 
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject post = data.getJSONObject(i);
+                                JSONObject userData = post.getJSONObject("user_data");
                                 Log.e("ApiResponse", post.getString("avatar")+post.getString("time_text")+post.getString("username"));
                                 followItems.add(new FollowItem(
-                                        post.getString("avatar"),
+                                        userData.getString("avatar"),
                                         post.getString("time_text"),
-                                        post.getString("username"),
+                                        userData.getString("username"),
                                         post.getString("is_following"),
                                         "likes",
-                                        post.getString("about"),
-                                        post.getString("website"),
-                                        post.getString("followers"),
-                                        post.getString("following"),
-                                        post.getString("favorites"),
+                                        userData.getString("about"),
+                                        userData.getString("website"),
+                                        userData.getString("followers"),
+                                        userData.getString("following"),
+                                        userData.getString("favourites"),
                                         post.getString("name")
-
                                 ));
                             }
                         } catch (JSONException e) {

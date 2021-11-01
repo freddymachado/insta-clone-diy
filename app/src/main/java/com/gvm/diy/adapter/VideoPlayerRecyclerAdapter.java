@@ -36,14 +36,15 @@ public class VideoPlayerRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
     Context mContext;
     private ArrayList<MediaObject> mediaObjects;
     private RequestManager requestManager;
-    private String access_token;
+    private String access_token, current_user;
 
 
-    public VideoPlayerRecyclerAdapter(ArrayList<MediaObject> mediaObjects, RequestManager requestManager, Context mContext, String access_token) {
+    public VideoPlayerRecyclerAdapter(ArrayList<MediaObject> mediaObjects, RequestManager requestManager, Context mContext, String access_token, String current_user) {
         this.mediaObjects = mediaObjects;
         this.requestManager = requestManager;
         this.mContext = mContext;
         this.access_token = access_token;
+        this.current_user = current_user;
     }
 
     @NonNull
@@ -55,8 +56,9 @@ public class VideoPlayerRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        ((VideoPlayerViewHolder)viewHolder).onBind(mediaObjects.get(i), requestManager,mContext,access_token);/*
+        ((VideoPlayerViewHolder)viewHolder).onBind(mediaObjects.get(i), requestManager,mContext,access_token,current_user);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        /*
         if(current_user.equals(mediaObjects.get(i).getUser_id())){
             builder.setTitle("Post");
             builder.setItems(new String[]{"Borrar Post", "Editar Post", "Ir al Post", "Reportar Post", "Copiar"}, new DialogInterface.OnClickListener() {
@@ -254,10 +256,10 @@ public class VideoPlayerRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
 
         }
-        viewHolder.itemView.imageButtonMore.setOnClickListener(new View.OnClickListener() {
+        viewHolder.imageButtonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                builder.show();
+                edmt.dev.videoplayer.VideoPlayerViewHolder.builder.show();
             }
         });*/
     }

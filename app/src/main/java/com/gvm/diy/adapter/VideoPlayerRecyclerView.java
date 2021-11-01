@@ -81,6 +81,8 @@ public class VideoPlayerRecyclerView extends RecyclerView {
     // controlling playback state
     private VolumeState volumeState;
 
+    private Boolean isVideo = false;
+
     public VideoPlayerRecyclerView(@NonNull Context context) {
         super(context);
         init(context);
@@ -90,7 +92,6 @@ public class VideoPlayerRecyclerView extends RecyclerView {
         super(context, attrs);
         init(context);
     }
-
 
     private void init(Context context){
         this.context = context.getApplicationContext();
@@ -181,7 +182,7 @@ public class VideoPlayerRecyclerView extends RecyclerView {
 
                     case Player.STATE_BUFFERING:
                         Log.e(TAG, "onPlayerStateChanged: Buffering video.");
-                        if (progressBar != null) {
+                        if (progressBar != null && isVideo) {
                             progressBar.setVisibility(VISIBLE);
                         }
 
@@ -199,7 +200,7 @@ public class VideoPlayerRecyclerView extends RecyclerView {
                             progressBar.setVisibility(GONE);
                         }
                         if(!isVideoViewAdded){
-                            addVideoView();
+                            addVideoView(isVideo);
                         }
                         break;
                     default:
@@ -279,7 +280,6 @@ public class VideoPlayerRecyclerView extends RecyclerView {
             return;
         }
 
-        // set the position of the list-item that is to be played
         playPosition = targetPosition;
         if (videoSurfaceView == null) {
             return;
@@ -309,21 +309,23 @@ public class VideoPlayerRecyclerView extends RecyclerView {
         requestManager = holder.requestManager;
         frameLayout = holder.itemView.findViewById(R.id.media_container);
 
-        videoSurfaceView.setPlayer(videoPlayer);
 
-        viewHolderParent.setOnClickListener(videoViewClickListener);
 
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
                 context, Util.getUserAgent(context, "RecyclerView VideoPlayer"));
+
+        isVideo=false;
         String mediaUrl = mediaObjects.get(targetPosition).getFile();
-        //looks like we have to make this desition before calling init
+        Log.d(TAG, "mediaurl: "+mediaUrl);
         if (mediaUrl != null && mediaUrl.split("\\.")[1].equals("mp4")) {
+            videoSurfaceView.setPlayer(videoPlayer);
+            isVideo=true;
+            // set the position of the list-item that is to be played
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(Uri.parse("https://diys.co/"+mediaUrl));
             videoPlayer.prepare(videoSource);
             videoPlayer.setPlayWhenReady(true);
-        }else{
-            return;
+            thumbnail.setOnClickListener(videoViewClickListener);
         }
     }
 
@@ -375,13 +377,15 @@ public class VideoPlayerRecyclerView extends RecyclerView {
 
     }
 
-    private void addVideoView(){
-        frameLayout.addView(videoSurfaceView);
-        isVideoViewAdded = true;
-        videoSurfaceView.requestFocus();
-        videoSurfaceView.setVisibility(VISIBLE);
-        videoSurfaceView.setAlpha(1);
-        thumbnail.setVisibility(GONE);
+    private void addVideoView(Boolean isVideo){
+        if(isVideo){
+            frameLayout.addView(videoSurfaceView);
+            isVideoViewAdded = true;
+            videoSurfaceView.requestFocus();
+            videoSurfaceView.setVisibility(VISIBLE);
+            videoSurfaceView.setAlpha(1);
+            thumbnail.setVisibility(GONE);
+        }
     }
 
     private void resetVideoView(){
