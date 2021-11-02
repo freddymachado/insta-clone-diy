@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -26,6 +27,8 @@ import com.borjabravo.readmoretextview.ReadMoreTextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.models.MediaObject;
@@ -60,11 +63,12 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
     ReadMoreTextView description;
     ImageView imageViewLike, imageViewReply, imageViewComment, imageViewFav;
     RoundedImageView user_profile_image;
-    private String access_token, server_key = "1539874186", post_id, user_id, web,current_user;
+    String access_token, server_key = "1539874186", post_id, user_id, web,current_user;
     private String is_liked, is_saved, likes;
     RequestBody body;
     Request request;
     Boolean erased = false;
+    private Context mContext;
 
     public VideoPlayerViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -91,7 +95,6 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
     public void onBind(MediaObject mediaObject, RequestManager requestManager, Context mContext, String access_token, String current_user) {
         this.requestManager = requestManager;
         parent.setTag(this);
-        this.current_user = current_user;
         this.requestManager
                 .load("https://diys.co/"+mediaObject.getFile())
                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
@@ -100,6 +103,10 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
                 .load(mediaObject.getAvatar())
                 .apply(new RequestOptions().placeholder(R.drawable.placeholder))
                 .into(user_profile_image);
+
+        this.mContext = mContext;
+        this.access_token = access_token;
+        this.current_user = current_user;
 
         is_liked = mediaObject.getIs_liked();
         is_saved = mediaObject.getIs_saved();
@@ -344,33 +351,38 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
                 builder.show();
             }
         });
-/*
-        thumbnail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //postListener.postImageOnClick(v,position);
-                Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
-                intentPostViewer.putExtra("access_token", access_token);
-                intentPostViewer.putExtra("is_liked", is_liked);
-                intentPostViewer.putExtra("is_saved", is_saved);
-                intentPostViewer.putExtra("post_id", mediaObject.getPost_id());
-                intentPostViewer.putExtra("user_id", user_id);
-                intentPostViewer.putExtra("username", mediaObject.getUsername());
-                intentPostViewer.putExtra("avatar", mediaObject.getAvatar());
-                intentPostViewer.putExtra("post_image", "https://diys.co/"+mediaObject.getFile());
-                intentPostViewer.putExtra("description", mediaObject.getDescription());
-                intentPostViewer.putExtra("comment", mediaObject.getComments());
-                intentPostViewer.putExtra("likes", likes);
-                intentPostViewer.putExtra("web", web);
-                intentPostViewer.putExtra("name", mediaObject.getName());
-                intentPostViewer.putExtra("following", mediaObject.getFollowing());
-                intentPostViewer.putExtra("followers", mediaObject.getFollowers());
-                intentPostViewer.putExtra("favourites", mediaObject.getFavourites());
-                intentPostViewer.putExtra("about", mediaObject.getAbout());
-                intentPostViewer.putExtra("isFollowing", mediaObject.getIsFollowing());
-                mContext.startActivity(intentPostViewer);
-            }
-        });*/
+
+        String mediaUrl = mediaObject.getFile();
+        Log.d("viewHolder", "mediaurl: "+mediaUrl);
+        if (!mediaUrl.split("\\.")[1].equals("mp4")) {
+            thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //postListener.postImageOnClick(v,position);
+                    Intent intentPostViewer = new Intent(mContext, PostViewerActivity.class);
+                    intentPostViewer.putExtra("access_token", access_token);
+                    intentPostViewer.putExtra("is_liked", is_liked);
+                    intentPostViewer.putExtra("is_saved", is_saved);
+                    intentPostViewer.putExtra("post_id", mediaObject.getPost_id());
+                    intentPostViewer.putExtra("user_id", user_id);
+                    intentPostViewer.putExtra("username", mediaObject.getUsername());
+                    intentPostViewer.putExtra("avatar", mediaObject.getAvatar());
+                    intentPostViewer.putExtra("post_image", "https://diys.co/"+mediaObject.getFile());
+                    intentPostViewer.putExtra("description", mediaObject.getDescription());
+                    intentPostViewer.putExtra("comment", mediaObject.getComments());
+                    intentPostViewer.putExtra("likes", likes);
+                    intentPostViewer.putExtra("web", mediaObject.getWebsite());
+                    intentPostViewer.putExtra("name", mediaObject.getName());
+                    intentPostViewer.putExtra("following", mediaObject.getFollowing());
+                    intentPostViewer.putExtra("followers", mediaObject.getFollowers());
+                    intentPostViewer.putExtra("favourites", mediaObject.getFavourites());
+                    intentPostViewer.putExtra("about", mediaObject.getAbout());
+                    intentPostViewer.putExtra("isFollowing", mediaObject.getIsFollowing());
+                    intentPostViewer.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(intentPostViewer);
+                }
+            });
+        }
 
         imageViewComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -523,7 +535,7 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
             public void onClick(View v) {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
-                String message = mediaObject.getDescription()+"https://diys.co//post/"+post_id;
+                String message = "https://diys.co//post/"+post_id;
                 share.putExtra(Intent.EXTRA_SUBJECT,"App");
                 share.putExtra(Intent.EXTRA_TEXT,message);
                 mContext.startActivity(Intent.createChooser(share,"Compartir vía"));
@@ -549,20 +561,6 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
                 intentProfileViewer.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 mContext.startActivity(intentProfileViewer);
-            }
-        });
-
-        imageViewReply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("text/plain");
-                String message = description+"https://diys.co//post/"+mediaObject.getPost_id();
-                share.putExtra(Intent.EXTRA_SUBJECT,"App");
-                share.putExtra(Intent.EXTRA_TEXT,message);
-                share.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(Intent.createChooser(share,"Compartir vía"));
-
             }
         });
 

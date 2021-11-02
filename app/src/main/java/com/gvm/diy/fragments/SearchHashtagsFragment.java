@@ -150,8 +150,9 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(), followItems, access_token);
+        FollowAdapter adapter = new FollowAdapter(getContext(), followItems, access_token);
         recycler_view.setAdapter(adapter);
+        recycler_view.setVisibility(View.VISIBLE);
     }
 
 }

@@ -90,8 +90,8 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         //Debug:
-        textInputEditTextUser.setText("example_");
-        textInputEditTextPass.setText("12345678");
+        textInputEditTextUser.setText("FedeSan");
+        textInputEditTextPass.setText("eclipse42");
     }
 
 

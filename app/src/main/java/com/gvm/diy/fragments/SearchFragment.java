@@ -136,14 +136,16 @@ public class SearchFragment extends Fragment {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             String mMessage = e.getMessage().toString();
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressBar.setVisibility(View.GONE);
-                                    Toast.makeText(getActivity().getApplicationContext(),
-                                            "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                                }
-                            });
+                            if(isAdded()){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(getActivity().getApplicationContext(),
+                                                "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
                             //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
                             Log.e("failure Response", mMessage);
                         }
@@ -152,15 +154,27 @@ public class SearchFragment extends Fragment {
                         public void onResponse(Call call, okhttp3.Response response) throws IOException {
                             final String mMessage = response.body().string();
                             Log.e("SearchResponse", mMessage);
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    SearchUsersFragment searchUsersFragment = (SearchUsersFragment) viewPagerAdapter
-                                            .instantiateItem(viewPager,1);
-                                    progressBar.setVisibility(View.GONE);
-                                    searchUsersFragment.update(mMessage);
-                                }
-                            });
+                            if(isAdded()){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (viewPagerAdapter.getPageTitle(viewPager.getCurrentItem()).equals("USUARIOS")){
+                                            SearchUsersFragment searchUsersFragment = (SearchUsersFragment) viewPagerAdapter
+                                                    .instantiateItem(viewPager,1);
+                                            progressBar.setVisibility(View.GONE);
+                                            searchUsersFragment.update(mMessage);
+                                        }
+                                        else{
+                                            Log.e("HASHTAGS",editTextSearch.getText().toString());
+                                            SearchHashtagsFragment searchHashtagsFragment = (SearchHashtagsFragment) viewPagerAdapter
+                                                    .instantiateItem(viewPager,0);
+                                            progressBar.setVisibility(View.GONE);
+                                            searchHashtagsFragment.update(mMessage);
+
+                                        }
+                                    }
+                                });
+                            }
                                 /*
                                 JSONObject array = null;
                                 try {
@@ -223,12 +237,6 @@ public class SearchFragment extends Fragment {
                         }
                     });
                     Log.e("USUARIOS",editTextSearch.getText().toString());
-                    if (viewPagerAdapter.getPageTitle(viewPager.getCurrentItem()).equals("USUARIOS")){
-                    }
-                    else{
-                        Log.e("HASHTAGS",editTextSearch.getText().toString());
-
-                    }
                 }
                 return false;
             }

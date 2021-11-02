@@ -2,6 +2,7 @@ package com.gvm.diy.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
     String access_token,username, user_id, avatar, server_key = "1539874186", name, favourites, following,
             fname, lname, about, website, followers, is_liked, is_saved, post_id, likes, web;
 
-
     public ProfileAdapter(Context mContext, List<ProfileItem> profileItems) {
         this.mContext = mContext;
         this.profileItems = profileItems;
@@ -45,7 +45,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         this.mContext = mContext;
         this.profileItems2 = profileItems2;
         this.access_token = access_token;
-
     }
 
     @NonNull
@@ -80,6 +79,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
             likes = profileItem.getLikes();
             web = profileItem.getWebsite();
             //holder.setProfileImageView(profileItems2.get(position));
+        Log.e("ProfileAdapter",profileItems2.toString());
 
             try {
                 Glide.with(mContext).load("https://diys.co/" + profileItem.getFile())

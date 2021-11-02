@@ -19,15 +19,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
+import com.gvm.diy.adapter.VideoPlayerRecyclerAdapter;
+import com.gvm.diy.adapter.VideoPlayerRecyclerView;
+import com.gvm.diy.models.MediaObject;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
 import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.EditActivity;
 import com.gvm.diy.ui.SettingsActivity;
+import com.gvm.diy.utils.VerticalSpacingItemDecorator;
 import com.madapps.liquid.LiquidRefreshLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -79,10 +84,13 @@ public class ProfileFragment extends Fragment {
 
     PostAdapter adapterLinear;
     ProfileAdapter adapterGrid;
+    VideoPlayerRecyclerAdapter Videoadapter;
 
     LiquidRefreshLayout refreshLayout;
 
     ProgressBar progressBar;
+    ArrayList<MediaObject> mediaObjects;
+    private VideoPlayerRecyclerView mRecyclerView;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -110,6 +118,9 @@ public class ProfileFragment extends Fragment {
         refreshLayout = itemView.findViewById(R.id.refreshLayout);
 
         recycler_view = itemView.findViewById(R.id.recycler_view);
+        mRecyclerView = itemView.findViewById(R.id.recyclerView);
+        VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(10);
+        mRecyclerView.addItemDecoration(itemDecorator);
 
         progressBar = itemView.findViewById(R.id.progressBar);
 
@@ -119,6 +130,7 @@ public class ProfileFragment extends Fragment {
         recycler_view.setHasFixedSize(true);
         recycler_view.setLayoutManager(gridLayoutManager);
 
+        mediaObjects = new ArrayList<>();
         profileItems = new ArrayList<>();
         postList = new ArrayList<>();
 
@@ -144,104 +156,128 @@ public class ProfileFragment extends Fragment {
                 .build();
 
         client.newCall(UserPostsRequest).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                String mMessage = e.getMessage().toString();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    String mMessage = e.getMessage().toString();
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        Log.e("failure Response", mMessage);
                     }
-                });
-                Log.e("failure Response", mMessage);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String mMessage = response.body().string();
-                JSONObject array = null;
-                try {
-                    array = new JSONObject(mMessage);
-                    JSONObject data = array.getJSONObject("data");
-                    userData = data.getJSONObject("user_data");
-                    name = userData.getString("name");
-                    following = userData.getString("following");
-                    followers = userData.getString("followers");
-                    favourites = userData.getString("favourites");
-                    avatar = userData.getString("avatar");
-                    fname = userData.getString("fname");
-                    lname = userData.getString("lname");
-                    about = userData.getString("about");
-                    website = userData.getString("website");
-
-                    JSONArray userPosts = data.getJSONArray("user_posts");
-
-                    for (int i = 0; i < userPosts.length(); i++) {
-                        JSONObject post = userPosts.getJSONObject(i);
-                        JSONArray postMedia = post.getJSONArray("media_set");
-                        String postImageLink = postMedia.getString(0).split("diy")[1]
-                                .substring(3).split("\\.")[0].substring(1).replace("\\","");
-                        String extension = postMedia.getString(0).split("diys")[1]
-                                .substring(3).split("\\.")[1].substring(0,3);
-
-                        Log.e("PrFApiResponse", mMessage);
-                        profileItems.add(new ProfileItem(
-                                postImageLink+"."+extension
-                        ));
-
-                                postList.add(new Post(
-                                        post.getString("description"),
-                                        post.getString("time_text"),
-                                        post.getString("username"),
-                                        post.getString("avatar"),
-                                        postImageLink+"."+extension,
-                                        post.getString("likes"),
-                                        post.getString("comments"),
-                                        post.getString("is_liked"),
-                                        post.getString("is_saved"),
-                                        post.getString("post_id"),
-                                        post.getString("user_id"),
-                                        name, following, followers,
-                                        favourites, about, website,
-                                        "false"
-                                ));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        if(followers.equals("false")){
-                            followers = "0";
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    final String mMessage = response.body().string();
+                    JSONObject array = null;
+                    try {
+                        array = new JSONObject(mMessage);
+                        JSONObject data = array.getJSONObject("data");
+                        userData = data.getJSONObject("user_data");
+                        name = userData.getString("name");
+                        following = userData.getString("following");
+                        followers = userData.getString("followers");
+                        favourites = userData.getString("favourites");
+                        avatar = userData.getString("avatar");
+                        fname = userData.getString("fname");
+                        lname = userData.getString("lname");
+                        about = userData.getString("about");
+                        website = userData.getString("website");
+
+                        JSONArray userPosts = data.getJSONArray("user_posts");
+
+                        for (int i = 0; i < userPosts.length(); i++) {
+                            JSONObject post = userPosts.getJSONObject(i);
+                            JSONArray postMedia = post.getJSONArray("media_set");
+                            String postImageLink = postMedia.getString(0).split("diy")[1]
+                                    .substring(3).split("\\.")[0].substring(1).replace("\\","");
+                            String extension = postMedia.getString(0).split("diys")[1]
+                                    .substring(3).split("\\.")[1].substring(0,3);
+
+                            Log.e("PrFApiResponse", mMessage);
+                            profileItems.add(new ProfileItem(
+                                    postImageLink+"."+extension
+                            ));
+
+                            postList.add(new Post(
+                                    post.getString("description"),
+                                    post.getString("time_text"),
+                                    post.getString("username"),
+                                    post.getString("avatar"),
+                                    postImageLink+"."+extension,
+                                    post.getString("likes"),
+                                    post.getString("comments"),
+                                    post.getString("is_liked"),
+                                    post.getString("is_saved"),
+                                    post.getString("post_id"),
+                                    post.getString("user_id"),
+                                    name, following, followers,
+                                    favourites, about, website,
+                                    "false"
+                            ));
+                            mediaObjects.add(new MediaObject(
+                                    post.getString("description"),
+                                    post.getString("time_text"),
+                                    post.getString("username"),
+                                    post.getString("avatar"),
+                                    postImageLink+"."+extension,
+                                    post.getString("likes"),
+                                    post.getString("comments"),
+                                    post.getString("is_liked"),
+                                    post.getString("is_saved"),
+                                    post.getString("post_id"),
+                                    post.getString("user_id"),
+                                    name, following, followers,
+                                    favourites, about, website,
+                                    "false"
+                            ));
                         }
-                        if(following.equals("false")){
-                            following = "0";
-                        }
-                        if(favourites.equals("false")){
-                            favourites = "0";
-                        }
-                        textViewFullname.setText(name);
-                        textViewDescription.setText(about);
-                        textViewNumberFollowing.setText(following);
-                        textViewNumberFollowers.setText(followers);
-                        textViewNumberFavorites.setText(favourites);
-                        Glide.with(getActivity().getApplicationContext()).load(avatar)
-                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                                .into(imageViewProfile);
-                        adapterGrid = new ProfileAdapter(getContext(), postList, access_token);
-                        recycler_view.setAdapter(adapterGrid);
-                        adapterLinear = new PostAdapter(getContext(),
-                                        postList,
-                                        getActivity().getIntent().getStringExtra("access_token"),
-                                user_id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                });
-            }
-        });
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            if(followers.equals("false")){
+                                followers = "0";
+                            }
+                            if(following.equals("false")){
+                                following = "0";
+                            }
+                            if(favourites.equals("false")){
+                                favourites = "0";
+                            }
+                            textViewFullname.setText(name);
+                            textViewDescription.setText(about);
+                            textViewNumberFollowing.setText(following);
+                            textViewNumberFollowers.setText(followers);
+                            textViewNumberFavorites.setText(favourites);
+                            Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                    .into(imageViewProfile);
+                            adapterGrid = new ProfileAdapter(getContext(), postList,access_token);
+                            recycler_view.setAdapter(adapterGrid);
+
+                            mRecyclerView.setMediaObjects(mediaObjects);
+                            Videoadapter = new VideoPlayerRecyclerAdapter(mediaObjects,
+                                    initGlide(),getContext(), access_token,user_id);
+                            adapterLinear = new PostAdapter(getContext(),
+                                    postList,
+                                    getActivity().getIntent().getStringExtra("access_token"),
+                                    user_id);
+                        }
+                    });
+                    }
+                }
+            });
+
         /*E/ApiResponseProfilePosts: {"code":"200",
                                         "status":"OK",
                                         "data":{
@@ -506,15 +542,18 @@ public class ProfileFragment extends Fragment {
         imageButtonList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recycler_view.setAdapter(adapterLinear);
-                recycler_view.setLayoutManager(linearLayoutManager);
+                mRecyclerView.setLayoutManager(linearLayoutManager);
+                recycler_view.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
+                mRecyclerView.setAdapter(Videoadapter);
             }
         });
         imageButtonGrid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recycler_view.setHasFixedSize(true);
                 recycler_view.setLayoutManager(gridLayoutManager);
+                recycler_view.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.GONE);
                 recycler_view.setAdapter(adapterGrid);
 
             }
@@ -580,6 +619,15 @@ public class ProfileFragment extends Fragment {
         return itemView;
     }
 
+    private RequestManager initGlide(){
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.white_background)
+                .error(R.drawable.white_background);
+
+        return Glide.with(this)
+                .setDefaultRequestOptions(options);
+    }
+
     @Override
     public void onResume(){
         super.onResume();
@@ -588,12 +636,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
+                if(isAdded()){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
                 Log.e("failure Response", mMessage);
             }
 

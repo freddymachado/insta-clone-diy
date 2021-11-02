@@ -317,6 +317,15 @@
                 android:layout_height="match_parent"
                 android:id="@+id/recyclerView"
                 android:layout_below="@+id/appBar"/>
+        <com.gvm.diy.adapter.VideoPlayerRecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:clipToPadding="false">
+
+        </com.gvm.diy.adapter.VideoPlayerRecyclerView>
 
     </com.madapps.liquid.LiquidRefreshLayout>
     </LinearLayout>

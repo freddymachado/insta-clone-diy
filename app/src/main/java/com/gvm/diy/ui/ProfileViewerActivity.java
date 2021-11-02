@@ -24,13 +24,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.MyBounceInterpolator;
 import com.gvm.diy.R;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.adapter.ProfileAdapter;
+import com.gvm.diy.adapter.VideoPlayerRecyclerAdapter;
+import com.gvm.diy.adapter.VideoPlayerRecyclerView;
+import com.gvm.diy.models.MediaObject;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.models.ProfileItem;
+import com.gvm.diy.utils.VerticalSpacingItemDecorator;
 import com.madapps.liquid.LiquidRefreshLayout;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -82,6 +87,9 @@ public class ProfileViewerActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     LiquidRefreshLayout refreshLayout;
+    ArrayList<MediaObject> mediaObjects;
+    private VideoPlayerRecyclerView mRecyclerView;
+    VideoPlayerRecyclerAdapter Videoadapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +139,10 @@ public class ProfileViewerActivity extends AppCompatActivity {
             buttonFollowing.setText("Follow");            
         }
         recyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView = findViewById(R.id.recycler_view);
+        VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(10);
+        mRecyclerView.addItemDecoration(itemDecorator);
+
 
         gridLayoutManager = new GridLayoutManager(getApplicationContext(),2,GridLayoutManager.VERTICAL,false);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -138,6 +150,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(gridLayoutManager);
 
+
+        mediaObjects = new ArrayList<>();
         profileItems = new ArrayList<>();
         postList = new ArrayList<>();
 
@@ -182,10 +196,11 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String mMessage = response.body().string();
+                final String mMessage1 = response.body().string();
                 JSONObject array = null;
+                Log.e("ProfileViewer Response", mMessage1);
                 try {
-                    array = new JSONObject(mMessage);
+                    array = new JSONObject(mMessage1);
                     JSONObject data = array.getJSONObject("data");
                     userData = data.getJSONObject("user_data");
                     following = userData.getString("following");
@@ -227,6 +242,22 @@ public class ProfileViewerActivity extends AppCompatActivity {
                                         favourites, about, web,
                                         isFollowingN
                                 ));
+                        mediaObjects.add(new MediaObject(
+                                post.getString("description"),
+                                post.getString("time_text"),
+                                post.getString("username"),
+                                post.getString("avatar"),
+                                postImageLink+"."+extension,
+                                post.getString("likes"),
+                                post.getString("comments"),
+                                post.getString("is_liked"),
+                                post.getString("is_saved"),
+                                post.getString("post_id"),
+                                post.getString("user_id"),
+                                name, following, followers,
+                                favourites, about, website,
+                                "false"
+                        ));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -236,8 +267,13 @@ public class ProfileViewerActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
-                        adapterGrid = new ProfileAdapter(ProfileViewerActivity.this, postList, access_token);
+                        adapterGrid = new ProfileAdapter(ProfileViewerActivity.this, postList,access_token);
                         recyclerView.setAdapter(adapterGrid);
+
+                        mRecyclerView.setMediaObjects(mediaObjects);
+                        Videoadapter = new VideoPlayerRecyclerAdapter(mediaObjects,
+                                initGlide(),ProfileViewerActivity.this, access_token,user_id);
+
                         adapterLinear = new PostAdapter(ProfileViewerActivity.this,
                                         postList,
                                         access_token, user_id);
@@ -429,6 +465,15 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 });
     }
 
+    private RequestManager initGlide(){
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.white_background)
+                .error(R.drawable.white_background);
+
+        return Glide.with(this)
+                .setDefaultRequestOptions(options);
+    }
+
     public void postClick(View view) {
 
         //Cargamos la animcion del boton
@@ -452,6 +497,8 @@ public class ProfileViewerActivity extends AppCompatActivity {
 
             case R.id.imageButtonGrid:
                 recyclerView.setLayoutManager(gridLayoutManager);
+                recyclerView.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.GONE);
                 recyclerView.setAdapter(adapterGrid);
                 break;
 
@@ -463,8 +510,10 @@ public class ProfileViewerActivity extends AppCompatActivity {
                 break;
 
             case R.id.imageButtonList:
-                recyclerView.setLayoutManager(linearLayoutManager);
-                recyclerView.setAdapter(adapterLinear);
+                mRecyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
+                mRecyclerView.setAdapter(Videoadapter);
                 break;
 
 

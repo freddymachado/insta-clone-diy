@@ -21,11 +21,18 @@ import com.android.volley.Response;*/
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.gvm.diy.adapter.PostAdapter;
 import com.gvm.diy.R;
+import com.gvm.diy.adapter.VideoPlayerRecyclerAdapter;
+import com.gvm.diy.adapter.VideoPlayerRecyclerView;
+import com.gvm.diy.models.MediaObject;
 import com.gvm.diy.models.Post;
 import com.gvm.diy.ui.FollowersActivity;
 import com.gvm.diy.ui.SalaChatActivity;
+import com.gvm.diy.utils.VerticalSpacingItemDecorator;
 import com.madapps.liquid.LiquidRefreshLayout;
 
 import org.json.JSONArray;
@@ -62,6 +69,11 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
     LiquidRefreshLayout refreshLayout;
 
     ImageButton imageButtonChat;
+    ArrayList<MediaObject> mediaObjects;
+    private VideoPlayerRecyclerView mRecyclerView;
+    OkHttpClient client;
+    RequestBody requestBody;
+    okhttp3.Request UserPostsRequest;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,13 +91,14 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View itemView = inflater.inflate(R.layout.fragment_home, container, false);
-        recycler_view = itemView.findViewById(R.id.recycler_view);
+
+        mRecyclerView = itemView.findViewById(R.id.recycler_view);
         imageButtonChat = itemView.findViewById(R.id.imageButtonChat);
         progressBar = itemView.findViewById(R.id.progressBar);
         refreshLayout = itemView.findViewById(R.id.refreshLayout);
-
+/*
         recycler_view.setHasFixedSize(true);
-        recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));*/
 
         postList = new ArrayList<>();
 
@@ -155,30 +168,55 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
         Volley.newRequestQueue(getContext()).add(jsonObjectRequest);
 */
         //Iniciamos la solicitud para obtener los datos del usuario
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        client = new OkHttpClient().newBuilder().build();
 
-        RequestBody requestBody = new MultipartBody.Builder()
+        requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("server_key",server_key)
                 .addFormDataPart("access_token",access_token)
                 .build();
 
-        okhttp3.Request UserPostsRequest = new Request.Builder()
+        UserPostsRequest = new Request.Builder()
                 .url("https://diys.co/endpoints/v1/post/fetch_home_posts")
                 .post(requestBody)
                 .build();
 
+        initRecyclerView();
+
+        imageButtonChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentComments = new Intent(getActivity().getApplicationContext(), FollowersActivity.class);
+                intentComments.putExtra("function", "chat");
+                intentComments.putExtra("access_token", access_token);
+                intentComments.putExtra("user_id", user_id);
+                startActivity(intentComments);
+            }
+        });
+
+        return itemView;
+    }
+    private void initRecyclerView(){
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        mRecyclerView.setLayoutManager(layoutManager);
+        VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(10);
+        mRecyclerView.addItemDecoration(itemDecorator);
+
+        mediaObjects = new ArrayList<>();
+        //Iniciamos la solicitud para obtener los datos del usuario
         client.newCall(UserPostsRequest).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
+                if(isAdded()){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
                 //Toast.makeText(ChatScreen.this, "Error uploading file", Toast.LENGTH_LONG).show();
                 Log.e("failure Response", mMessage);
             }
@@ -214,7 +252,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
                         Log.e("HFApiResponse", following+followers+favourites);
 
-                        postList.add(new Post(
+                        mediaObjects.add(new MediaObject(
                                 post.getString("description"),
                                 post.getString("time_text"),
                                 post.getString("username"),
@@ -234,17 +272,19 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                if(isAdded()){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        PostAdapter adapter = new PostAdapter(getContext(),
-                                postList,
-                                getActivity().getIntent().getStringExtra("access_token"), user_id);
-                        recycler_view.setAdapter(adapter);
-                    }
-                });
+                            mRecyclerView.setMediaObjects(mediaObjects);
+                            VideoPlayerRecyclerAdapter adapter = new VideoPlayerRecyclerAdapter(mediaObjects,
+                                    initGlide(),getContext(), access_token,user_id);
+                            mRecyclerView.setAdapter(adapter);
+                        }
+                    });
+                }
             }
         });
 
@@ -255,21 +295,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
             @Override
             public void refreshing() {
-                postList.clear();
+                mediaObjects.clear();
                 //Iniciamos la solicitud para obtener los datos del usuario
-                OkHttpClient client = new OkHttpClient().newBuilder().build();
-
-                RequestBody requestBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("server_key",server_key)
-                        .addFormDataPart("access_token",access_token)
-                        .build();
-
-                okhttp3.Request UserPostsRequest = new Request.Builder()
-                        .url("https://diys.co/endpoints/v1/post/fetch_home_posts")
-                        .post(requestBody)
-                        .build();
-
                 client.newCall(UserPostsRequest).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -316,7 +343,7 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
                                 Log.e("HFApiResponse", following+followers+favourites);
 
-                                postList.add(new Post(
+                                mediaObjects.add(new MediaObject(
                                         post.getString("description"),
                                         post.getString("time_text"),
                                         post.getString("username"),
@@ -341,10 +368,10 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
                             @Override
                             public void run() {
                                 refreshLayout.finishRefreshing();
-                                PostAdapter adapter = new PostAdapter(getContext(),
-                                        postList,
-                                        getActivity().getIntent().getStringExtra("access_token"), user_id);
-                                recycler_view.setAdapter(adapter);
+                                mRecyclerView.setMediaObjects(mediaObjects);
+                                VideoPlayerRecyclerAdapter adapter = new VideoPlayerRecyclerAdapter(mediaObjects,
+                                        initGlide(),getContext(), access_token,user_id);
+                                mRecyclerView.setAdapter(adapter);
                             }
                         });
                     }
@@ -352,19 +379,23 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
             }
         });
+    }
 
-        imageButtonChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentComments = new Intent(getActivity().getApplicationContext(), FollowersActivity.class);
-                intentComments.putExtra("function", "chat");
-                intentComments.putExtra("access_token", access_token);
-                intentComments.putExtra("user_id", user_id);
-                startActivity(intentComments);
-            }
-        });
+    private RequestManager initGlide(){
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.white_background)
+                .error(R.drawable.white_background);
 
-        return itemView;
+        return Glide.with(this)
+                .setDefaultRequestOptions(options);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        if(mRecyclerView!=null)
+            mRecyclerView.releasePlayer();
+        super.onDestroy();
     }
 
     @Override

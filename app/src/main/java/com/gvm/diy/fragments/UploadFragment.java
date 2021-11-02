@@ -184,12 +184,14 @@ public class UploadFragment extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
                 String mMessage = e.getMessage().toString();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
-                    }
-                });
+                if(isAdded()){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity().getApplicationContext(), "Revisa tu conexión e inténtalo de nuevo: "+mMessage, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
                 Log.e("failure Response", mMessage);
             }
 
@@ -210,15 +212,17 @@ public class UploadFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textViewName.setText(name);
-                        Glide.with(getActivity().getApplicationContext()).load(avatar)
-                                .apply(new RequestOptions().placeholder(R.drawable.placeholder))
-                                .into(roundedImageViewAvatar);
-                    }
-                });
+                if(isAdded()){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewName.setText(name);
+                            Glide.with(getActivity().getApplicationContext()).load(avatar)
+                                    .apply(new RequestOptions().placeholder(R.drawable.placeholder))
+                                    .into(roundedImageViewAvatar);
+                        }
+                    });
+                }
             }
         });
 
@@ -252,21 +256,25 @@ public class UploadFragment extends Fragment {
                 public void onRequestProgress(long bytesRead, long contentLength) {
                     if (bytesRead >= contentLength) {
                         if (progressBar != null)
-                            getActivity().runOnUiThread(new Runnable() {
-                                public void run() {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            });
+                            if(isAdded()){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
                     } else {
                         if (contentLength > 0) {
                             final int progress = (int) (((double) bytesRead / contentLength) * 100);
                             if (progressBar != null)
-                                getActivity().runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        progressBar.setVisibility(View.VISIBLE);
-                                        progressBar.setProgress(progress);
-                                    }
-                                });
+                                if(isAdded()){
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            progressBar.setProgress(progress);
+                                        }
+                                    });
+                                }
 
                             if(progress >= 100){
                                 progressBar.setVisibility(View.GONE);
@@ -308,13 +316,15 @@ public class UploadFragment extends Fragment {
                 public void onFailure(Call call, IOException e) {
                     String mMessage = e.getMessage().toString();
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    }
                     Log.e("failure Response", mMessage);
                 }
 
@@ -322,16 +332,18 @@ public class UploadFragment extends Fragment {
                 public void onResponse(Call call, Response response) throws IOException {
                     final String mMessage = response.body().string();
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("UploadResponse", mMessage);
-                            progressBar.setVisibility(View.GONE);
-                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                            fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
-                            fragmentTransaction.commit();
-                        }
-                    });
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.e("UploadResponse", mMessage);
+                                progressBar.setVisibility(View.GONE);
+                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
+                                fragmentTransaction.commit();
+                            }
+                        });
+                    }
                 }
             });
 
@@ -387,21 +399,25 @@ public class UploadFragment extends Fragment {
                 public void onRequestProgress(long bytesRead, long contentLength) {
                     if (bytesRead >= contentLength) {
                         if (progressBar != null)
-                            getActivity().runOnUiThread(new Runnable() {
-                                public void run() {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            });
+                            if(isAdded()){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
                     } else {
                         if (contentLength > 0) {
                             final int progress = (int) (((double) bytesRead / contentLength) * 100);
                             if (progressBar != null)
-                                getActivity().runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        progressBar.setVisibility(View.VISIBLE);
-                                        progressBar.setProgress(progress);
-                                    }
-                                });
+                                if(isAdded()){
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            progressBar.setProgress(progress);
+                                        }
+                                    });
+                                }
 
                             if(progress >= 100){
                                 progressBar.setVisibility(View.GONE);
@@ -441,13 +457,15 @@ public class UploadFragment extends Fragment {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String mMessage = e.getMessage().toString();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity().getApplicationContext(), "Error de red", Toast.LENGTH_LONG).show();
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    }
                     Log.e("failure Response", mMessage);
                 }
 
@@ -455,16 +473,18 @@ public class UploadFragment extends Fragment {
                 public void onResponse(Call call, Response response) throws IOException {
                     final String mMessage = response.body().string();
                     Log.e("Upload Response", mMessage);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity().getApplicationContext(), "Realizado", Toast.LENGTH_LONG).show();
-                            progressBar.setVisibility(View.GONE);
-                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                            fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
-                            fragmentTransaction.commit();
-                        }
-                    });
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity().getApplicationContext(), "Realizado", Toast.LENGTH_LONG).show();
+                                progressBar.setVisibility(View.GONE);
+                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
+                                fragmentTransaction.commit();
+                            }
+                        });
+                    }
                 }
             });
 

@@ -102,7 +102,7 @@ public class VideoPlayerRecyclerView extends RecyclerView {
         screenDefaultHeight = point.y;
 
         videoSurfaceView = new PlayerView(this.context);
-        videoSurfaceView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
+        videoSurfaceView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
 
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
