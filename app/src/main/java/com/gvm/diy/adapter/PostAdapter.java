@@ -354,7 +354,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                     });
                                     break;
                                 case 1:
-                                    //TODO:Diseño pantalla editPost (puede ser la misma FollowActivity)
                                     break;
                                 case 2:
                                     //postListener.postImageOnClick(v,position);
@@ -380,7 +379,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                     mContext.startActivity(intentPostViewer);
                                     break;
                                 case 3:
-                                    //TODO: Probar cuando pueda debuggear con varios users
                                     client = new OkHttpClient.Builder().build();
                                     body = new MultipartBody.Builder()
                                             .setType(MultipartBody.FORM)
@@ -456,7 +454,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
                                     mContext.startActivity(intentPostViewer);
                                     break;
                                 case 1:
-                                    //TODO: Probar cuando pueda debuggear con varios users
                                     OkHttpClient client = new OkHttpClient.Builder().build();
                                     body = new MultipartBody.Builder()
                                             .setType(MultipartBody.FORM)

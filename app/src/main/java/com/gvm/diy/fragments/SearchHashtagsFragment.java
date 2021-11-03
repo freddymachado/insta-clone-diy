@@ -70,62 +70,6 @@ public class SearchHashtagsFragment extends Fragment implements Updateable {
 
         //Iniciamos la solicitud para obtener los datos del usuario
         client = new OkHttpClient().newBuilder().build();
-        /*
-        hash = ((SearchFragment)getParentFragment()).getData();
-        Log.e("editTextHash",hash);
-
-        requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("server_key",server_key)
-                .addFormDataPart("hash",hash)
-                .addFormDataPart("access_token",access_token)
-                .build();
-
-        UserPostsRequest = new Request.Builder()
-                .url("https://diys.co/endpoints/v1/post/fetch_hash_posts")
-                .post(requestBody)
-                .build();
-
-        client.newCall(UserPostsRequest).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                String mMessage = e.getMessage().toString();
-                Toast.makeText(getActivity().getApplicationContext(), "Error de red: "+mMessage, Toast.LENGTH_LONG).show();
-                Log.e("failure Response", mMessage);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String mMessage = response.body().string();
-                //TODO: Verificar respuesta para obtener los datos
-                Log.e("ApiResponse", mMessage);
-                JSONObject array = null;
-                try {
-                    array = new JSONObject(mMessage);
-                    JSONObject data = array.getJSONObject("data");
-
-                    JSONArray userPosts = data.getJSONArray("user_posts");
-                    JSONObject file = new JSONObject();
-
-                    for (int i = 0; i < userPosts.length(); i++) {
-                        JSONObject post = userPosts.getJSONObject(i);
-                        JSONArray postMedia = post.getJSONArray("media_set");
-                        //Por alguna razón el jsonArray postMedia tiene la info en string plano.
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        FollowAdapter adapter = new FollowAdapter(getActivity().getApplicationContext(),
-                                followItems, access_token);
-                        recycler_view.setAdapter(adapter);
-                    }
-                });
-            }
-        });*/
         return itemView;
     }
 

@@ -50,7 +50,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 
 public class SearchFragment extends Fragment {
-    // TODO: Hacer 2do recycler al pulsar la búsqueda (last entrega)
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String TAG ="SearchFragment";
 

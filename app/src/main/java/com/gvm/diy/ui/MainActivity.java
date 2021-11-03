@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         CircleMenu menu = (CircleMenu) findViewById(R.id.circleMenu);
 
-        menu.setMainMenu(Color.parseColor("#454859"),R.drawable.ic_add,R.drawable.ic_close_black_24dp)
+        menu.setMainMenu(Color.parseColor("#454859"),R.drawable.ic_add,R.drawable.ic_baseline_highlight_off_24)
                 .addSubMenu(Color.parseColor("#454859"),R.drawable.ic_baseline_add_photo_alternate_24)
                 .addSubMenu(Color.parseColor("#454859"),R.drawable.ic_baseline_videocam_24)
                 .setOnMenuSelectedListener(new OnMenuSelectedListener() {
@@ -494,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     })
                     .build();
-            //TODO: Probar Subir Videos, crear el flujo de subida y mejorar UI (last entrega)
+            //TODO: mejorar UX (last entrega)
             Request request = new Request.Builder()
                     .url("https://diys.co/endpoints/v1/post/new_post")
                     .post(requestBody)

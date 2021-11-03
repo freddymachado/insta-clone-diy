@@ -383,8 +383,8 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 
     private RequestManager initGlide(){
         RequestOptions options = new RequestOptions()
-                .placeholder(R.drawable.white_background)
-                .error(R.drawable.white_background);
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder);
 
         return Glide.with(this)
                 .setDefaultRequestOptions(options);
