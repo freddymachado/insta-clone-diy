@@ -44,11 +44,12 @@ public class SettingsActivity extends AppCompatActivity {
         list= new ArrayList<>();
         list.add(new Settings(R.drawable.ic_baseline_settings_24,"General"));
         list.add(new Settings(R.drawable.ic_baseline_person_pin_24,"Perfil"));
-        list.add(new Settings(R.drawable.ic_baseline_vpn_key_24,"Cambiar conntraseña"));
         list.add(new Settings(R.drawable.ic_baseline_remove_red_eye_24,"Privacidad"));
         list.add(new Settings(R.drawable.ic_baseline_notifications_24,"Notificaciones"));
-        list.add(new Settings(R.drawable.ic_baseline_fingerprint_24,"Gestionar sesiones"));
-        list.add(new Settings(R.drawable.ic_baseline_work_24,"Cuenta de negocios"));
+        list.add(new Settings(R.drawable.ic_baseline_highlight_off_24,"Usuarios Bloqueados"));
+        list.add(new Settings(R.drawable.ic_baseline_delete_24,"Borrar Cuenta"));
+        list.add(new Settings(R.drawable.ic_baseline_bedtime_24,"Tema"));
+        list.add(new Settings(R.drawable.ic_baseline_exit_to_app_24,"Salir"));
         //TODO: Qué cantidad de items se requieren?
         return list;
     }
