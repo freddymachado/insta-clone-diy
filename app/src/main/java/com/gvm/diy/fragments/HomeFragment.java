@@ -99,7 +99,6 @@ public class HomeFragment extends Fragment implements PostAdapter.PostListener{
 /*
         recycler_view.setHasFixedSize(true);
         recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));*/
-
         postList = new ArrayList<>();
 
         // Get the Intent that started this activity and extract the string

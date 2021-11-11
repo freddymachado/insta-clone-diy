@@ -94,7 +94,7 @@ public class FollowAdapter extends RecyclerView.Adapter<FollowAdapter.FollowView
         }else{
             holder.setProfileImageView(followItems.get(position));
             holder.textViewName.setText(followItem.getUsername());
-            holder.textViewLastSeen.setText("Última visita hace "+followItem.getTime_text().split(" ")[0]+" días");
+            holder.textViewLastSeen.setText("Última visita hace "+followItem.getTime_text().split(" ")[0]+" "+followItem.getTime_text().split(" ")[1]);
 
 
             Log.e("userid", followItem.getUser_id());

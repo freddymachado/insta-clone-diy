@@ -19,14 +19,12 @@ public class TextViewHolder extends BaseViewHolder {
 
     @Override
     public void setData(TimelineItem item) {
-
         TextItem textItem = item.getTextItem();
         mensaje.setText(textItem.getText());
         Long codigoHora = textItem.getTime();
         Date d = new Date(codigoHora);
         SimpleDateFormat today = new SimpleDateFormat("hh:mm a");//a = pm o am
         hora.setText(today.format(d));
-
     }
 
     public TextViewHolder(@NonNull View itemView) {

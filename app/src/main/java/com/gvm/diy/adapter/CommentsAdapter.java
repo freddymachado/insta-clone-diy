@@ -231,7 +231,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         holder.textViewLikes.setText("Me gusta("+commentsItem.getLikes()+")");
         holder.textViewComment.setText(commentsItem.getText());
-        holder.textViewTime.setText("Hace "+commentsItem.getTime_text().split(" ")[0]+" días");
+        holder.textViewTime.setText("Hace "+commentsItem.getTime_text().split(" ")[0]+" "+commentsItem.getTime_text().split(" ")[1]);
     }
 
     @Override

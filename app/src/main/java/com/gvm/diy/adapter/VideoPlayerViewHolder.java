@@ -42,6 +42,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -127,8 +129,12 @@ public class VideoPlayerViewHolder extends RecyclerView.ViewHolder {
         description.setText(mediaObject.getDescription());
         username.setText(mediaObject.getUsername());
         like.setText(mediaObject.getLikes()+" likes");
-        comment.setText(commentsArray.length()+" comments");
-        time.setText("Hace "+mediaObject.getTime_text().split(" ")[0]+" días");
+        comment.setText(commentsArray.length()+" comments");/*
+        Long codigoHora = mediaObject.getTime();
+        Date d = new Date(codigoHora);
+        SimpleDateFormat today = new SimpleDateFormat("D/MMM/y hh:mm a");//a = pm o am*/
+        //time.setText(today.format(d));
+        time.setText("Hace "+mediaObject.getTime_text().split(" ")[0]+" "+mediaObject.getTime_text().split(" ")[1]);
 
         ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
 

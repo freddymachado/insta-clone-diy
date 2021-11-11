@@ -6,8 +6,9 @@ public class MediaObject {
     private String media_url;
     private String thumbnail;
     private String description;
+    private Long time;
 
-    private String time, username, avatar, file, likes,comments, post_id, user_id;
+    private String username, avatar, file, likes,comments, post_id, user_id;
     private String is_liked, is_saved, website, time_text, name, following,followers, favourites, about, isFollowing;
 
     public MediaObject(String description, String time_text, String username, String avatar, String file, String likes,
@@ -43,11 +44,11 @@ public class MediaObject {
     public MediaObject() {
     }
 
-    public String getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 
