@@ -136,10 +136,11 @@
             android:id="@+id/imageViewFav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:layout_toEndOf="@+id/imageViewReply"
             android:onClick="postClick"
-            android:src="@drawable/ic_baseline_star_outline_24" />
+            android:src="@drawable/ic_baseline_archive_24" />
 
     </RelativeLayout>
 
