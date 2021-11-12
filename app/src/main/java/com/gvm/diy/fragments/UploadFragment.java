@@ -337,6 +337,7 @@ public class UploadFragment extends Fragment {
                             @Override
                             public void run() {
                                 Log.e("UploadResponse", mMessage);
+                                Toast.makeText(getActivity().getApplicationContext(), "Subida exitosa", Toast.LENGTH_LONG).show();
                                 progressBar.setVisibility(View.GONE);
                                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                                 fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());
@@ -477,7 +478,7 @@ public class UploadFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getActivity().getApplicationContext(), "Realizado", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity().getApplicationContext(), "Subida exitosa", Toast.LENGTH_LONG).show();
                                 progressBar.setVisibility(View.GONE);
                                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                                 fragmentTransaction.replace(R.id.fragmentContainer,new HomeFragment());

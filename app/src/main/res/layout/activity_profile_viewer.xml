@@ -239,7 +239,7 @@
                     android:layout_margin="2dp"
                     android:clickable="true"
                     android:onClick="postClick"
-                    android:text="Favoritos"
+                    android:text="Ideas"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
 

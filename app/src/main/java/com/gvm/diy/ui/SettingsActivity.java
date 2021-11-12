@@ -50,7 +50,6 @@ public class SettingsActivity extends AppCompatActivity {
         list.add(new Settings(R.drawable.ic_baseline_delete_24,"Borrar Cuenta"));
         list.add(new Settings(R.drawable.ic_baseline_bedtime_24,"Tema"));
         list.add(new Settings(R.drawable.ic_baseline_exit_to_app_24,"Salir"));
-        //TODO: Qué cantidad de items se requieren?
         return list;
     }
 

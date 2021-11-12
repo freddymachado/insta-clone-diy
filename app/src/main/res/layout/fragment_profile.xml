@@ -200,7 +200,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="2dp"
                             android:clickable="true"
-                            android:text="Favoritos"
+                            android:text="Ideas"
                             android:textColor="@color/white"
                             android:textStyle="bold" />
 
