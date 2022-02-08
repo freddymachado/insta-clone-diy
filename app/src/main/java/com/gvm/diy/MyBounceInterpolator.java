@@ -4,6 +4,7 @@ public class MyBounceInterpolator implements android.view.animation.Interpolator
     private double mAmplitud = 1;
     private double mFrequency = 10;
 
+
     public MyBounceInterpolator(double mAmplitud, double mFrequency) {
         this.mAmplitud = mAmplitud;
         this.mFrequency = mFrequency;
