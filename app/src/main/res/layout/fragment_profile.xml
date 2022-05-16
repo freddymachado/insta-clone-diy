@@ -105,7 +105,7 @@
                         android:layout_width="90dp"
                         android:layout_height="38dp"
                         android:layout_marginEnd="4dp"
-                        android:backgroundTint="@color/com_facebook_blue"
+                        android:backgroundTint="@color/bluee"
                         android:padding="0dp"
                         android:text="Editar Perfil"
                         android:textAllCaps="false"
