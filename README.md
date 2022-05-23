@@ -11,7 +11,7 @@ Insta Clone is an educational project whic tries to reproduce the famous instagr
 
 ## Features
 * Feed
-![feed screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/feed-screenshot.jpg) 
+![feed screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/feed-screenshot.jpg=250x250 “Feed”) 
 
 * Profile
 ![profile screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/profile-screenshot.jpg) 
