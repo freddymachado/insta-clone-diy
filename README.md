@@ -10,11 +10,11 @@
 Insta Clone is an educational project whic tries to reproduce the famous instagram app in android studio  
 
 ## Features
-* Feed
-![feed screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/feed-screenshot.jpg=250x250 “Feed”) 
+* Feed  
+<img src="https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/feed-screenshot.jpg" alt="feed screenshot" height="400">
 
-* Profile
-![profile screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/profile-screenshot.jpg) 
+* Profile  
+<img src="https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/profile-screenshot.jpg" alt="profile screenshot" height="400">
 
-* Search (Hashtags & Users)
-![search screenshot](https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/search-screenshot.jpg) 
+* Search (Hashtags & Users)  
+<img src="https://github.com/freddymachado/insta-clone-diy/blob/master/app/src/main/res/drawable/search-screenshot.jpg" alt="search screenshot" height="400">
